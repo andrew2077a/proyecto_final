@@ -51,4 +51,26 @@ constexpr double META_ALTO = 200;
 constexpr double ANCHO_PANTALLA = 1920;
 constexpr double ALTO_PANTALLA = 1080;
 }
+namespace ParametrosComunes{
+// NORMAL
+constexpr int VIDAS_REI = 5;
+constexpr int DANIO_BASE = 1;
+constexpr double INVULNERABILIDAD = 1.5;
+constexpr double GRAVEDAD = 1500;
+constexpr double VELOCIDAD_MECHA = 300;
+constexpr double VELOCIDAD_SOLDADO = 400;
+constexpr double VELOCIDAD_SALTO = 900;
+constexpr double ANGULO_SALTO = 60;
+}
+namespace comunesDificil {
+// DIFICIL
+constexpr int VIDAS_REI = 3;
+constexpr int DANIO_BASE = 1;
+constexpr double INVULNERABILIDAD = 1.0;
+constexpr double GRAVEDAD = 1500;
+constexpr double VELOCIDAD_MECHA = 300;
+constexpr double VELOCIDAD_SOLDADO = 400;
+constexpr double VELOCIDAD_SALTO = 900;
+constexpr double ANGULO_SALTO = 60;
+}
 #endif // DATOS_H
