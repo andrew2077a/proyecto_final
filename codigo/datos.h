@@ -50,6 +50,7 @@ constexpr double META_ALTO = 200;
 // Pantalla logica
 constexpr double ANCHO_PANTALLA = 1920;
 constexpr double ALTO_PANTALLA = 1080;
+constexpr double ESPERA_FIN=100;
 }
 namespace ParametrosComunes{
 // NORMAL
