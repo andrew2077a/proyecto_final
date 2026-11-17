@@ -74,4 +74,8 @@ constexpr double VELOCIDAD_SOLDADO = 400;
 constexpr double VELOCIDAD_SALTO = 900;
 constexpr double ANGULO_SALTO = 60;
 }
+namespace Rutas {
+constexpr const char* CARPETA_SPRITES = ":/sprites/";
+constexpr const char* EXTENSION_SPRITES = ".png";
+}
 #endif // DATOS_H
