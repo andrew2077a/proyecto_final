@@ -38,4 +38,4 @@ public:
     Fisica* getFisica() const;
 };
 
-#endif // ENTIDAD_H
+#endif
