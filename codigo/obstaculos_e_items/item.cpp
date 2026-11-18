@@ -1,6 +1,5 @@
 #include "item.h"
 #include "entidades/rei.h"
-
 namespace {
 TipoSprite spriteDe(TipoItem tipo) {
     switch (tipo) {
