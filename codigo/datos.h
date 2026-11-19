@@ -77,7 +77,18 @@ constexpr double ANGULO_SALTO = 60;
 namespace Rutas {
 constexpr const char* CARPETA_SPRITES = ":/sprites/";
 constexpr const char* EXTENSION_SPRITES = ".png";
+constexpr const char* ARCHIVO_NIVEL2 = ":/maps/mundo.txt";
+
 }
+namespace Nivel2Mundo {
+constexpr double REI_INICIO_X = 100;
+constexpr double Y_SUELO = 900;
+constexpr double ANCHO_MUNDO = 15360;        // 8 pantallas de 1920
+constexpr double META_X = ANCHO_MUNDO - Tamanio::META_ANCHO - 100;
+constexpr double MARGEN_APARICION_BALA = 100;    // px a la izquierda de la camara
+constexpr double ALTURA_APARICION_BOMBA = -200;  // y por encima de la pantalla
+}
+
 namespace Nivel2Normal {
 constexpr double TIEMPO_LIMITE = 180;
 constexpr double INTERVALO_BOMBA = 4;
@@ -95,6 +106,7 @@ constexpr double DURACION_GASEOSA = 8;
 constexpr double MULT_VELOCIDAD_GASEOSA = 0.5;
 constexpr double ESPERA_PUAS = 1;
 }
+
 namespace Nivel2Dificil {
 constexpr double TIEMPO_LIMITE = 150;
 constexpr double INTERVALO_BOMBA = 4;
