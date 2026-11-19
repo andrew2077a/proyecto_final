@@ -77,4 +77,8 @@ int Razonamiento::decidir() const {
         }
     }
     return numZonas - 1;   // por redondeo, la suma puede quedar apenas bajo 1
+
 }
+
+
+

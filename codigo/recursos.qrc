@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/maps">
+        <file>mundo.txt</file>
+    </qresource>
+</RCC>
