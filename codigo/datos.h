@@ -50,5 +50,66 @@ constexpr double META_ALTO = 200;
 // Pantalla logica
 constexpr double ANCHO_PANTALLA = 1920;
 constexpr double ALTO_PANTALLA = 1080;
+constexpr double ESPERA_FIN=100;
+}
+namespace ParametrosComunes{
+// NORMAL
+constexpr int VIDAS_REI = 5;
+constexpr int DANIO_BASE = 1;
+constexpr double INVULNERABILIDAD = 1.5;
+constexpr double GRAVEDAD = 1500;
+constexpr double VELOCIDAD_MECHA = 300;
+constexpr double VELOCIDAD_SOLDADO = 400;
+constexpr double VELOCIDAD_SALTO = 900;
+constexpr double ANGULO_SALTO = 60;
+}
+namespace comunesDificil {
+// DIFICIL
+constexpr int VIDAS_REI = 3;
+constexpr int DANIO_BASE = 1;
+constexpr double INVULNERABILIDAD = 1.0;
+constexpr double GRAVEDAD = 1500;
+constexpr double VELOCIDAD_MECHA = 300;
+constexpr double VELOCIDAD_SOLDADO = 400;
+constexpr double VELOCIDAD_SALTO = 900;
+constexpr double ANGULO_SALTO = 60;
+}
+namespace Rutas {
+constexpr const char* CARPETA_SPRITES = ":/sprites/";
+constexpr const char* EXTENSION_SPRITES = ".png";
+}
+namespace Nivel2Normal {
+constexpr double TIEMPO_LIMITE = 180;
+constexpr double INTERVALO_BOMBA = 4;
+constexpr int NUM_BOMBAS = 1;
+constexpr double RANGO_CAIDA_BOMBA = 200;
+constexpr double RADIO_DANIO_BOMBA = 60;
+constexpr double RADIO_EMPUJE_BOMBA = 150;
+constexpr double FUERZA_EMPUJE = 400;
+constexpr double AMORTIGUAMIENTO_EMPUJE = 3;
+constexpr double INTERVALO_BALA_LATERAL = 5;
+constexpr int NUM_BALAS_LATERALES = 1;
+constexpr double VELOCIDAD_BALA = 500;
+constexpr double VELOCIDAD_CAMION_PATRULLA = 120;
+constexpr double DURACION_GASEOSA = 8;
+constexpr double MULT_VELOCIDAD_GASEOSA = 0.5;
+constexpr double ESPERA_PUAS = 1;
+}
+namespace Nivel2Dificil {
+constexpr double TIEMPO_LIMITE = 150;
+constexpr double INTERVALO_BOMBA = 4;
+constexpr int NUM_BOMBAS = 2;
+constexpr double RANGO_CAIDA_BOMBA = 100;
+constexpr double RADIO_DANIO_BOMBA = 60;
+constexpr double RADIO_EMPUJE_BOMBA = 150;
+constexpr double FUERZA_EMPUJE = 400;
+constexpr double AMORTIGUAMIENTO_EMPUJE = 3;
+constexpr double INTERVALO_BALA_LATERAL = 4;
+constexpr int NUM_BALAS_LATERALES = 2;
+constexpr double VELOCIDAD_BALA = 600;
+constexpr double VELOCIDAD_CAMION_PATRULLA = 200;
+constexpr double DURACION_GASEOSA = 8;
+constexpr double MULT_VELOCIDAD_GASEOSA = 0.5;
+constexpr double ESPERA_PUAS = 1;
 }
 #endif // DATOS_H

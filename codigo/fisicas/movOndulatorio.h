@@ -4,8 +4,7 @@
 #include "fisicas/fisica.h"
 //   x = x0 + vx * t
 //   y = y0 + A * sen(w * t + fase)      (y0 es la linea central de la onda)
-class MovOndulatorio : public Fisica
-{
+class MovOndulatorio : public Fisica{
 private:
     double vx;
     double amplitud;

@@ -1,7 +1,7 @@
 #ifndef FISICA_H
 #define FISICA_H
-class Fisica
-{
+class Fisica{
+
 protected:
     double x0;
     double y0;
