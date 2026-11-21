@@ -1,8 +1,8 @@
 #ifndef NIVEL1_H
 #define NIVEL1_H
 #include "nucleo/nivel.h"
-#include "entidades/Monstruo.h"
 
+class Monstruo;
 struct ParamsNivel1{
     int vidaMonstruo;
     double umbralFase1 ;

@@ -8,7 +8,7 @@ Nivel1::Nivel1(ModoDificultad modo):Nivel(modo){
 }
 
 Nivel1::~Nivel1(){
-    delete moustro;
+    delete monstruo;
 }
 
 void Nivel1::cargarParametros() {
@@ -97,7 +97,7 @@ void Nivel1::cargarParametros() {
 
 void Nivel1::iniciar(){
     rei= new Rei(ModoRei::MECHA,comunes,params,Nivel1Init::REI_INICIO_X,Nivel1Init::Y_SUELO);
-    moustro= new Moustro(Nivel1Init::MOUSTRO_INICIO_X,Nivel1Init::MOUSTRO_INICIO_Y,params,comunes.gravedad);
+    monstruo= new Monstruo(Nivel1Init::MOUSTRO_INICIO_X,Nivel1Init::MOUSTRO_INICIO_Y,params,comunes.gravedad);
 }
 
 void Nivel2::actualizar(double dt){

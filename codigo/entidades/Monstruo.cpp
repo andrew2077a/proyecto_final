@@ -41,7 +41,7 @@ bool cumplido(double transcurrido, double intervalo) {
 }
 }
 
-Monstruo::Monstruo(double x, double y, const Nivel1::ParamsNivel1& p1, double gravedad)
+Monstruo::Monstruo(double x, double y, const ParamsNivel1& p1, double gravedad)
     : Entidad(x, y, Tamanio::MONSTRUO_ANCHO, Tamanio::MONSTRUO_ALTO, TipoSprite::MONSTRUO),
     percepcion(nullptr), razonamiento(nullptr), accion(nullptr), aprendizaje(nullptr),
     ultimaZona(-1), vida(p1.vidaMonstruo), params(&p1), fase(1), vidaMax(p1.vidaMonstruo),
