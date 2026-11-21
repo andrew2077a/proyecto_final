@@ -124,4 +124,83 @@ constexpr double DURACION_GASEOSA = 8;
 constexpr double MULT_VELOCIDAD_GASEOSA = 0.5;
 constexpr double ESPERA_PUAS = 1;
 }
+
+namespace Nivel1Init {
+constexpr double REI_INICIO_X = 100;
+constexpr double Y_SUELO = 900;
+constexpr double ANCHO_MUNDO = 15360;
+constexpr double MOUSTRO_INICIO_X=1500;
+constexpr double MOUSTRO_INICIO_Y=900;
+}
+namespace Nivel1Normal {
+constexpr int VIDA_MONSTRUO = 30;
+constexpr double UMBRAL_FASE1 = 0.66;
+constexpr double UMBRAL_FASE2 = 0.33;
+constexpr double INTERVALO_PARABOLICO = 3;
+constexpr double INTERVALO_ONDULATORIO = 6;
+constexpr double TIEMPO_CARGA = 1.0;
+constexpr int ATAQUES_COMBINADOS_MIN = 2;
+constexpr int ATAQUES_COMBINADOS_MAX = 3;
+constexpr bool ATAQUES_DOBLES = false;
+constexpr bool ESCUDO_MONSTRUO = false;
+constexpr double UMBRAL_ESCUDO_1 = 0.75;
+constexpr double UMBRAL_ESCUDO_2 = 0.50;
+constexpr double UMBRAL_ESCUDO_3 = 0.25;
+constexpr double DURACION_ESCUDO = 10;
+constexpr bool ESTALLIDO_ACTIVO = false;
+constexpr int PUAS_MIN = 6;
+constexpr int PUAS_MAX = 8;
+constexpr double INTERVALO_ESTALLIDO = 8;
+constexpr int NUM_ZONAS = 3;
+constexpr double FACTOR_OLVIDO = 0.80;
+constexpr double SUAVIZADO_MIN = 0.15;
+constexpr double INTERVALO_CAMION_INICIAL = 4;
+constexpr double VELOCIDAD_CAMION_INICIAL = 250;
+constexpr double RAMPA_CAMIONES = 0.01;
+constexpr double CALOR_MAX = 100;
+constexpr double CALOR_POR_DISPARO = 5;
+constexpr double TIEMPO_RECARGA_CALOR = 2.5;
+constexpr double TIEMPO_BLOQUEO_GOLPE = 2;
+constexpr double CADENCIA_BASE = 0.25;
+constexpr double DURACION_BATERIA = 10;
+constexpr double MULT_CADENCIA_BATERIA = 2;
+constexpr double MULT_VELOCIDAD_BATERIA = 0.6;
+constexpr double INTERVALO_BATERIA = 15;
+}
+
+namespace Nivel1Dificil {
+constexpr int VIDA_MONSTRUO = 30;
+constexpr double UMBRAL_FASE1 = 0.66;
+constexpr double UMBRAL_FASE2 = 0.33;
+constexpr double INTERVALO_PARABOLICO = 2;
+constexpr double INTERVALO_ONDULATORIO = 4;
+constexpr double TIEMPO_CARGA = 0.7;
+constexpr int ATAQUES_COMBINADOS_MIN = 5;
+constexpr int ATAQUES_COMBINADOS_MAX = 6;
+constexpr bool ATAQUES_DOBLES = true;
+constexpr bool ESCUDO_MONSTRUO = true;
+constexpr double UMBRAL_ESCUDO_1 = 0.75;
+constexpr double UMBRAL_ESCUDO_2 = 0.50;
+constexpr double UMBRAL_ESCUDO_3 = 0.25;
+constexpr double DURACION_ESCUDO = 10;
+constexpr bool ESTALLIDO_ACTIVO = true;
+constexpr int PUAS_MIN = 6;
+constexpr int PUAS_MAX = 8;
+constexpr double INTERVALO_ESTALLIDO = 6;
+constexpr int NUM_ZONAS = 5;
+constexpr double FACTOR_OLVIDO = 0.98;
+constexpr double SUAVIZADO_MIN = 0.05;
+constexpr double INTERVALO_CAMION_INICIAL = 3;
+constexpr double VELOCIDAD_CAMION_INICIAL = 350;
+constexpr double RAMPA_CAMIONES = 0.02;
+constexpr double CALOR_MAX = 100;
+constexpr double CALOR_POR_DISPARO = 8.5;
+constexpr double TIEMPO_RECARGA_CALOR = 3.5;
+constexpr double TIEMPO_BLOQUEO_GOLPE = 2;
+constexpr double CADENCIA_BASE = 0.3;
+constexpr double DURACION_BATERIA = 10;
+constexpr double MULT_CADENCIA_BATERIA = 2;
+constexpr double MULT_VELOCIDAD_BATERIA = 0.6;
+constexpr double INTERVALO_BATERIA = 25;
+}
 #endif // DATOS_H

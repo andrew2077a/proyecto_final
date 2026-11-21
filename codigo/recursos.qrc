@@ -2,4 +2,5 @@
     <qresource prefix="/maps">
         <file>mundo.txt</file>
     </qresource>
+    <qresource prefix="/sprites"/>
 </RCC>
