@@ -126,11 +126,19 @@ constexpr double ESPERA_PUAS = 1;
 }
 
 namespace Nivel1Init {
-constexpr double REI_INICIO_X = 100;
+constexpr double ANCHO_MUNDO = Tamanio::ANCHO_PANTALLA;
 constexpr double Y_SUELO = 900;
-constexpr double ANCHO_MUNDO = 15360;
-constexpr double MOUSTRO_INICIO_X=1500;
-constexpr double MOUSTRO_INICIO_Y=900;
+constexpr double REI_INICIO_X = 100;
+constexpr double REI_INICIO_Y = Y_SUELO - Tamanio::REI_MECHA_ALTO;
+constexpr double MONSTRUO_INICIO_X = Tamanio::ANCHO_PANTALLA - Tamanio::MONSTRUO_ANCHO - 50;
+constexpr double MONSTRUO_INICIO_Y = Y_SUELO - Tamanio::MONSTRUO_ALTO;
+constexpr double LIMITE_REI_IZQ = 0;
+constexpr double LIMITE_REI_DER = MONSTRUO_INICIO_X - Tamanio::REI_MECHA_ANCHO;
+constexpr double CAMION_INICIO_X = Tamanio::ANCHO_PANTALLA;
+constexpr double CAMION_INICIO_Y = Y_SUELO - Tamanio::CAMION_ALTO;
+constexpr double BATERIA_Y = Y_SUELO - Tamanio::BATERIA_ALTO;
+constexpr double BATERIA_X_MIN = 300;
+constexpr double BATERIA_X_MAX = LIMITE_REI_DER - Tamanio::BATERIA_ANCHO;
 }
 namespace Nivel1Normal {
 constexpr int VIDA_MONSTRUO = 30;
@@ -151,6 +159,9 @@ constexpr bool ESTALLIDO_ACTIVO = false;
 constexpr int PUAS_MIN = 6;
 constexpr int PUAS_MAX = 8;
 constexpr double INTERVALO_ESTALLIDO = 8;
+constexpr int DANIO_DISPARO = 1;
+constexpr double ANGULO_DISPARO = 45;
+constexpr double VELOCIDAD_MAX_DISPARO = 1600;
 constexpr int NUM_ZONAS = 3;
 constexpr double FACTOR_OLVIDO = 0.80;
 constexpr double SUAVIZADO_MIN = 0.15;
@@ -187,6 +198,9 @@ constexpr bool ESTALLIDO_ACTIVO = true;
 constexpr int PUAS_MIN = 6;
 constexpr int PUAS_MAX = 8;
 constexpr double INTERVALO_ESTALLIDO = 6;
+constexpr int DANIO_DISPARO = 1;
+constexpr double ANGULO_DISPARO = 45;
+constexpr double VELOCIDAD_MAX_DISPARO = 1800;
 constexpr int NUM_ZONAS = 5;
 constexpr double FACTOR_OLVIDO = 0.98;
 constexpr double SUAVIZADO_MIN = 0.05;

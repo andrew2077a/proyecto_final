@@ -1,12 +1,20 @@
 #include "nivel1.h"
+#include "entidades/Monstruo.h"
+#include "datos.h"
 #include <stdexcept>
+#include <cstdlib>
+#include <ctime>
+#include <algorithm>
 
-Nivel1::Nivel1(ModoDificultad modo):Nivel(modo){
-    temporizadorCamiones=0.0;
-    temporizadorBateria=0.0;
+Nivel1::Nivel1(ModoDificultad modo)
+    : Nivel(modo), monstruo(nullptr), temporizadorCamiones(0.0),
+    intervaloCamiones(0.0), velocidadCamiones(0.0), temporizadorBateria(0.0)
+{
+    srand(time(0));
     cargarParametros();
+    intervaloCamiones = params.intervaloCamionInicial;
+    velocidadCamiones = params.velocidadCamionInicial;
 }
-
 Nivel1::~Nivel1(){
     delete monstruo;
 }
@@ -31,6 +39,9 @@ void Nivel1::cargarParametros() {
         params.puasMin = Nivel1Normal::PUAS_MIN;
         params.puasMax = Nivel1Normal::PUAS_MAX;
         params.intervaloEstallido = Nivel1Normal::INTERVALO_ESTALLIDO;
+        params.danioDisparo = Nivel1Normal::DANIO_DISPARO;
+        params.anguloDisparo = Nivel1Normal::ANGULO_DISPARO;
+        params.velocidadMaxDisparo = Nivel1Normal::VELOCIDAD_MAX_DISPARO;
         params.numZonas = Nivel1Normal::NUM_ZONAS;
         params.factorOlvido = Nivel1Normal::FACTOR_OLVIDO;
         params.suavizadoMin = Nivel1Normal::SUAVIZADO_MIN;
@@ -65,6 +76,9 @@ void Nivel1::cargarParametros() {
         params.puasMin = Nivel1Dificil::PUAS_MIN;
         params.puasMax = Nivel1Dificil::PUAS_MAX;
         params.intervaloEstallido = Nivel1Dificil::INTERVALO_ESTALLIDO;
+        params.danioDisparo = Nivel1Dificil::DANIO_DISPARO;
+        params.anguloDisparo = Nivel1Dificil::ANGULO_DISPARO;
+        params.velocidadMaxDisparo = Nivel1Dificil::VELOCIDAD_MAX_DISPARO;
         params.numZonas = Nivel1Dificil::NUM_ZONAS;
         params.factorOlvido = Nivel1Dificil::FACTOR_OLVIDO;
         params.suavizadoMin = Nivel1Dificil::SUAVIZADO_MIN;
@@ -90,79 +104,179 @@ void Nivel1::cargarParametros() {
         throw std::invalid_argument("Parametros de Nivel1 incoherentes");
     }
 }
-
-
-
-
-
 void Nivel1::iniciar(){
-    rei= new Rei(ModoRei::MECHA,comunes,params,Nivel1Init::REI_INICIO_X,Nivel1Init::Y_SUELO);
-    monstruo= new Monstruo(Nivel1Init::MOUSTRO_INICIO_X,Nivel1Init::MOUSTRO_INICIO_Y,params,comunes.gravedad);
+    rei = new Rei(ModoRei::MECHA, comunes, &params, Nivel1Init::REI_INICIO_X, Nivel1Init::REI_INICIO_Y);
+    monstruo = new Monstruo(Nivel1Init::MONSTRUO_INICIO_X, Nivel1Init::MONSTRUO_INICIO_Y,
+                            params, comunes.gravedad);
 }
 
-void Nivel2::actualizar(double dt){
+void Nivel1::actualizar(double dt){
+    monstruo->actualizar(dt);
+    rei->actualizar(dt);
 
+    if(rei->getY() + rei->getAlto() >= Nivel1Init::Y_SUELO){
+        rei->apoyarEn(Nivel1Init::Y_SUELO);
+    }
+    if(rei->getX() < Nivel1Init::LIMITE_REI_IZQ){
+        rei->setPosicion(Nivel1Init::LIMITE_REI_IZQ, rei->getY());
+    }
+    else if(rei->getX() > Nivel1Init::LIMITE_REI_DER){
+        rei->setPosicion(Nivel1Init::LIMITE_REI_DER, rei->getY());
+    }
+
+    actualizarTemporizador(dt);
+
+    if(items.empty()){
+        temporizadorBateria += dt;
+    }
+
+    actualizarGeneracionCamiones(dt);
+    for(auto i:entidades){
+        i->actualizar(dt);
+    }
+    detectarColisiones();
+    procesarDisparoMonstruo();
+    procesarDisparoRei();
+    procesarImpactosAlMonstruo();
+    colocarItems();
+    fragmentarEstallidos();
+    notificarAgente();
+    eliminarInactivos();
 }
 
+ResultadoNivel Nivel1:: verificarFin(){
+    if(!rei->estaViva()){
+        return ResultadoNivel::PERDIDO;
+    }
+    if (!monstruo->estaViva()){
+        return ResultadoNivel::GANADO;
+    }
+    return ResultadoNivel::EN_CURSO;
+}
 
-struct ParamsNivel1{
-    int vidaMonstruo;
-    double umbralFase1 ;
-    double umbralFase2 ;
-    double intervaloParabolico ;
-    double intervaloOndulatorio ;
-    double tiempoCarga ;
-    int ataquesCombinadosMin ;
-    int ataquesCombinadosMax ;
-    bool ataquesDobles = false;
-    bool escudoMonstruo = false;
-    double umbralesEscudo[3] = {0,0,0};
-    double duracionEscudo ;
-    bool estallidoActivo = false;
-    int puasMin ;
-    int puasMax ;
-    double intervaloEstallido ;
-    int numZonas ;
-    double factorOlvido ;
-    double suavizadoMin ;
-    double intervaloCamionInicial ;
-    double velocidadCamionInicial ;
-    double rampaCamiones ;
-    double calorMax ;
-    double calorPorDisparo ;
-    double tiempoRecargaCalor ;
-    double tiempoBloqueoGolpe ;
-    double cadenciaBase ;
-    double duracionBateria ;
-    double multCadenciaBateria ;
-    double multVelocidadBateria ;
-    double intervaloBateria ;
-};
+void Nivel1:: colocarItems(){
+    if(!items.empty()){
+        return;
+    }
+    double ale = static_cast<double>(rand() % (static_cast<int>(Nivel1Init::BATERIA_X_MAX) - static_cast<int>(Nivel1Init::BATERIA_X_MIN) + 1)) + Nivel1Init::BATERIA_X_MIN;
+    if(temporizadorBateria>=params.intervaloBateria){
+        temporizadorBateria=0.0;
+        Item *i=new Item(TipoItem::BATERIA,ale,Nivel1Init::BATERIA_Y,Tamanio::BATERIA_ANCHO,Tamanio::BATERIA_ALTO
+                           ,params.duracionBateria,params.multVelocidadBateria,params.multCadenciaBateria);
+        agregarItem(i);
+    }
+}
 
-class Nivel1: public Nivel{
-private:
-    Moustro* moustro;
-    ParamsNivel1 params;
-    double temporizadorCamiones;
-    double intervaloCamiones;
-    double velocidadCamiones;
-    double temporizadorBateria;
-    vector<Proyectil*> proyectiles;
+void Nivel1::procesarDisparoMonstruo(){
+    if(monstruo->consumirInicioCarga()){
+        RegistrarEvento(TipoEvento::MONSTRUO_LANZA);
+    }
+    vector<Proyectil*> nuevos =monstruo->atacar(*rei);
+    for(Proyectil* p: nuevos){
+        agregarEntidad(p);
+        proyectiles.push_back(p);
+    }
+}
 
-    void procesarDisparoMonstruo();
-    void procesarDisparoRei();
-    void procesarImpactosAlMonstruo();
-    void fragmentarEstallidos();
-    void notificarAgente();
-    void actualizarGeneracionCamiones(double dt);
+void Nivel1::procesarDisparoRei(){
+    if(rei->estaDisparando()&&rei->puedeDisparar()){
+        Proyectil* bala = rei->disparar();
+        if(bala != nullptr){
+            RegistrarEvento(TipoEvento::DISPARO_REI);
+            agregarEntidad(bala);
+            proyectiles.push_back(bala);
+        }
+    }
+}
 
-protected:
-    void colocarItems() override;
-    void eliminarInactivos() override;
+void Nivel1::procesarImpactosAlMonstruo(){
+    for(Proyectil* p:proyectiles){
+        if(p->getPropietario()==Propietario::REI){
+            if(p->colisionaCon(*monstruo)){
+                p->alImpactar(*monstruo);
+                p->desactivar();
+            }
+        }
+    }
+}
 
-public:
-    void actualizar(double dt) override;
-    ResultadoNivel verificarFin() override;
-    vector<Entidad*> obtenerEntidadesDibujables() override;
-    double getVidaJefeRelativa() override;
-};
+void Nivel1::fragmentarEstallidos(){
+    for(size_t k = 0; k < proyectiles.size(); ++k){
+        Proyectil* p = proyectiles[k];
+        if(!p->estaViva() || !p->debeFragmentar()){
+            continue;
+        }
+        vector<Proyectil*> puas = p->fragmentar();
+        for(Proyectil* pua : puas){
+            agregarEntidad(pua);
+            proyectiles.push_back(pua);
+        }
+        RegistrarEvento(TipoEvento::EXPLOSION);
+    }
+}
+
+void Nivel1::notificarAgente(){
+    for (Proyectil* p : proyectiles){
+        if (p->fueReportado() || p->getZonaObjetivo() < 0){
+            continue;
+        }
+        bool impacto = p->haImpactado();
+        bool fuera = p->fueraDePantalla(0, Tamanio::ANCHO_PANTALLA,0, Tamanio::ALTO_PANTALLA);
+        if (!impacto && !fuera){
+            continue;
+        }
+        monstruo->notificarResultado(p->getZonaObjetivo(), impacto);
+        p->marcarReportado();
+    }
+}
+
+void Nivel1::actualizarGeneracionCamiones(double dt){
+    temporizadorCamiones += dt;
+    if(temporizadorCamiones >= intervaloCamiones){
+        temporizadorCamiones -= intervaloCamiones;
+        CamionNorcoreano* camion = new CamionNorcoreano(Nivel1Init::CAMION_INICIO_X,Nivel1Init::CAMION_INICIO_Y,ModoCamion::AVANCE,velocidadCamiones);
+        agregarEntidad(camion);
+        intervaloCamiones = std::max(0.5, intervaloCamiones * (1.0 - params.rampaCamiones));
+        velocidadCamiones *= (1.0 + params.rampaCamiones);
+    }
+}
+
+void Nivel1:: eliminarInactivos(){
+    for(Proyectil* p : proyectiles){
+        if(p->fueraDePantalla(-500, Tamanio::ANCHO_PANTALLA + 500,
+                               -1000, Tamanio::ALTO_PANTALLA + 500)){
+            p->desactivar();
+        }
+    }
+    for(size_t i=0;i<proyectiles.size();){
+        if(!proyectiles[i]->estaViva()){
+            proyectiles.erase(proyectiles.begin()+i);
+        }
+        else{
+            i++;
+        }
+    }
+    Nivel::eliminarInactivos();
+}
+
+vector<Entidad*> Nivel1::obtenerEntidadesDibujables(){
+    vector<Entidad*> dibujas;
+    dibujas.reserve(entidades.size() + obstaculos.size() + items.size() + 2);
+    if (rei != nullptr) {
+        dibujas.push_back(rei);
+    }
+    if(monstruo != nullptr){
+        dibujas.push_back(monstruo);
+    }
+    dibujas.insert(dibujas.end(), entidades.begin(), entidades.end());
+    dibujas.insert(dibujas.end(), obstaculos.begin(), obstaculos.end());
+    dibujas.insert(dibujas.end(), items.begin(), items.end());
+    return dibujas;
+}
+
+double Nivel1::getVidaJefeRelativa(){
+    if(monstruo == nullptr){
+        return 0.0;
+    }
+    return monstruo->getVidaRelativa();
+}

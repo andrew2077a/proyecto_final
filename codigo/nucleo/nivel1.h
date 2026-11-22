@@ -1,6 +1,7 @@
 #ifndef NIVEL1_H
 #define NIVEL1_H
 #include "nucleo/nivel.h"
+#include "entidades/proyectil.h"
 
 class Monstruo;
 struct ParamsNivel1{
@@ -20,6 +21,9 @@ struct ParamsNivel1{
     int puasMin ;
     int puasMax ;
     double intervaloEstallido ;
+    int danioDisparo ;
+    double anguloDisparo ;
+    double velocidadMaxDisparo ;
     int numZonas ;
     double factorOlvido ;
     double suavizadoMin ;
