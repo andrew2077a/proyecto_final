@@ -77,8 +77,28 @@ constexpr double ANGULO_SALTO = 60;
 namespace Rutas {
 constexpr const char* CARPETA_SPRITES = ":/sprites/";
 constexpr const char* EXTENSION_SPRITES = ".png";
+
 constexpr const char* ARCHIVO_NIVEL2 = ":/maps/mundo.txt";
 
+constexpr const char* ARCHIVO_FONDO_NIVEL1 = ":/fondos/nivel1.png";
+constexpr const char* ARCHIVO_FONDO_NIVEL2 = ":/fondos/nivel2.png";
+
+constexpr const char* ARCHIVO_FONDO_MENU = ":/fondos/menu.png";
+constexpr const char* ARCHIVO_FONDO_PAUSA = ":/fondos/pausa.png";
+constexpr const char* ARCHIVO_FONDO_GANADO = ":/fondos/ganado.png";
+constexpr const char* ARCHIVO_FONDO_PERDIDO = ":/fondos/perdido.png";
+
+constexpr const char* MUSICA_MENU = ":/musica/menu.mp3";
+constexpr const char* MUSICA_PAUSA = ":/musica/pausa.mp3";
+constexpr const char* MUSICA_NIVEL1 = ":/musica/nivel1.mp3";
+constexpr const char* MUSICA_NIVEL2 = ":/musica/nivel2.mp3";
+
+constexpr const char* SONIDO_DISPARO_REI = ":/sonidos/disparo_rei.wav";
+constexpr const char* SONIDO_BOMBA_CAE = ":/sonidos/bomba_cae.wav";
+constexpr const char* SONIDO_MONSTRUO_LANZA = ":/sonidos/monstruo_lanza.wav";
+constexpr const char* SONIDO_REI_DANIO = ":/sonidos/rei_danio.wav";
+constexpr const char* SONIDO_EXPLOSION = ":/sonidos/explosion.wav";
+constexpr const char* SONIDO_ITEM = ":/sonidos/item.wav";
 }
 namespace Nivel2Mundo {
 constexpr double REI_INICIO_X = 100;
