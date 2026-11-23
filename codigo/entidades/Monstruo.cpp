@@ -292,6 +292,11 @@ bool Monstruo::tieneEscudo() const {
     return escudoActivo;
 }
 
+
+bool Monstruo::miraDerecha() const {
+    return false;
+}
+
 EstadoVisual Monstruo::getEstadoVisual() const {
     if (vida <= 0) {
         return EstadoVisual::MURIENDO;

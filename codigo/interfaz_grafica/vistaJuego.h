@@ -12,6 +12,8 @@
 #include <QSoundEffect>
 #include <QMap>
 #include <QHash>
+#include <QSet>
+#include <QPixmap>
 #include <vector>
 #include "nucleo/juego.h"
 #include "entidades/entidad.h"
@@ -35,6 +37,14 @@ private:
     QHash<Entidad*, SpriteEntidad*> sprites;
     QGraphicsPixmapItem* fondo;
 
+    QGraphicsPixmapItem* fondo2;
+    QPixmap fondoNormal;
+    QPixmap fondoEspejo;
+    bool fondoDesplazable;
+    bool fondoAEspejo;
+    bool fondoBEspejo;
+    QGraphicsPixmapItem* meta;
+
 public:
     VistaJuego(Juego* juego, QWidget* parent = nullptr);
     ~VistaJuego();
@@ -53,6 +63,10 @@ public:
     void setVolumen(double v);
     void ajustarEscala();
     void conectarSenales();
+private:
+    void limpiarSprites();
+    void actualizarFondo(double camaraX);
+    void actualizarMeta(double camaraX);
 signals:
     void nivelTerminado(bool gano);
     void pausaSolicitada();

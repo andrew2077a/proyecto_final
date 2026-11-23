@@ -1,7 +1,14 @@
 #include "vistaJuego.h"
 #include "datos.h"
 #include <algorithm>
+#include <cmath>
+#include <stdexcept>
 #include <QFile>
+#include <QPainter>
+
+namespace {
+constexpr double FACTOR_PARALAJE = 0.30;   // el fondo avanza al 30 % de la velocidad de la camara
+}
 
 VistaJuego::VistaJuego(Juego* juego, QWidget* parent)
     : QGraphicsView(parent),
@@ -12,7 +19,12 @@ VistaJuego::VistaJuego(Juego* juego, QWidget* parent)
     pistaActual(IdMusica::MENU),
     volumen(0.5),
     panel(new PanelEstado(escena)),
-    fondo(nullptr)
+    fondo(nullptr),
+    fondo2(nullptr),
+    fondoDesplazable(false),
+    fondoAEspejo(false),
+    fondoBEspejo(true),
+    meta(nullptr)
 {
     setScene(escena);
     escena->setSceneRect(0, 0, Tamanio::ANCHO_PANTALLA, Tamanio::ALTO_PANTALLA);
@@ -21,6 +33,12 @@ VistaJuego::VistaJuego(Juego* juego, QWidget* parent)
     setFocusPolicy(Qt::StrongFocus);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    // CAMBIO: apariencia de la vista
+    setFrameShape(QFrame::NoFrame);                  // sin el borde gris por defecto de QGraphicsView
+    setBackgroundBrush(Qt::black);                   // las bandas de pantallas no 16:9 quedan negras, no blancas/grises
+    setAlignment(Qt::AlignCenter);
+    setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+    setViewportUpdateMode(QGraphicsView::FullViewportUpdate);   // el fondo se mueve: evita restos al hacer scroll
 
     conectarSenales();
 
@@ -36,11 +54,8 @@ VistaJuego::~VistaJuego(){
 }
 void VistaJuego::iniciar(){
     SpriteEntidad::precargarTodo();
-    for(auto it = sprites.begin(); it != sprites.end(); ++it){
-        escena->removeItem(it.value());
-        delete it.value();
-    }
-    sprites.clear();
+    limpiarSprites();
+    panel->mostrar();
 
     setFocus();
     reloj.start();
@@ -126,32 +141,93 @@ void VistaJuego::keyReleaseEvent(QKeyEvent* evento){
     }
 }
 
-void VistaJuego::sincronizarSprites(double dt){   // CAMBIO: recibe dt
+// Quita todos los sprites de la escena (no hay nivel o se reinicia).
+void VistaJuego::limpiarSprites(){
+    for(auto it = sprites.begin(); it != sprites.end(); ++it){
+        escena->removeItem(it.value());
+        delete it.value();
+    }
+    sprites.clear();
+}
+
+void VistaJuego::sincronizarSprites(double dt){
     Nivel* nive = juego->getNivel();
 
-    // (el bloque "if(nive == nullptr){ ... }" queda exactamente igual)
+
+    if(nive == nullptr){
+        limpiarSprites();
+        return;
+    }
 
     QSet<Entidad*> vivos;
     for(Entidad* e : nive->obtenerEntidadesDibujables()){
-        // CAMBIO: el monstruo muriendo ya no está "vivo", pero se sigue dibujando
-        // para que se vea su animación de muerte durante ESPERA_FIN
+        // el monstruo muriendo ya no esta "vivo", pero se sigue dibujando para ver su animacion de muerte
         if(e->estaViva() || e->getEstadoVisual() == EstadoVisual::MURIENDO){
             vivos.insert(e);
         }
     }
 
+
+    for(auto it = sprites.begin(); it != sprites.end(); ){
+        Entidad* dueno = it.key();
+        // tambien se descarta si otro objeto nuevo ocupo la misma direccion de memoria (tipo distinto)
+        const bool sigue = vivos.contains(dueno) && it.value()->getTipo() == dueno->getTipoSprite();
+        if(!sigue){
+            escena->removeItem(it.value());
+            delete it.value();
+            it = sprites.erase(it);
+        }
+        else{
+            ++it;
+        }
+    }
+
+    const double camaraX = nive->getCamaraX();
     for(Entidad* e : vivos){
         if(!sprites.contains(e)){
             SpriteEntidad* nuevo = new SpriteEntidad(e->getTipoSprite(), e);
             escena->addItem(nuevo);
             sprites.insert(e, nuevo);
         }
-        // CAMBIO: primero la animación y luego la posición (la escala depende del fotograma)
+        // primero la animacion y luego la posicion (la escala depende del fotograma)
         sprites[e]->actualizarAnimacion(dt, e->getEstadoVisual(), e->miraDerecha());
-        sprites[e]->actualizarPosicion(e->getX(), e->getY(), e->getAncho(), e->getAlto(), nive->getCamaraX());
+        sprites[e]->actualizarPosicion(e->getX(), e->getY(), e->getAncho(), e->getAlto(), camaraX, e->getRotacion());
     }
 
-    // (el paso 3, quitar sprites de entidades que ya no están, queda igual)
+    actualizarFondo(camaraX);
+    actualizarMeta(camaraX);
+}
+
+// Fondo en dos baldosas que se desplazan mas despacio que la camara (paralaje). La baldosa impar va
+// espejada para que el borde derecho de una empalme exacto con el borde izquierdo de la siguiente.
+void VistaJuego::actualizarFondo(double camaraX){
+    if(!fondoDesplazable || fondo == nullptr || fondo2 == nullptr){
+        return;
+    }
+    const double W = Tamanio::ANCHO_PANTALLA;
+    const double desplazamiento = camaraX * FACTOR_PARALAJE;
+    const int base = static_cast<int>(std::floor(desplazamiento / W));
+    const double resto = desplazamiento - base * W;
+
+    const bool espejoA = (base % 2) != 0;
+    const bool espejoB = !espejoA;
+    if(espejoA != fondoAEspejo){
+        fondo->setPixmap(espejoA ? fondoEspejo : fondoNormal);
+        fondoAEspejo = espejoA;
+    }
+    if(espejoB != fondoBEspejo){
+        fondo2->setPixmap(espejoB ? fondoEspejo : fondoNormal);
+        fondoBEspejo = espejoB;
+    }
+    fondo->setPos(-resto, 0);
+    fondo2->setPos(W - resto, 0);
+}
+
+// La meta del nivel 2 no tenia ninguna imagen: el jugador no sabia a donde ir.
+void VistaJuego::actualizarMeta(double camaraX){
+    if(meta != nullptr && meta->isVisible()){
+        meta->setPos(Nivel2Mundo::META_X - camaraX, Nivel2Mundo::Y_SUELO - Tamanio::META_ALTO);
+    }
 }
 
 void VistaJuego::cargarFondo(int numNivel){
@@ -176,22 +252,54 @@ void VistaJuego::cargarFondo(int numNivel){
     // Escalar UNA sola vez a la resolucion logica (no en cada ciclo)
     imagen = imagen.scaled(static_cast<int>(Tamanio::ANCHO_PANTALLA),static_cast<int>(Tamanio::ALTO_PANTALLA),Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
+    fondoNormal = imagen;
+    fondoDesplazable = (numNivel == 2);              // el nivel 2 mide 8 pantallas: el fondo se desplaza
+    if(fondoDesplazable){
+        fondoEspejo = QPixmap::fromImage(imagen.toImage().mirrored(true, false));
+    }
+
     if(fondo == nullptr){
-        // Primera vez: crear el item y dejarlo detras de todo
-        fondo = escena->addPixmap(imagen);
-        fondo->setZValue(-1);                                   // debajo de sprites (0) y HUD (100)
-        fondo->setPos(0, 0);
-        fondo->setCacheMode(QGraphicsItem::DeviceCoordinateCache);  // cache del fondo, como dice el diseño
+        fondo = escena->addPixmap(fondoNormal);
+        fondo->setZValue(-10);                       // debajo de sprites (1-8) y HUD (100)
+        fondo->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     }
     else{
-        // Ya existia (cambio de nivel): solo se reemplaza la imagen
-        fondo->setPixmap(imagen);
+        fondo->setPixmap(fondoNormal);
+    }
+    if(fondo2 == nullptr){
+        fondo2 = escena->addPixmap(fondoNormal);
+        fondo2->setZValue(-10);
+        fondo2->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
+    }
+    fondo->setPos(0, 0);
+    fondoAEspejo = false;
+    fondoBEspejo = fondoDesplazable;                 // la baldosa B arranca espejada (nivel 2)
+    fondo2->setPixmap(fondoDesplazable ? fondoEspejo : fondoNormal);
+    fondo2->setPos(Tamanio::ANCHO_PANTALLA, 0);
+    fondo2->setVisible(fondoDesplazable);
+
+    // Bandera de meta (solo nivel 2)
+    if(numNivel == 2){
+        if(meta == nullptr){
+            const QString ruta = QString(Rutas::CARPETA_SPRITES) + "meta" + Rutas::EXTENSION_SPRITES;
+            QPixmap imagenMeta(ruta);
+            if(imagenMeta.isNull()){
+                throw runtime_error(std::string("No se pudo cargar la meta: ") + ruta.toStdString());
+            }
+            imagenMeta = imagenMeta.scaled(static_cast<int>(Tamanio::META_ANCHO), static_cast<int>(Tamanio::META_ALTO),
+                                           Qt::IgnoreAspectRatio, Qt::FastTransformation);   // pixel-art: sin suavizar
+            meta = escena->addPixmap(imagenMeta);
+            meta->setZValue(3);
+        }
+        meta->setVisible(true);
+    }
+    else if(meta != nullptr){
+        meta->setVisible(false);
     }
 }
 
 void VistaJuego::cargarRecursosSonido(){
-    // ---------- MUSICAS ----------
-    // Solo se comprueba que existan; reproducirMusica() elige cual poner.
+    //  MUSICAS
     const char* musicas[] = {
         Rutas::MUSICA_MENU,
         Rutas::MUSICA_PAUSA,
@@ -204,8 +312,7 @@ void VistaJuego::cargarRecursosSonido(){
         }
     }
 
-    // ---------- EFECTOS ----------
-    // tipos[i] se asocia con rutas[i]: un QSoundEffect por cada evento.
+    // EFECTOS
     const TipoEvento tipos[] = {
         TipoEvento::DISPARO_REI,
         TipoEvento::BOMBA_CAE,

@@ -4,42 +4,130 @@
 #include <string>
 #include <QApplication>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QPushButton>
 #include <QLabel>
+#include <QFrame>
 #include <QPixmap>
+#include <QPainter>
+#include <QPaintEvent>
 #include <QFont>
 #include <QMessageBox>
 #include <QTimer>
 #include <QResizeEvent>
+#include <QKeyEvent>
+#include <QGraphicsDropShadowEffect>
 
 namespace {
 
-// Crea una página con una imagen de fondo y un layout vertical centrado.
-// Si la imagen no existe lanza runtime_error (igual que hace SpriteEntidad).
-QLabel* crearPagina(QWidget* padre, const char* rutaFondo) {
-    QPixmap fondo(rutaFondo);
-    if (fondo.isNull()) {                       // se valida ANTES de hacer new, así no se filtra memoria
-        throw std::runtime_error(std::string("No se pudo cargar el fondo: ") + rutaFondo);
-    }
-    QLabel* pagina = new QLabel(padre);         // un QLabel puede mostrar imagen Y contener botones
-    pagina->setPixmap(fondo);
-    pagina->setScaledContents(true);            // la imagen se estira al tamaño de la pantalla
+const char* ESTILO_TARJETA = "#tarjeta { background-color: rgba(6, 26, 28, 190); border: 2px solid rgba(191, 247, 224, 180); border-radius: 18px; }";
+const char* ESTILO_BOTON =
+    "QPushButton { background-color: rgba(10, 52, 54, 230); color: #BFF7E0; border: 3px solid #BFF7E0; border-radius: 12px; padding: 6px 18px; }"
+    "QPushButton:hover { background-color: #BFF7E0; color: #08302F; }"
+    "QPushButton:pressed { background-color: #7FD9B8; color: #08302F; border-color: #7FD9B8; }";
 
-    QVBoxLayout* columna = new QVBoxLayout(pagina);
-    columna->setAlignment(Qt::AlignRight | Qt::AlignVCenter);   // botones a la derecha, centrados verticalmente
-    columna->setContentsMargins(0, 0, 80, 0);                   // 80 px de margen derecho
-    columna->setSpacing(20);                    // separación entre botones
-    return pagina;
+
+class PaginaConFondo : public QWidget {
+public:
+    PaginaConFondo(const QPixmap& fondo, QWidget* padre) : QWidget(padre), imagen(fondo) {}
+
+protected:
+    void paintEvent(QPaintEvent*) override {
+        QPainter pintor(this);
+        pintor.setRenderHint(QPainter::SmoothPixmapTransform);
+        pintor.fillRect(rect(), Qt::black);
+
+        const QSize destino = imagen.size().scaled(size(), Qt::KeepAspectRatioByExpanding);
+        QRect zona(QPoint(0, 0), destino);
+        zona.moveCenter(rect().center());
+        pintor.drawPixmap(zona, imagen);
+    }
+
+private:
+    QPixmap imagen;
+};
+
+struct Pagina {
+    QWidget* widget;          // la pagina completa (se agrega al QStackedWidget)
+    QVBoxLayout* contenido;   // donde van titulo y botones
+};
+
+// Carga un fondo
+QPixmap cargarFondo(const char* ruta) {
+    QPixmap fondo(ruta);
+    if (fondo.isNull()) {
+        throw std::runtime_error(std::string("No se pudo cargar el fondo: ") + ruta);
+    }
+    return fondo;
 }
 
-// Crea un botón con el estilo común y lo agrega al layout de la página.
-QPushButton* crearBoton(QLabel* pagina, const QString& texto) {
-    QPushButton* boton = new QPushButton(texto, pagina);   // pagina es su padre: Qt lo libera
-    boton->setMinimumSize(320, 70);
+QLabel* crearEtiqueta(QWidget* padre, const QString& texto, int puntos, const QString& color) {
+    QLabel* etiqueta = new QLabel(texto, padre);
+    etiqueta->setAlignment(Qt::AlignCenter);
+    etiqueta->setFont(QFont("Arial", puntos, QFont::Bold));
+    etiqueta->setStyleSheet(QString("QLabel { color: %1; background: transparent; }").arg(color));
+    return etiqueta;
+}
+
+Pagina crearPagina(QWidget* padre, const QPixmap& fondo, bool alaIzquierda,
+                   const QString& titulo, const QString& encabezado) {
+    PaginaConFondo* pagina = new PaginaConFondo(fondo, padre);
+
+    QHBoxLayout* externo = new QHBoxLayout(pagina);
+    externo->setContentsMargins(100, 60, 100, 60);
+
+    QFrame* tarjeta = new QFrame(pagina);
+    tarjeta->setObjectName("tarjeta");
+    tarjeta->setStyleSheet(ESTILO_TARJETA);
+
+    QVBoxLayout* contenido = new QVBoxLayout(tarjeta);
+    contenido->setContentsMargins(44, 34, 44, 34);
+    contenido->setSpacing(18);
+
+    if (alaIzquierda) {
+        externo->addWidget(tarjeta, 0, Qt::AlignVCenter);
+        externo->addStretch(1);
+    } else {
+        externo->addStretch(1);
+        externo->addWidget(tarjeta, 0, Qt::AlignVCenter);
+    }
+
+    if (!titulo.isEmpty()) {
+        QLabel* t = crearEtiqueta(tarjeta, titulo, 34, "#BFF7E0");
+        QGraphicsDropShadowEffect* sombra = new QGraphicsDropShadowEffect();
+        sombra->setBlurRadius(6);
+        sombra->setOffset(2, 2);
+        sombra->setColor(QColor(0, 0, 0, 200));
+        t->setGraphicsEffect(sombra);
+        contenido->addWidget(t);
+    }
+    if (!encabezado.isEmpty()) {
+        contenido->addWidget(crearEtiqueta(tarjeta, encabezado, 18, "#8FE3C4"));
+    }
+    return { pagina, contenido };
+}
+
+// Crea un boton con el estilo comun y lo agrega a la tarjeta de la pagina.
+QPushButton* crearBoton(Pagina& pagina, const QString& texto) {
+    QPushButton* boton = new QPushButton(texto, pagina.widget);
+    boton->setMinimumSize(360, 72);
     boton->setFont(QFont("Arial", 20, QFont::Bold));
-    boton->setStyleSheet("QPushButton { background-color: #5B2A86; color: #7CFF4A; border: 3px solid #7CFF4A; border-radius: 10px; } QPushButton:hover { background-color: #7CFF4A; color: #5B2A86; }");
-    pagina->layout()->addWidget(boton);
+    boton->setCursor(Qt::PointingHandCursor);
+    boton->setStyleSheet(ESTILO_BOTON);
+    pagina.contenido->addWidget(boton);
     return boton;
+}
+
+// Recordatorio de controles
+void agregarAyudaControles(Pagina& pagina) {
+    QLabel* ayuda = new QLabel(
+        "A / D  mover\nW  saltar\nESPACIO  disparar (nivel 1)\nESC  pausa      F11  pantalla completa",
+        pagina.widget);
+    ayuda->setAlignment(Qt::AlignCenter);
+    ayuda->setFont(QFont("Arial", 13));
+    ayuda->setStyleSheet("QLabel { color: #8FE3C4; background: transparent; }");
+    pagina.contenido->addSpacing(6);
+    pagina.contenido->addWidget(ayuda);
 }
 
 // Pista de música que corresponde a cada nivel.
@@ -48,29 +136,30 @@ IdMusica musicaDeNivel(int num) {
 }
 }
 
-// ============ Constructor y destructor ============
+// Constructor y destructor
 Menu::Menu(QWidget* parent)
     : QWidget(parent),
     pantallas(new QStackedWidget(this)),
     modo(ModoDificultad::NORMAL),
     ultimoNivel(1),
     juego(new Juego()),
-    vista(nullptr),                  // CAMBIO: se crea dentro del try (ver explicación)
+    vista(nullptr),
     paginaDificultad(nullptr),
     paginaNiveles(nullptr),
     paginaPausa(nullptr),
     paginaGanado(nullptr),
     paginaPerdido(nullptr)
 {
-    // CAMBIO: sin layout, el QStackedWidget no crece al cambiar el tamaño de la ventana
+    setStyleSheet("Menu { background-color: black; }");
+    setAttribute(Qt::WA_StyledBackground, true);
+
     QVBoxLayout* principal = new QVBoxLayout(this);
     principal->setContentsMargins(0, 0, 0, 0);
     principal->addWidget(pantallas);
 
-    // Si algo falla aquí (sonido o fondo faltante) el destructor NO se ejecuta,
-    // así que se libera "juego" a mano y se relanza la excepción (mismo patrón de Moustro).
+
     try {
-        vista = new VistaJuego(juego, this);   // this = padre: Qt la borra sola. Carga los sonidos.
+        vista = new VistaJuego(juego, this);
         pantallas->addWidget(vista);
         construirPaginas();
         conectarSenales();
@@ -84,78 +173,87 @@ Menu::Menu(QWidget* parent)
 }
 
 Menu::~Menu() {
-    // "vista" y las páginas son hijas de Menu: Qt las borra después de este destructor.
-    // "juego" no es QObject, así que se borra a mano.
     delete juego;
 }
 
-// ============ Construcción de pantallas ============
+// Construccion de pantallas
 void Menu::construirPaginas() {
-    // ---------- Pantalla 1: dificultad ----------
-    paginaDificultad = crearPagina(pantallas, Rutas::ARCHIVO_FONDO_MENU);
-    QPushButton* bNormal  = crearBoton(paginaDificultad, "Normal");
-    QPushButton* bDificil = crearBoton(paginaDificultad, "Difícil");
-    QPushButton* bSalir   = crearBoton(paginaDificultad, "Salir");
-    // alElegirDificultad recibe un argumento que clicked() no trae: se usa una lambda.
+    // Cada fondo se carga UNA vez (la pantalla de dificultad y la de niveles comparten el mismo).
+    const QPixmap fondoMenu    = cargarFondo(Rutas::ARCHIVO_FONDO_MENU);
+    const QPixmap fondoPausa   = cargarFondo(Rutas::ARCHIVO_FONDO_PAUSA);
+    const QPixmap fondoGanado  = cargarFondo(Rutas::ARCHIVO_FONDO_GANADO);
+    const QPixmap fondoPerdido = cargarFondo(Rutas::ARCHIVO_FONDO_PERDIDO);
+
+    // Pantalla 1: dificultad
+    Pagina pDif = crearPagina(pantallas, fondoMenu, false, "GUERRA DE COREA", "Elige la dificultad");
+    paginaDificultad = pDif.widget;
+    QPushButton* bNormal  = crearBoton(pDif, "Normal");
+    QPushButton* bDificil = crearBoton(pDif, "Difícil");
+    QPushButton* bSalir   = crearBoton(pDif, "Salir");
+
     connect(bNormal,  &QPushButton::clicked, this, [this]() { alElegirDificultad(ModoDificultad::NORMAL); });
     connect(bDificil, &QPushButton::clicked, this, [this]() { alElegirDificultad(ModoDificultad::DIFICIL); });
     connect(bSalir,   &QPushButton::clicked, this, &Menu::alSalir);
     pantallas->addWidget(paginaDificultad);
 
-    // ---------- Pantalla 2: selección de nivel (mismo fondo) ----------
-    paginaNiveles = crearPagina(pantallas, Rutas::ARCHIVO_FONDO_MENU);
-    QPushButton* bNivel1 = crearBoton(paginaNiveles, "Nivel 1");
-    QPushButton* bNivel2 = crearBoton(paginaNiveles, "Nivel 2");
-    QPushButton* bVolver = crearBoton(paginaNiveles, "Volver");
+    // Pantalla 2: seleccion de nivel (mismo fondo)
+    Pagina pNiv = crearPagina(pantallas, fondoMenu, false, "GUERRA DE COREA", "Elige el nivel");
+    paginaNiveles = pNiv.widget;
+    QPushButton* bNivel1 = crearBoton(pNiv, "Nivel 1");
+    QPushButton* bNivel2 = crearBoton(pNiv, "Nivel 2");
+    QPushButton* bVolver = crearBoton(pNiv, "Volver");
+    agregarAyudaControles(pNiv);
     connect(bNivel1, &QPushButton::clicked, this, [this]() { alElegirNivel(1); });
     connect(bNivel2, &QPushButton::clicked, this, [this]() { alElegirNivel(2); });
     connect(bVolver, &QPushButton::clicked, this, &Menu::mostrarPantallaDificultad);
     pantallas->addWidget(paginaNiveles);
 
-    // ---------- Pantalla de pausa (fondo propio) ----------
-    paginaPausa = crearPagina(pantallas, Rutas::ARCHIVO_FONDO_PAUSA);
-    QPushButton* bReanudar = crearBoton(paginaPausa, "Reanudar");
-    QPushButton* bReiniciarP = crearBoton(paginaPausa, "Reiniciar");
-    QPushButton* bMenuP = crearBoton(paginaPausa, "Volver al menú");
+    // Pantalla de pausa
+    Pagina pPau = crearPagina(pantallas, fondoPausa, false, "", "");
+    paginaPausa = pPau.widget;
+    QPushButton* bReanudar = crearBoton(pPau, "Reanudar");
+    QPushButton* bReiniciarP = crearBoton(pPau, "Reiniciar");
+    QPushButton* bMenuP = crearBoton(pPau, "Volver al menú");
     connect(bReanudar,   &QPushButton::clicked, this, &Menu::alReanudar);
     connect(bReiniciarP, &QPushButton::clicked, this, &Menu::alReiniciar);
     connect(bMenuP,      &QPushButton::clicked, this, &Menu::alVolverAlMenu);
     pantallas->addWidget(paginaPausa);
 
-    // ---------- Pantalla de victoria ----------
-    paginaGanado = crearPagina(pantallas, Rutas::ARCHIVO_FONDO_GANADO);
-    QPushButton* bReiniciarG = crearBoton(paginaGanado, "Jugar de nuevo");
-    QPushButton* bMenuG = crearBoton(paginaGanado, "Volver al menú");
+    // Pantalla de victoria
+    Pagina pGan = crearPagina(pantallas, fondoGanado, false, "", "");
+    paginaGanado = pGan.widget;
+    QPushButton* bReiniciarG = crearBoton(pGan, "Jugar de nuevo");
+    QPushButton* bMenuG = crearBoton(pGan, "Volver al menú");
     connect(bReiniciarG, &QPushButton::clicked, this, &Menu::alReiniciar);
     connect(bMenuG,      &QPushButton::clicked, this, &Menu::alVolverAlMenu);
     pantallas->addWidget(paginaGanado);
 
-    // ---------- Pantalla de derrota ----------
-    paginaPerdido = crearPagina(pantallas, Rutas::ARCHIVO_FONDO_PERDIDO);
-    QPushButton* bReiniciarD = crearBoton(paginaPerdido, "Reintentar");
-    QPushButton* bMenuD = crearBoton(paginaPerdido, "Volver al menú");
+    // Pantalla de derrota
+    Pagina pPer = crearPagina(pantallas, fondoPerdido, true, "", "");
+    paginaPerdido = pPer.widget;
+    QPushButton* bReiniciarD = crearBoton(pPer, "Reintentar");
+    QPushButton* bMenuD = crearBoton(pPer, "Volver al menú");
     connect(bReiniciarD, &QPushButton::clicked, this, &Menu::alReiniciar);
     connect(bMenuD,      &QPushButton::clicked, this, &Menu::alVolverAlMenu);
     pantallas->addWidget(paginaPerdido);
 }
 
-// Sintaxis: connect(emisor, &ClaseEmisor::señal, receptor, &ClaseReceptor::slot)
-// La señal y el slot se comprueban al COMPILAR, y los tipos de argumentos deben coincidir.
+
 void Menu::conectarSenales() {
-    connect(vista, &VistaJuego::nivelTerminado,           this, &Menu::alTerminarNivel);        // (bool) -> (bool)
-    connect(vista, &VistaJuego::pausaSolicitada,          this, &Menu::alPausar);               // () -> ()
+    connect(vista, &VistaJuego::nivelTerminado,           this, &Menu::alTerminarNivel);
+    connect(vista, &VistaJuego::pausaSolicitada,          this, &Menu::alPausar);
     connect(vista, &VistaJuego::pantallaCompletaSolicitada, this, &Menu::alternarPantallaCompleta);
 }
 
-// ============ Cambio de pantallas ============
+// Cambio de pantallas
 void Menu::mostrarPantallaDificultad() {
     pantallas->setCurrentWidget(paginaDificultad);
-    vista->reproducirMusica(IdMusica::MENU);      // si ya suena el menú no la reinicia
+    vista->reproducirMusica(IdMusica::MENU);      // si ya suena el menu no la reinicia
 }
 
 void Menu::mostrarPantallaNiveles() {
     pantallas->setCurrentWidget(paginaNiveles);
-    vista->reproducirMusica(IdMusica::MENU);      // misma música que la pantalla anterior
+    vista->reproducirMusica(IdMusica::MENU);      // misma musica que la pantalla anterior
 }
 
 void Menu::mostrarPausa() {
@@ -165,68 +263,79 @@ void Menu::mostrarPausa() {
 
 void Menu::mostrarFin(bool gano) {
     pantallas->setCurrentWidget(gano ? paginaGanado : paginaPerdido);
-    vista->reproducirMusica(IdMusica::MENU);      // CAMBIO: el documento no define música de fin
+    vista->reproducirMusica(IdMusica::MENU);      // el documento no define musica de fin
 }
 
 // Muestra la vista del juego y ajusta su escala.
 void Menu::mostrarJuego() {
     pantallas->setCurrentWidget(vista);
-    // singleShot(0) = "ejecuta esto apenas Qt termine de acomodar la ventana".
-    // Si se llamara directo, fitInView usaría un tamaño todavía sin actualizar.
     QTimer::singleShot(0, vista, &VistaJuego::ajustarEscala);
 }
 
 void Menu::resizeEvent(QResizeEvent* evento) {
-    QWidget::resizeEvent(evento);                 // comportamiento normal de Qt primero
+    QWidget::resizeEvent(evento);
     if (vista != nullptr) {
         QTimer::singleShot(0, vista, &VistaJuego::ajustarEscala);
     }
 }
 
-// ============ Slots ============
+
+void Menu::keyPressEvent(QKeyEvent* evento) {
+    if (evento->key() == Qt::Key_F11) {
+        alternarPantallaCompleta();
+        return;
+    }
+    if (evento->key() == Qt::Key_Escape && pantallas->currentWidget() == paginaPausa) {
+        alReanudar();
+        return;
+    }
+    QWidget::keyPressEvent(evento);
+}
+
+// Slots
 void Menu::alElegirDificultad(ModoDificultad modo) {
-    this->modo = modo;                            // el parámetro tapa al miembro: se usa this->
+    this->modo = modo;                            // el parametro tapa al miembro: se usa this->
     mostrarPantallaNiveles();
 }
 
 void Menu::alElegirNivel(int num) {
-    // Mismo manejo para las tres excepciones: aviso, limpiar y volver al menú.
+
     auto volverPorError = [this](const QString& titulo, const std::exception& e) {
-        vista->detener();                         // por si el timer ya había arrancado
-        juego->volverAlMenu();                    // borra el nivel a medias y deja el estado en MENU
+        vista->detener();
+        juego->volverAlMenu();
         QMessageBox::critical(this, titulo, QString::fromStdString(e.what()));
         mostrarPantallaDificultad();
     };
 
     try {
         juego->configurar(modo);                  // 1. dificultad elegida
-        juego->iniciarNivel(num);                 // 2. crea el nivel (puede lanzar excepción)
-        ultimoNivel = num;                        //    solo se guarda si el nivel se creó bien
+        juego->iniciarNivel(num);                 // 2. crea el nivel
+        ultimoNivel = num;
         vista->cargarFondo(num);                  // 3. fondo del nivel
-        mostrarJuego();                           // 4. ANTES de iniciar(): para que setFocus() funcione
+        mostrarJuego();
         vista->reproducirMusica(musicaDeNivel(num));
-        vista->iniciar();                         // 5. arranca el timer y el teclado
+        vista->iniciar();
     }
-    // Primero las específicas y al final std::exception, que atrapa todo lo demás.
-    catch (const std::invalid_argument& e) {      // nivel inexistente o parámetros incoherentes
+
+    catch (const std::invalid_argument& e) {      // nivel inexistente o parametros incoherentes
         volverPorError("Parámetros inválidos", e);
     }
     catch (const std::runtime_error& e) {         // fondo, mapa o sonido que no se pudo cargar
         volverPorError("Recurso no encontrado", e);
     }
-    catch (const std::exception& e) {             // cualquier otro error estándar
+    catch (const std::exception& e) {             // cualquier otro error estandar
         volverPorError("Error inesperado", e);
     }
 }
 
 void Menu::alPausar() {
-    if (juego->getEstado() != EstadoJuego::JUGANDO) {   // Esc solo pausa si se está jugando
+    if (juego->getEstado() != EstadoJuego::JUGANDO) {   // Esc solo pausa si se esta jugando
         return;
     }
     juego->pausar();
     vista->detener();                             // se detiene el timer: no se gasta CPU en pausa
-    // CAMBIO: soltar todas las teclas. Si el jugador suelta una tecla mientras está en el menú
-    // de pausa, la vista no recibe el keyRelease y Rei quedaría caminando sola al reanudar.
+    // Soltar todas las teclas. Si el jugador suelta una tecla mientras esta en el menu
+    // de pausa, la vista no recibe el keyRelease y Rei quedaria caminando sola al reanudar.
     juego->manejarTecla(Tecla::IZQUIERDA, false);
     juego->manejarTecla(Tecla::DERECHA, false);
     juego->manejarTecla(Tecla::SALTAR, false);
@@ -242,7 +351,7 @@ void Menu::alReanudar() {
 }
 
 void Menu::alReiniciar() {
-    // CAMBIO: se reutiliza alElegirNivel(): ya tiene el try/catch y deja todo listo.
+    // se reutiliza alElegirNivel(): ya tiene el try/catch y deja todo listo.
     alElegirNivel(ultimoNivel);
 }
 
@@ -266,7 +375,5 @@ void Menu::alternarPantallaCompleta() {
 
 void Menu::alSalir() {
     vista->detener();
-    // CAMBIO: no se hace delete aquí. quit() cierra el ciclo de eventos, main() termina,
-    // Menu se destruye y ~Menu libera Juego. Borrar aquí lo liberaría dos veces.
     QApplication::quit();
 }

@@ -60,6 +60,18 @@ void Proyectil::aplicarAspecto() {
     }
 }
 
+
+bool Proyectil::miraDerecha() const {
+    if (tipoSprite == TipoSprite::PUA) return true;   // la pua no se espeja: se rota
+    return vx >= 0.0;
+}
+
+// La pua sale en todas direcciones (estallido): el sprite apunta a la derecha y se gira segun su velocidad.
+double Proyectil::getRotacion() const {
+    if (tipoSprite == TipoSprite::PUA) return std::atan2(vy, vx) * 180.0 / PI;
+    return 0.0;
+}
+
 void Proyectil::actualizar(double dt) {
     if (explotada) return;               // la bomba queda quieta hasta que el nivel la procese
 

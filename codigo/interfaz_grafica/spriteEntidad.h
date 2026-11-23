@@ -2,35 +2,44 @@
 #define SPRITEENTIDAD_H
 #include <QGraphicsPixmapItem>
 #include <QTransform>
-#include <QHash>       // CAMBIO
-#include <QVector>     // CAMBIO
-#include <QPixmap>     // CAMBIO
+#include <QHash>
+#include <QVector>
+#include <QPixmap>
+#include <QSizeF>
 #include "entidades/entidad.h"
 
 
 class SpriteEntidad : public QGraphicsPixmapItem{
 private:
-    // OJO: este orden es el de la lista de inicialización del constructor
     TipoSprite tipoSprite;
     Entidad* clave;
-    EstadoVisual estadoActual;     // CAMBIO: estado que se muestra ahora
-    int fotogramaActual;           // CAMBIO: índice del fotograma mostrado
-    double tiempoFotograma;        // CAMBIO: tiempo acumulado en el fotograma actual
-    bool mirandoDerecha;           // CAMBIO: sentido mostrado
+    EstadoVisual estadoActual;     // estado que se muestra ahora
+    int fotogramaActual;           // indice del fotograma mostrado
+    double tiempoFotograma;        // tiempo acumulado en el fotograma actual
+    bool mirandoDerecha;           // sentido pedido por la logica
+    int llaveMostrada;
+    int indiceMostrado;
+    QPixmap repetido;
+    QSizeF tamanioRepetido;
 
-    // CAMBIO: antes QHash<TipoSprite, QPixmap>. Ahora guarda la lista de fotogramas por tipo, estado y sentido
+    // Lista de fotogramas por tipo, estado y sentido (0 = como viene dibujado, 1 = espejado)
     static QHash<int, QVector<QPixmap>> cache;
 
-    void mostrarFotograma();       // CAMBIO: pone en pantalla el fotograma y sentido actuales
+    void mostrarFotograma();
+    void prepararRepetido(double ancho, double alto);
+    bool usarImagenNormal() const;
+    double alturaReferencia() const;
 
 public:
     SpriteEntidad(TipoSprite tipo, Entidad* clave);
     ~SpriteEntidad();
-    static void cargarImagen(TipoSprite tipo, EstadoVisual estado);   // CAMBIO: ahora static y con estado
-    static void precargarTodo();                                      // CAMBIO: nuevo
-    void actualizarAnimacion(double dt, EstadoVisual estado, bool miraDerecha);   // CAMBIO: nuevo
-    void actualizarPosicion(double x, double y, double ancho, double alto, double camaraX);
+    static void cargarImagen(TipoSprite tipo, EstadoVisual estado);
+    static void precargarTodo();
+    void actualizarAnimacion(double dt, EstadoVisual estado, bool miraDerecha);
+
+    void actualizarPosicion(double x, double y, double ancho, double alto, double camaraX, double rotacion = 0.0);
     const Entidad* getClave()const;
+    TipoSprite getTipo() const;
 };
 
 #endif // SPRITEENTIDAD_H

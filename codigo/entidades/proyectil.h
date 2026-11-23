@@ -62,6 +62,10 @@ public:
     void marcarReportado();
     bool fueReportado() const;
 
+
+    bool miraDerecha() const override;
+    double getRotacion() const override;
+
     Propietario getPropietario() const;
     TipoProyectil getTipo() const;
 };

@@ -39,6 +39,8 @@ public:
 
     virtual EstadoVisual getEstadoVisual() const { return EstadoVisual::QUIETO; }
     virtual bool miraDerecha() const { return true; }
+    // CAMBIO: giro (en grados, sentido horario) con que se dibuja el sprite. Solo la pua lo usa.
+    virtual double getRotacion() const { return 0.0; }
 };
 
 #endif // ENTIDAD_H
