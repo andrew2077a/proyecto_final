@@ -1,14 +1,111 @@
-BLOQUE 1200 780 200 120
-BLOQUE 2000 730 120 170
-FOSA 2800 900 300 180
-PUAS 3600 840
-GASEOSA 4000 760
-CAMION 4800 720 4600 5800
-BLOQUE 6200 800 400 100
-FOSA 7000 900 320 180
-PUAS 8000 840
-PUAS 8300 840
-GASEOSA 9000 760
-CAMION 10000 720 9800 11000
-BLOQUE 12000 750 150 150
-FOSA 13000 900 300 180
+# ===== REGLAS FÍSICAS CALIBRADAS (datos.h) =====
+# Salto máximo en Normal: ~302px | Salto máximo en Difícil: ~188px
+# Todos los escalones tienen <= 135px de diferencia vertical para garantizar que siempre alcances.
+# Cada corral de camión tiene un escalón interno (Y=770) para que nunca te quedes atrapado.
+
+# ===== TRAMO 1 (0-2200): Escalera inicial y Corral 1 (sin botellas) =====
+BLOQUE 550 780 180 120
+BLOQUE 730 660 200 240
+
+# Corral 1: Camión entre X=930 y X=1780 + escalón interno de rescate a la derecha
+CAMION 1250 780 940 1600
+BLOQUE 1620 770 160 130
+BLOQUE 1780 650 200 250
+BLOQUE 1980 780 180 120
+
+# Plataforma aérea opcional sobre el corral 1
+BLOQUE 1180 540 280 45
+
+# ===== TRAMO 2 (2280-4050): Fosa con plataforma central y doble escalada =====
+FOSA 2320 900 340 180
+BLOQUE 2410 760 160 45
+BLOQUE 2720 770 220 130
+
+# Púas en hueco amplio entre bloques (fácil de saltar sin frenarse)
+PUAS 2980 840
+
+# Escalada doble limpia (saltos de 125px de altura)
+BLOQUE 3280 650 240 250
+BLOQUE 3560 525 260 375
+BLOQUE 3850 680 220 220
+
+# ===== TRAMO 3 (4180-6450): Castillo Escalonado + Primera Gaseosa en cima segura =====
+BLOQUE 4180 780 190 120
+BLOQUE 4370 655 190 245
+BLOQUE 4560 530 220 370
+
+# Puente elevado largo: aterrizaje seguro a la izq, púas en el medio, gaseosa segura al final
+BLOQUE 4820 490 880 50
+PUAS 5140 430
+GASEOSA 5520 345
+
+# Púas en el piso inferior por si caes del puente + plataforma de bajada
+PUAS 4880 840
+PUAS 5140 840
+PUAS 5400 840
+BLOQUE 5760 640 220 260
+BLOQUE 6020 770 220 130
+
+# ===== TRAMO 4 (6350-8050): Corral 2 con salida garantizada y ruta aérea =====
+BLOQUE 6350 660 180 240
+CAMION 6900 780 6540 7320
+
+# Escalón interno derecho para poder salir si caes al corral
+BLOQUE 7340 770 160 130
+BLOQUE 7500 650 200 250
+BLOQUE 7700 780 180 120
+
+# Plataformas aéreas sobre el corral 2
+BLOQUE 6680 540 220 45
+BLOQUE 7060 430 240 45
+GASEOSA 7140 285
+
+# ===== TRAMO 5 (8120-10650): Torres y Plataformas Flotantes sobre Púas =====
+BLOQUE 8120 775 180 125
+BLOQUE 8300 650 180 250
+BLOQUE 8480 525 220 375
+
+# Campo de púas abajo con 3 plataformas aéreas bien espaciadas
+PUAS 8730 840
+PUAS 8970 840
+PUAS 9210 840
+PUAS 9450 840
+
+BLOQUE 8800 560 230 45
+BLOQUE 9160 460 250 45
+BLOQUE 9540 560 230 45
+
+# Torre de bajada con púas en medio
+BLOQUE 9860 640 240 260
+PUAS 10140 840
+BLOQUE 10420 760 220 140
+
+# ===== TRAMO 6 (10750-11950): Fosa larga con puente de 2 plataformas =====
+BLOQUE 10750 770 200 130
+FOSA 11000 900 580 180
+BLOQUE 11060 650 190 45
+BLOQUE 11340 540 210 45
+BLOQUE 11640 730 220 170
+
+# ===== TRAMO 7 (12000-14550): Corral 3 + Gran Pirámide Final =====
+BLOQUE 12000 650 180 250
+CAMION 12500 780 12190 12880
+
+# Escalón interno para subir a la gran pirámide sin quedarse encerrado
+BLOQUE 12900 770 160 130
+
+# Pirámide de 4 niveles (cada escalón sube exactamente 125px)
+BLOQUE 13060 650 180 250
+BLOQUE 13240 525 180 375
+BLOQUE 13420 400 240 500
+GASEOSA 13500 255
+
+# Descenso desde la pirámide sobre púas con plataforma de apoyo
+PUAS 13700 840
+PUAS 13940 840
+BLOQUE 13800 560 240 45
+BLOQUE 14180 730 240 170
+
+# ===== TRAMO 8 (14550-15360): Recta final hacia la meta =====
+BLOQUE 14560 780 200 120
+PUAS 14820 840

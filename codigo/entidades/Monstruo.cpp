@@ -55,7 +55,7 @@ Monstruo::Monstruo(double x, double y, const ParamsNivel1& p1, double gravedad)
     // Si algun new o constructor falla, se libera lo ya creado antes de relanzar
     try {
         // Las zonas cubren el recorrido de Rei: desde el borde izquierdo hasta el monstruo
-        percepcion = new Percepcion(p1.numZonas, 0.0, x);
+        percepcion = new Percepcion(p1.numZonas, 0.0, Nivel1Init::LIMITE_REI_DER);
         aprendizaje = new Aprendizaje(p1.numZonas, p1.factorOlvido);
         razonamiento = new Razonamiento(p1.numZonas, p1.suavizadoMin);
         accion = new Accion(p1, gravedad);

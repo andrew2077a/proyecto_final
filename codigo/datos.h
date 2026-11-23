@@ -2,32 +2,30 @@
 #define DATOS_H
 namespace Tamanio {
 // Rei
-constexpr double REI_MECHA_ANCHO = 280;     // CAMBIO: antes 140
-constexpr double REI_MECHA_ALTO = 440;      // CAMBIO: antes 220
-constexpr double REI_SOLDADO_ANCHO = 140;   // CAMBIO: antes 70
-constexpr double REI_SOLDADO_ALTO = 220;    // CAMBIO: antes 110
+// CAMBIO: tamaños reducidos (ajusta probando)
+constexpr double REI_MECHA_ANCHO = 100;
+constexpr double REI_MECHA_ALTO = 200;
+constexpr double REI_SOLDADO_ANCHO = 100;
+constexpr double REI_SOLDADO_ALTO = 160;
 
-// Monstruo
-constexpr double MONSTRUO_ANCHO = 600;      // CAMBIO: antes 300
-constexpr double MONSTRUO_ALTO = 1000;      // CAMBIO: antes 500
+constexpr double MONSTRUO_ANCHO = 384;      // proporción 3:5
+constexpr double MONSTRUO_ALTO = 640;       // y = 900 - 640 = 260, se ve completo
 
-// Camion
-constexpr double CAMION_ANCHO = 360;        // CAMBIO: antes 180
-constexpr double CAMION_ALTO = 180;         // CAMBIO: antes 90
+constexpr double CAMION_ANCHO = 240;
+constexpr double CAMION_ALTO = 120;
 
-// Proyectiles
-constexpr double BALA_REI_ANCHO = 60;       // CAMBIO: antes 30
-constexpr double BALA_REI_ALTO = 24;        // CAMBIO: antes 12
-constexpr double PARABOLICO_ANCHO = 100;    // CAMBIO: antes 50
-constexpr double PARABOLICO_ALTO = 100;     // CAMBIO: antes 50
-constexpr double ONDULATORIO_ANCHO = 120;   // CAMBIO: antes 60
-constexpr double ONDULATORIO_ALTO = 80;     // CAMBIO: antes 40
-constexpr double PUA_ANCHO = 40;            // CAMBIO: antes 20
-constexpr double PUA_ALTO = 40;             // CAMBIO: antes 20
-constexpr double BALA_LATERAL_ANCHO = 80;   // CAMBIO: antes 40
-constexpr double BALA_LATERAL_ALTO = 28;    // CAMBIO: antes 14
-constexpr double BOMBA_ANCHO = 80;          // CAMBIO: antes 40
-constexpr double BOMBA_ALTO = 120;          // CAMBIO: antes 60
+constexpr double BALA_REI_ANCHO = 40;
+constexpr double BALA_REI_ALTO = 16;
+constexpr double PARABOLICO_ANCHO = 70;
+constexpr double PARABOLICO_ALTO = 70;
+constexpr double ONDULATORIO_ANCHO = 90;
+constexpr double ONDULATORIO_ALTO = 60;
+constexpr double PUA_ANCHO = 30;
+constexpr double PUA_ALTO = 30;
+constexpr double BALA_LATERAL_ANCHO = 60;
+constexpr double BALA_LATERAL_ALTO = 22;
+constexpr double BOMBA_ANCHO = 60;
+constexpr double BOMBA_ALTO = 90;      // CAMBIO: antes 60
 
 // Obstaculos (bloque y fosa varian por pieza; estos son valores base)
 constexpr double BLOQUE_ANCHO = 400;        // CAMBIO: antes 200
@@ -50,7 +48,7 @@ constexpr double META_ALTO = 400;           // CAMBIO: antes 200
 // Pantalla logica
 constexpr double ANCHO_PANTALLA = 1920;
 constexpr double ALTO_PANTALLA = 1080;
-constexpr double ESPERA_FIN = 2.5;
+constexpr double ESPERA_FIN = 0.5;
 }
 namespace ParametrosComunes{
 // NORMAL
@@ -58,9 +56,9 @@ constexpr int VIDAS_REI = 5;
 constexpr int DANIO_BASE = 1;
 constexpr double INVULNERABILIDAD = 1.5;
 constexpr double GRAVEDAD = 1500;
-constexpr double VELOCIDAD_MECHA = 300;
+constexpr double VELOCIDAD_MECHA = 400;
 constexpr double VELOCIDAD_SOLDADO = 400;
-constexpr double VELOCIDAD_SALTO = 900;
+constexpr double VELOCIDAD_SALTO = 1200;
 constexpr double ANGULO_SALTO = 60;
 }
 namespace comunesDificil {
@@ -69,10 +67,10 @@ constexpr int VIDAS_REI = 3;
 constexpr int DANIO_BASE = 1;
 constexpr double INVULNERABILIDAD = 1.0;
 constexpr double GRAVEDAD = 1500;
-constexpr double VELOCIDAD_MECHA = 300;
+constexpr double VELOCIDAD_MECHA = 400;
 constexpr double VELOCIDAD_SOLDADO = 400;
-constexpr double VELOCIDAD_SALTO = 900;
-constexpr double ANGULO_SALTO = 60;
+constexpr double VELOCIDAD_SALTO = 1000;
+constexpr double ANGULO_SALTO = 70;
 }
 
 namespace Animacion {
@@ -88,7 +86,18 @@ constexpr const char* ARCHIVO_NIVEL2 = ":/maps/mundo.txt";
 
 // CAMBIO: los fondos son .jpg y están en :/fondos/fondos/
 constexpr const char* ARCHIVO_FONDO_NIVEL1 = ":/fondos/fondos/fondo.nivel1.jpg";
-constexpr const char* ARCHIVO_FONDO_NIVEL2 = ":/fondos/fondos/fondo-nivel2-1.jpg";
+
+constexpr int NUM_FONDOS_NIVEL2 = 8;
+constexpr const char* FONDOS_NIVEL2[NUM_FONDOS_NIVEL2] = {
+    ":/fondos/fondos/fondo-nivel2-1.jpg",
+    ":/fondos/fondos/fondo-nivel2-2.jpg",
+    ":/fondos/fondos/fondo-nivel2-3.jpg",
+    ":/fondos/fondos/fondo-nivel2-4.jpg",
+    ":/fondos/fondos/fondo-nivel2-5.jpg",
+    ":/fondos/fondos/fondo-nivel2-6.jpg",
+    ":/fondos/fondos/fondo-nivel2-7.jpg",
+    ":/fondos/fondos/fondo-nivel2-8.jpg"
+};
 constexpr const char* ARCHIVO_FONDO_MENU = ":/fondos/fondos/fondo-menu.jpg";
 constexpr const char* ARCHIVO_FONDO_PAUSA = ":/fondos/fondos/fondo-pausa.jpg";
 constexpr const char* ARCHIVO_FONDO_GANADO = ":/fondos/fondos/fondo-ganaste.jpg";
@@ -117,15 +126,15 @@ constexpr double ALTURA_APARICION_BOMBA = -200;  // y por encima de la pantalla
 }
 
 namespace Nivel2Normal {
-constexpr double TIEMPO_LIMITE = 180;
+constexpr double TIEMPO_LIMITE = 70;
 constexpr double INTERVALO_BOMBA = 4;
 constexpr int NUM_BOMBAS = 1;
 constexpr double RANGO_CAIDA_BOMBA = 200;
-constexpr double RADIO_DANIO_BOMBA = 60;
-constexpr double RADIO_EMPUJE_BOMBA = 150;
-constexpr double FUERZA_EMPUJE = 400;
+constexpr double RADIO_DANIO_BOMBA = 90;
+constexpr double RADIO_EMPUJE_BOMBA = 500;
+constexpr double FUERZA_EMPUJE = 1000;
 constexpr double AMORTIGUAMIENTO_EMPUJE = 3;
-constexpr double INTERVALO_BALA_LATERAL = 5;
+constexpr double INTERVALO_BALA_LATERAL = 4;
 constexpr int NUM_BALAS_LATERALES = 1;
 constexpr double VELOCIDAD_BALA = 500;
 constexpr double VELOCIDAD_CAMION_PATRULLA = 120;
@@ -135,17 +144,17 @@ constexpr double ESPERA_PUAS = 1;
 }
 
 namespace Nivel2Dificil {
-constexpr double TIEMPO_LIMITE = 150;
+constexpr double TIEMPO_LIMITE = 50;
 constexpr double INTERVALO_BOMBA = 4;
 constexpr int NUM_BOMBAS = 2;
 constexpr double RANGO_CAIDA_BOMBA = 100;
-constexpr double RADIO_DANIO_BOMBA = 60;
-constexpr double RADIO_EMPUJE_BOMBA = 150;
-constexpr double FUERZA_EMPUJE = 400;
+constexpr double RADIO_DANIO_BOMBA = 90;
+constexpr double RADIO_EMPUJE_BOMBA = 500;
+constexpr double FUERZA_EMPUJE = 1000;
 constexpr double AMORTIGUAMIENTO_EMPUJE = 3;
-constexpr double INTERVALO_BALA_LATERAL = 4;
+constexpr double INTERVALO_BALA_LATERAL = 2;
 constexpr int NUM_BALAS_LATERALES = 2;
-constexpr double VELOCIDAD_BALA = 600;
+constexpr double VELOCIDAD_BALA = 700;
 constexpr double VELOCIDAD_CAMION_PATRULLA = 200;
 constexpr double DURACION_GASEOSA = 8;
 constexpr double MULT_VELOCIDAD_GASEOSA = 0.5;
@@ -171,11 +180,11 @@ namespace Nivel1Normal {
 constexpr int VIDA_MONSTRUO = 30;
 constexpr double UMBRAL_FASE1 = 0.66;
 constexpr double UMBRAL_FASE2 = 0.33;
-constexpr double INTERVALO_PARABOLICO = 3;
-constexpr double INTERVALO_ONDULATORIO = 6;
+constexpr double INTERVALO_PARABOLICO = 5;
+constexpr double INTERVALO_ONDULATORIO = 20;
 constexpr double TIEMPO_CARGA = 1.0;
-constexpr int ATAQUES_COMBINADOS_MIN = 2;
-constexpr int ATAQUES_COMBINADOS_MAX = 3;
+constexpr int ATAQUES_COMBINADOS_MIN = 1;
+constexpr int ATAQUES_COMBINADOS_MAX = 1;
 constexpr bool ATAQUES_DOBLES = false;
 constexpr bool ESCUDO_MONSTRUO = false;
 constexpr double UMBRAL_ESCUDO_1 = 0.75;
@@ -196,25 +205,25 @@ constexpr double INTERVALO_CAMION_INICIAL = 4;
 constexpr double VELOCIDAD_CAMION_INICIAL = 250;
 constexpr double RAMPA_CAMIONES = 0.01;
 constexpr double CALOR_MAX = 100;
-constexpr double CALOR_POR_DISPARO = 5;
+constexpr double CALOR_POR_DISPARO = 7;
 constexpr double TIEMPO_RECARGA_CALOR = 2.5;
 constexpr double TIEMPO_BLOQUEO_GOLPE = 2;
 constexpr double CADENCIA_BASE = 0.25;
-constexpr double DURACION_BATERIA = 10;
+constexpr double DURACION_BATERIA = 5;
 constexpr double MULT_CADENCIA_BATERIA = 2;
 constexpr double MULT_VELOCIDAD_BATERIA = 0.6;
-constexpr double INTERVALO_BATERIA = 15;
+constexpr double INTERVALO_BATERIA = 5;
 }
 
 namespace Nivel1Dificil {
-constexpr int VIDA_MONSTRUO = 30;
+constexpr int VIDA_MONSTRUO = 40;
 constexpr double UMBRAL_FASE1 = 0.66;
 constexpr double UMBRAL_FASE2 = 0.33;
-constexpr double INTERVALO_PARABOLICO = 2;
-constexpr double INTERVALO_ONDULATORIO = 4;
+constexpr double INTERVALO_PARABOLICO = 3;
+constexpr double INTERVALO_ONDULATORIO = 8;
 constexpr double TIEMPO_CARGA = 0.7;
-constexpr int ATAQUES_COMBINADOS_MIN = 5;
-constexpr int ATAQUES_COMBINADOS_MAX = 6;
+constexpr int ATAQUES_COMBINADOS_MIN = 2;
+constexpr int ATAQUES_COMBINADOS_MAX = 2;
 constexpr bool ATAQUES_DOBLES = true;
 constexpr bool ESCUDO_MONSTRUO = true;
 constexpr double UMBRAL_ESCUDO_1 = 0.75;
@@ -242,6 +251,6 @@ constexpr double CADENCIA_BASE = 0.3;
 constexpr double DURACION_BATERIA = 10;
 constexpr double MULT_CADENCIA_BATERIA = 2;
 constexpr double MULT_VELOCIDAD_BATERIA = 0.6;
-constexpr double INTERVALO_BATERIA = 25;
+constexpr double INTERVALO_BATERIA = 10;
 }
 #endif // DATOS_H

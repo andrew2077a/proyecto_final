@@ -86,8 +86,14 @@ void Rei::actualizar(double dt){
         this->saltar();
     }
     this->actualizarSalto(dt);
+    // CAMBIO: avanzar la onda, sumar su desplazamiento y borrarla al terminar
     if(empuje!=nullptr){
-        this->aplicarEmpuje(empuje);
+        empuje->actualizar(dt);
+        this->x += empuje->getDelta();
+        if(empuje->haTerminado()){
+            delete empuje;
+            empuje = nullptr;
+        }
     }
     this->actualizarEfectos(dt);
 }
@@ -157,7 +163,7 @@ Proyectil* Rei::disparar() {
     cooldownDisparo = bateriaActiva ? (cadenciaBase / multCadenciaBateria) : cadenciaBase;
 
     double xBala = (direccion > 0) ? x + ancho : x;
-    Proyectil* bala = new Proyectil(xBala, y + alto / 2.0, TipoProyectil::RECTO, Propietario::REI, danioBase);
+    Proyectil* bala = new Proyectil(xBala, y + alto / 4.0, TipoProyectil::RECTO, Propietario::REI, danioBase);
     bala->setVelocidad(direccion * 800.0, 0.0);
     tiempoDisparoVisual = Animacion::DURACION_DISPARO_VISUAL;
     return bala;
@@ -270,6 +276,10 @@ bool Rei:: recibirDanio(int n){
     }
     tiempoInvulnerable=duracionInvulnerabilidad;
     tiempoDanioVisual=Animacion::DURACION_DANIO_VISUAL;
+    // CAMBIO: sin poder disparar unos segundos tras el golpe (en nivel 2 vale 0)
+    if(tiempoBloqueoGolpe > cooldownDisparo){
+        cooldownDisparo = tiempoBloqueoGolpe;
+    }
     return true;
 }
 void Rei::matar(){

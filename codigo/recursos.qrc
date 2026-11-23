@@ -35,6 +35,13 @@
         <file>fondos/fondo-nivel2-1.jpg</file>
         <file>fondos/fondo-pausa.jpg</file>
         <file>fondos/fondo-perdiste.jpg</file>
+        <file>fondos/fondo-nivel2-2.jpg</file>
+        <file>fondos/fondo-nivel2-3.jpg</file>
+        <file>fondos/fondo-nivel2-4.jpg</file>
+        <file>fondos/fondo-nivel2-5.jpg</file>
+        <file>fondos/fondo-nivel2-6.jpg</file>
+        <file>fondos/fondo-nivel2-7.jpg</file>
+        <file>fondos/fondo-nivel2-8.jpg</file>
     </qresource>
     <qresource prefix="/musica-sonidos">
         <file>musica-sonidos/disparo_rei.wav</file>

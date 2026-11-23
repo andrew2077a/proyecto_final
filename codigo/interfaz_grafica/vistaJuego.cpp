@@ -7,7 +7,26 @@
 #include <QPainter>
 
 namespace {
-constexpr double FACTOR_PARALAJE = 0.30;   // el fondo avanza al 30 % de la velocidad de la camara
+QPixmap cargarFondoEscalado(const char* ruta){
+    QPixmap imagen(ruta);
+    if(imagen.isNull()){
+        throw std::runtime_error(std::string("No se pudo cargar el fondo: ") + ruta);
+    }
+    return imagen.scaled(static_cast<int>(Tamanio::ANCHO_PANTALLA),
+                         static_cast<int>(Tamanio::ALTO_PANTALLA),
+                         Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+}
+
+int indiceFondoNivel2(int tramo){
+    const int tramos = static_cast<int>(std::ceil(Nivel2Mundo::ANCHO_MUNDO / Tamanio::ANCHO_PANTALLA));
+    if(tramo < 0){
+        tramo = 0;
+    }
+    if(tramo > tramos - 1){
+        tramo = tramos - 1;
+    }
+    return tramo * Rutas::NUM_FONDOS_NIVEL2 / tramos;
+}
 }
 
 VistaJuego::VistaJuego(Juego* juego, QWidget* parent)
@@ -21,9 +40,7 @@ VistaJuego::VistaJuego(Juego* juego, QWidget* parent)
     panel(new PanelEstado(escena)),
     fondo(nullptr),
     fondo2(nullptr),
-    fondoDesplazable(false),
-    fondoAEspejo(false),
-    fondoBEspejo(true),
+    tramoFondo(-1),
     meta(nullptr)
 {
     setScene(escena);
@@ -198,29 +215,23 @@ void VistaJuego::sincronizarSprites(double dt){
     actualizarMeta(camaraX);
 }
 
-// Fondo en dos baldosas que se desplazan mas despacio que la camara (paralaje). La baldosa impar va
-// espejada para que el borde derecho de una empalme exacto con el borde izquierdo de la siguiente.
 void VistaJuego::actualizarFondo(double camaraX){
-    if(!fondoDesplazable || fondo == nullptr || fondo2 == nullptr){
+    if(fondo == nullptr || fondo2 == nullptr){
         return;
     }
     const double W = Tamanio::ANCHO_PANTALLA;
-    const double desplazamiento = camaraX * FACTOR_PARALAJE;
-    const int base = static_cast<int>(std::floor(desplazamiento / W));
-    const double resto = desplazamiento - base * W;
+    const int tramo = static_cast<int>(camaraX / W);
 
-    const bool espejoA = (base % 2) != 0;
-    const bool espejoB = !espejoA;
-    if(espejoA != fondoAEspejo){
-        fondo->setPixmap(espejoA ? fondoEspejo : fondoNormal);
-        fondoAEspejo = espejoA;
+    // Solo se cambia el pixmap al entrar a otra pantalla, no en cada ciclo
+    if(!fondosNivel2.isEmpty() && tramo != tramoFondo){
+        tramoFondo = tramo;
+        fondo->setPixmap(fondosNivel2[indiceFondoNivel2(tramo)]);
+        fondo2->setPixmap(fondosNivel2[indiceFondoNivel2(tramo + 1)]);
     }
-    if(espejoB != fondoBEspejo){
-        fondo2->setPixmap(espejoB ? fondoEspejo : fondoNormal);
-        fondoBEspejo = espejoB;
-    }
-    fondo->setPos(-resto, 0);
-    fondo2->setPos(W - resto, 0);
+
+    const double desplazamiento = camaraX - tramo * W;
+    fondo->setPos(-desplazamiento, 0);
+    fondo2->setPos(W - desplazamiento, 0);
 }
 
 // La meta del nivel 2 no tenia ninguna imagen: el jugador no sabia a donde ir.
@@ -231,54 +242,39 @@ void VistaJuego::actualizarMeta(double camaraX){
 }
 
 void VistaJuego::cargarFondo(int numNivel){
-    const char* ruta = nullptr;
+    fondosNivel2.clear();
+    QPixmap primero;
     switch(numNivel){
     case 1:
-        ruta = Rutas::ARCHIVO_FONDO_NIVEL1;
+        primero = cargarFondoEscalado(Rutas::ARCHIVO_FONDO_NIVEL1);
         break;
     case 2:
-        ruta = Rutas::ARCHIVO_FONDO_NIVEL2;
+        for(int i = 0; i < Rutas::NUM_FONDOS_NIVEL2; ++i){
+            fondosNivel2.push_back(cargarFondoEscalado(Rutas::FONDOS_NIVEL2[i]));
+        }
+        primero = fondosNivel2[0];
         break;
     default:
         throw std::invalid_argument("cargarFondo: nivel no valido");
     }
 
-    // Cargar la imagen; si el archivo no esta en el .qrc, la imagen queda nula
-    QPixmap imagen(ruta);
-    if(imagen.isNull()){
-        throw runtime_error(std::string("No se pudo cargar el fondo: ") + ruta);
-    }
-
-    // Escalar UNA sola vez a la resolucion logica (no en cada ciclo)
-    imagen = imagen.scaled(static_cast<int>(Tamanio::ANCHO_PANTALLA),static_cast<int>(Tamanio::ALTO_PANTALLA),Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-
-    fondoNormal = imagen;
-    fondoDesplazable = (numNivel == 2);              // el nivel 2 mide 8 pantallas: el fondo se desplaza
-    if(fondoDesplazable){
-        fondoEspejo = QPixmap::fromImage(imagen.toImage().mirrored(true, false));
-    }
-
+    tramoFondo = -1;    // fuerza a actualizarFondo a poner las imagenes
     if(fondo == nullptr){
-        fondo = escena->addPixmap(fondoNormal);
-        fondo->setZValue(-10);                       // debajo de sprites (1-8) y HUD (100)
+        fondo = escena->addPixmap(primero);
+        fondo->setZValue(-10);
         fondo->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
-    }
-    else{
-        fondo->setPixmap(fondoNormal);
-    }
-    if(fondo2 == nullptr){
-        fondo2 = escena->addPixmap(fondoNormal);
+        fondo2 = escena->addPixmap(primero);
         fondo2->setZValue(-10);
         fondo2->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     }
-    fondo->setPos(0, 0);
-    fondoAEspejo = false;
-    fondoBEspejo = fondoDesplazable;                 // la baldosa B arranca espejada (nivel 2)
-    fondo2->setPixmap(fondoDesplazable ? fondoEspejo : fondoNormal);
-    fondo2->setPos(Tamanio::ANCHO_PANTALLA, 0);
-    fondo2->setVisible(fondoDesplazable);
+    else{
+        fondo->setPixmap(primero);
+        fondo2->setPixmap(primero);
+    }
+    fondo2->setVisible(numNivel == 2);
+    actualizarFondo(0.0);
 
-    // Bandera de meta (solo nivel 2)
+    // Bandera de meta (solo nivel 2): esta parte queda igual que la tenias
     if(numNivel == 2){
         if(meta == nullptr){
             const QString ruta = QString(Rutas::CARPETA_SPRITES) + "meta" + Rutas::EXTENSION_SPRITES;
@@ -287,7 +283,7 @@ void VistaJuego::cargarFondo(int numNivel){
                 throw runtime_error(std::string("No se pudo cargar la meta: ") + ruta.toStdString());
             }
             imagenMeta = imagenMeta.scaled(static_cast<int>(Tamanio::META_ANCHO), static_cast<int>(Tamanio::META_ALTO),
-                                           Qt::IgnoreAspectRatio, Qt::FastTransformation);   // pixel-art: sin suavizar
+                                           Qt::IgnoreAspectRatio, Qt::FastTransformation);
             meta = escena->addPixmap(imagenMeta);
             meta->setZValue(3);
         }

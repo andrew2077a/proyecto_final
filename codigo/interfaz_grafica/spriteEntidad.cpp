@@ -66,7 +66,7 @@ const EntradaAnimacion TABLA[] = {
     { TipoSprite::REI_SOLDADO, EstadoVisual::DANIADO,    6, 0.07,  false },
     { TipoSprite::MONSTRUO,    EstadoVisual::QUIETO,     4, 0.25,  true  },
     { TipoSprite::MONSTRUO,    EstadoVisual::LANZANDO,   5, 0.20,  false },   // 5 * 0.20 = 1.0 s = TIEMPO_CARGA (Normal)
-    { TipoSprite::MONSTRUO,    EstadoVisual::MURIENDO,   5, 0.50,  false },   // 5 * 0.5 = 2.5 s = ESPERA_FIN
+    { TipoSprite::MONSTRUO,    EstadoVisual::MURIENDO,   5, 0.25,  false },   // 5 * 0.5 = 2.5 s = ESPERA_FIN
     { TipoSprite::CAMION,      EstadoVisual::QUIETO,     4, 0.08,  true  }
 };
 const int NUM_ENTRADAS = static_cast<int>(sizeof(TABLA) / sizeof(TABLA[0]));

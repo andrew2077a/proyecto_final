@@ -19,6 +19,7 @@
 #include "entidades/entidad.h"
 #include "interfaz_grafica/panelEstado.h"
 #include "interfaz_grafica/spriteEntidad.h"
+#include <QVector>
 
 enum class IdMusica { MENU, PAUSA, NIVEL1, NIVEL2 };
 class VistaJuego: public QGraphicsView{
@@ -38,11 +39,8 @@ private:
     QGraphicsPixmapItem* fondo;
 
     QGraphicsPixmapItem* fondo2;
-    QPixmap fondoNormal;
-    QPixmap fondoEspejo;
-    bool fondoDesplazable;
-    bool fondoAEspejo;
-    bool fondoBEspejo;
+    QVector<QPixmap> fondosNivel2;
+    int tramoFondo;
     QGraphicsPixmapItem* meta;
 
 public:

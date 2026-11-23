@@ -114,11 +114,31 @@ void Nivel2::construirMundo(){
 
 void Nivel2:: actualizar(double dt){
     rei->actualizar(dt);
+
+    // CAMBIO: colisión lateral con bloques y límites del mundo
+    for(auto o : obstaculos){
+        if(o->esSolido() && rei->colisionaCon(*o) &&
+            rei->getY() + rei->getAlto() > o->getY() + 60){
+            double cRei = rei->getX() + rei->getAncho() / 2.0;
+            double cBloque = o->getX() + o->getAncho() / 2.0;
+            if(cRei < cBloque){
+                rei->setPosicion(o->getX() - rei->getAncho(), rei->getY());
+            } else {
+                rei->setPosicion(o->getX() + o->getAncho(), rei->getY());
+            }
+        }
+    }
+    if(rei->getX() < 0){
+        rei->setPosicion(0, rei->getY());
+    }
+    if(rei->getX() + rei->getAncho() > anchoMundo){
+        rei->setPosicion(anchoMundo - rei->getAncho(), rei->getY());
+    }
     double ySup;
     if(superficieBajo(*rei,ySup)){
         double pies=rei->getY()+rei->getAlto();
-        if(pies>=ySup){
-            rei->apoyarEn(ySup);
+        if(pies>=ySup+20){
+            rei->apoyarEn(ySup+20);
         }
         else if(pies<ySup-1){
             rei->iniciarCaida();
@@ -149,6 +169,17 @@ void Nivel2:: actualizar(double dt){
         temporizadorBomba=params.intervaloBomba;
     }
     procesarExplosiones();
+    // CAMBIO: la bomba tambien explota al chocar con un bloque
+    for(auto b : bombas){
+        if(!b->haExplotado()){
+            for(auto o : obstaculos){
+                if(o->esSolido() && b->colisionaCon(*o)){
+                    b->explotar();
+                    break;
+                }
+            }
+        }
+    }
     actualizarScroll();
     eliminarInactivos();
 }
@@ -193,7 +224,10 @@ void Nivel2:: soltarBomba(){
         double Y= Nivel2Mundo::ALTURA_APARICION_BOMBA;
         Proyectil* bomba=new Proyectil(X,Y,TipoProyectil::BOMBA,Propietario::ENEMIGO,comunes.danioBase);
         bomba->configurarBomba(ySuelo,params.radioDanioBomba,params.radioEmpujeBomba,params.fuerzaEmpuje,params.amortiguamientoEmpuje);
-        bomba->setFisica(new MovParabolico(X, Y));
+        // CAMBIO: sin setParametros la gravedad quedaba en 0 y la bomba no caía
+        MovParabolico* caida = new MovParabolico(X, Y);
+        caida->setParametros(0, 0, comunes.gravedad, 1);
+        bomba->setFisica(caida);
         agregarEntidad(bomba);
         bombas.push_back(bomba);
         this->RegistrarEvento(TipoEvento::BOMBA_CAE);

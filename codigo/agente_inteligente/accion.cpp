@@ -3,7 +3,7 @@
 #include "fisicas/movParabolico.h"
 #include <cmath>
 #include <stdexcept>
-
+#include "datos.h"
 namespace {
 const double PI = std::acos(-1.0);
 }
@@ -26,14 +26,16 @@ Accion::Accion(const ParamsNivel1& p1, double gravedad)
 }
 
 Proyectil* Accion::ejecutar(int zona, double centroX, double origenX, double origenY) {
-    // Alcance R = distancia horizontal al objetivo; de R = v0^2 * sen(2*theta) / g
-    // se despeja v0 = sqrt(R * g / sen(2*theta)).
-    const double alcance = std::fabs(centroX - origenX);
-    const double sen2t = std::sin(2.0 * anguloDisparo * PI / 180.0);
-    double v0 = std::sqrt(alcance * gravedad / sen2t);
-    if (v0 > velocidadMax) v0 = velocidadMax;       // el tope de velocidad manda
-
-    const int dirX = (centroX >= origenX) ? 1 : -1; // hacia donde esta el objetivo
+    // CAMBIO: apunta al centro de Rei considerando la diferencia de altura
+    const double objetivoX = centroX + Tamanio::REI_MECHA_ANCHO / 2.0 - Tamanio::PARABOLICO_ANCHO / 2.0;
+    const double objetivoY = Nivel1Init::Y_SUELO - Tamanio::REI_MECHA_ALTO / 2.0 - Tamanio::PARABOLICO_ALTO / 2.0;
+    const double alcance = std::fabs(objetivoX - origenX);
+    const double rad = anguloDisparo * PI / 180.0;
+    const double dy = objetivoY - origenY;   // positivo: el objetivo esta mas abajo
+    const double den = 2.0 * std::cos(rad) * std::cos(rad) * (alcance * std::tan(rad) + dy);
+    double v0 = (den > 0.0) ? std::sqrt(gravedad * alcance * alcance / den) : velocidadMax;
+    if (v0 > velocidadMax) v0 = velocidadMax;
+    const int dirX = (objetivoX >= origenX) ? 1 : -1;
 
     Proyectil* p = new Proyectil(origenX, origenY, TipoProyectil::PARABOLICO,
                                  Propietario::ENEMIGO, danio);

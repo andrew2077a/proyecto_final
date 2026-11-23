@@ -221,7 +221,7 @@ void Nivel1::notificarAgente(){
             continue;
         }
         bool impacto = p->haImpactado();
-        bool fuera = p->fueraDePantalla(0, Tamanio::ANCHO_PANTALLA,0, Tamanio::ALTO_PANTALLA);
+        bool fuera = p->getX() + p->getAncho() < 0 || p->getY() + p->getAlto() >= Nivel1Init::Y_SUELO;
         if (!impacto && !fuera){
             continue;
         }
@@ -243,6 +243,9 @@ void Nivel1::actualizarGeneracionCamiones(double dt){
 
 void Nivel1:: eliminarInactivos(){
     for(Proyectil* p : proyectiles){
+        if(p->getTipo() == TipoProyectil::PARABOLICO && p->getY() + p->getAlto() >= Nivel1Init::Y_SUELO){
+            p->desactivar();
+        }
         if(p->fueraDePantalla(-500, Tamanio::ANCHO_PANTALLA + 500,
                                -1000, Tamanio::ALTO_PANTALLA + 500)){
             p->desactivar();
