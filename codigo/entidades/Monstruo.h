@@ -1,5 +1,5 @@
-#ifndef MOUSTRO_H
-#define MOUSTRO_H
+#ifndef MONSTRUO_H
+#define MONSTRUO_H
 
 #include <vector>
 #include "entidades/entidad.h"
@@ -24,7 +24,7 @@ private:
     Aprendizaje* aprendizaje;    // Tarea 4: recordar y mejorar
     int ultimaZona;              // Ultima zona donde se percibio a Rei
     int vida;                    // Vida actual (Entidad no tiene vida)
-    const Nivel1::ParamsNivel1* params;
+    const ParamsNivel1* params;
     int fase;
     int vidaMax;
     double temporizadorAtaque;
@@ -54,7 +54,7 @@ private:
     void liberarAgente();
 
 public:
-    Monstruo(double x, double y, const Nivel1::ParamsNivel1& p1, double gravedad);
+    Monstruo(double x, double y, const ParamsNivel1& p1, double gravedad);
     ~Monstruo() override;
 
     // Las cuatro partes son propias: copiar el objeto las liberaria dos veces
@@ -77,4 +77,4 @@ public:
     bool tieneEscudo() const;
 };
 
-#endif // MOUSTRO_H
+#endif // MONSTRUO_H

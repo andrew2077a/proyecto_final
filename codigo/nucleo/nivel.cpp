@@ -73,9 +73,6 @@ void Nivel::agregarItem(Item* i){
     }
 }
 
-CamionNorcoreano* Nivel::crearCamion(double x, double y, ModoCamion modo, double velocidad){
-    return new CamionNorcoreano(x,y,modo,velocidad);
-}
 
 void Nivel::detectarColisiones(){
     for(auto i: entidades){
@@ -154,7 +151,7 @@ vector<TipoEvento> Nivel::tomarEventos(){
 
 vector<Entidad*> Nivel::obtenerEntidadesDibujables() {
     vector<Entidad*> dibujas;
-    dibujas.reserve(entidades.size() + obstaculos.size() + items.size() + 2);
+    dibujas.reserve(entidades.size() + obstaculos.size() + items.size() + 1);
     if (rei != nullptr) {
         dibujas.push_back(rei);
     }

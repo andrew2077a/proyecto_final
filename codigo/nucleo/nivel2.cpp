@@ -98,8 +98,8 @@ void Nivel2::construirMundo(){
         }
         else if(tipo=="CAMION"){
             flujoLinea>>x>>y>>izq>>der;
-            CamionNorcoreano* camion=crearCamion(x,y,ModoCamion::PATRULLA,params.velocidadCamionPatrulla);
-            camion->configurarPatrulla(izq,der);
+            CamionNorcoreano* camion = new CamionNorcoreano(x, y, ModoCamion::PATRULLA,params.velocidadCamionPatrulla);
+            camion->configurarPatrulla(izq, der);
             agregarEntidad(camion);
         }
         else if(tipo=="GASEOSA"){

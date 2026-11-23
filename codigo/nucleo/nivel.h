@@ -39,7 +39,6 @@ protected:
     void agregarEntidad(Entidad* e);
     void agregarObstaculo(Obstaculo* o);
     void agregarItem(Item* i);
-    CamionNorcoreano* crearCamion(double x, double y, ModoCamion modo, double velocidad);
     void detectarColisiones();
     virtual void eliminarInactivos();
     void actualizarTemporizador(double dt);

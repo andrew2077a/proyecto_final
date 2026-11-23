@@ -13,9 +13,9 @@ SOURCES += \
     agente_inteligente/aprendizaje.cpp \
     agente_inteligente/percepcion.cpp \
     agente_inteligente/razonamiento.cpp \
+    entidades/Monstruo.cpp \
     entidades/camionNorcoreano.cpp \
     entidades/entidad.cpp \
-    entidades/moustro.cpp \
     entidades/proyectil.cpp \
     entidades/rei.cpp \
     fisicas/fisica.cpp \
@@ -40,9 +40,9 @@ HEADERS += \
     agente_inteligente/percepcion.h \
     agente_inteligente/razonamiento.h \
     datos.h \
+    entidades/Monstruo.h \
     entidades/camionNorcoreano.h \
     entidades/entidad.h \
-    entidades/moustro.h \
     entidades/proyectil.h \
     entidades/rei.h \
     fisicas/fisica.h \
