@@ -50,9 +50,8 @@ VistaJuego::VistaJuego(Juego* juego, QWidget* parent)
     setFocusPolicy(Qt::StrongFocus);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    // CAMBIO: apariencia de la vista
-    setFrameShape(QFrame::NoFrame);                  // sin el borde gris por defecto de QGraphicsView
-    setBackgroundBrush(Qt::black);                   // las bandas de pantallas no 16:9 quedan negras, no blancas/grises
+    setFrameShape(QFrame::NoFrame);
+    setBackgroundBrush(Qt::black);
     setAlignment(Qt::AlignCenter);
     setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
     setViewportUpdateMode(QGraphicsView::FullViewportUpdate);   // el fondo se mueve: evita restos al hacer scroll
@@ -122,6 +121,9 @@ void VistaJuego::keyPressEvent(QKeyEvent* evento){
     case Qt::Key_Space:
         juego->manejarTecla(Tecla::DISPARAR,true);
         break;
+    case Qt::Key_S:
+        juego->manejarTecla(Tecla::AGACHARSE,true);
+        break;
     case Qt::Key_Escape:
         emit pausaSolicitada();
         break;
@@ -148,6 +150,9 @@ void VistaJuego::keyReleaseEvent(QKeyEvent* evento){
         break;
     case Qt::Key_Space:
         juego->manejarTecla(Tecla::DISPARAR,false);
+        break;
+    case Qt::Key_S:
+        juego->manejarTecla(Tecla::AGACHARSE,false);
         break;
     case Qt::Key_Escape:
         break;
@@ -208,7 +213,10 @@ void VistaJuego::sincronizarSprites(double dt){
         }
         // primero la animacion y luego la posicion (la escala depende del fotograma)
         sprites[e]->actualizarAnimacion(dt, e->getEstadoVisual(), e->miraDerecha());
-        sprites[e]->actualizarPosicion(e->getX(), e->getY(), e->getAncho(), e->getAlto(), camaraX, e->getRotacion());
+        // el sprite se escala con el alto "de pie" y se apoya en los pies de la caja (importa con Rei agachada)
+        const double altoVisual = e->getAltoVisual();
+        const double yVisual = e->getY() + e->getAlto() - altoVisual;
+        sprites[e]->actualizarPosicion(e->getX(), yVisual, e->getAncho(), altoVisual, camaraX, e->getRotacion());
     }
 
     actualizarFondo(camaraX);

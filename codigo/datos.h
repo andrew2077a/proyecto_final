@@ -73,6 +73,12 @@ constexpr double VELOCIDAD_SALTO = 1000;
 constexpr double ANGULO_SALTO = 70;
 }
 
+// Agacharse (tecla S): la caja de colision baja a este porcentaje y los pies siguen en el suelo
+namespace Agachado {
+constexpr double FACTOR_ALTO = 0.60;        // alto agachada / alto de pie (los sprites *_agachado.png miden eso)
+constexpr double FACTOR_VELOCIDAD = 0.40;   // agachada camina al 40 % de la velocidad
+}
+
 namespace Animacion {
 constexpr double DURACION_DISPARO_VISUAL = 0.24;
 constexpr double DURACION_DANIO_VISUAL = 0.42;

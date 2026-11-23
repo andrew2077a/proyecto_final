@@ -3,7 +3,7 @@
 #include "fisicas/fisica.h"
 
 class Rei;
-enum class EstadoVisual { QUIETO, CORRIENDO, SALTANDO, DISPARANDO, DANIADO, LANZANDO, MURIENDO };
+enum class EstadoVisual { QUIETO, CORRIENDO, SALTANDO, DISPARANDO, DANIADO, LANZANDO, MURIENDO, AGACHADO };
 enum class TipoSprite { REI_MECHA, REI_SOLDADO, MONSTRUO, CAMION, PROYECTIL_REI,
                         PROYECTIL_MONSTRUO, ONDULATORIO, PUA, BOMBA, BLOQUE,
                         FOSA, PUAS, BATERIA, GASEOSA, META };
@@ -39,8 +39,8 @@ public:
 
     virtual EstadoVisual getEstadoVisual() const { return EstadoVisual::QUIETO; }
     virtual bool miraDerecha() const { return true; }
-    // CAMBIO: giro (en grados, sentido horario) con que se dibuja el sprite. Solo la pua lo usa.
     virtual double getRotacion() const { return 0.0; }
+    virtual double getAltoVisual() const { return alto; }
 };
 
 #endif // ENTIDAD_H

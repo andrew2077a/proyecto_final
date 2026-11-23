@@ -41,6 +41,7 @@ QString nombreEstadoDe(EstadoVisual estado) {
     case EstadoVisual::DANIADO:    return "_danio";      // sin enie
     case EstadoVisual::LANZANDO:   return "_lanzando";
     case EstadoVisual::MURIENDO:   return "_muriendo";
+    case EstadoVisual::AGACHADO:   return "_agachado";
     }
     return "";
 }
@@ -60,6 +61,8 @@ const EntradaAnimacion TABLA[] = {
     { TipoSprite::REI_MECHA,   EstadoVisual::SALTANDO,   3, 0.12,  false },
     { TipoSprite::REI_MECHA,   EstadoVisual::DISPARANDO, 6, 0.04,  false },   // 6 * 0.04 = 0.24 s = DURACION_DISPARO_VISUAL
     { TipoSprite::REI_MECHA,   EstadoVisual::DANIADO,    6, 0.07,  false },   // 6 * 0.07 = 0.42 s = DURACION_DANIO_VISUAL
+    { TipoSprite::REI_MECHA,   EstadoVisual::AGACHADO,   1, 0.25,  true  },
+    { TipoSprite::REI_SOLDADO, EstadoVisual::AGACHADO,   1, 0.25,  true  },
     { TipoSprite::REI_SOLDADO, EstadoVisual::QUIETO,     4, 0.25,  true  },
     { TipoSprite::REI_SOLDADO, EstadoVisual::CORRIENDO,  6, 0.08,  true  },
     { TipoSprite::REI_SOLDADO, EstadoVisual::SALTANDO,   3, 0.12,  false },
@@ -194,8 +197,7 @@ bool SpriteEntidad::usarImagenNormal() const{
     return mirandoDerecha == configDe(tipoSprite).nativoDerecha;
 }
 
-// Alto del personaje de pie = alto del fotograma de la tira QUIETO (todas las tiras del mismo
-// personaje vienen a la misma escala, asi que el resto de estados se dibuja proporcional).
+
 double SpriteEntidad::alturaReferencia() const{
     const QVector<QPixmap> quieto = cache.value(llaveDe(tipoSprite, EstadoVisual::QUIETO, true));
     return quieto.isEmpty() ? 0.0 : quieto[0].height();

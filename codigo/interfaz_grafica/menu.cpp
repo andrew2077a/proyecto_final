@@ -121,7 +121,7 @@ QPushButton* crearBoton(Pagina& pagina, const QString& texto) {
 // Recordatorio de controles
 void agregarAyudaControles(Pagina& pagina) {
     QLabel* ayuda = new QLabel(
-        "A / D  mover\nW  saltar\nESPACIO  disparar (nivel 1)\nESC  pausa      F11  pantalla completa",
+        "A / D  mover\nW  saltar\nS  agacharse\nESPACIO  disparar (nivel 1)\nESC  pausa      F11  pantalla completa",
         pagina.widget);
     ayuda->setAlignment(Qt::AlignCenter);
     ayuda->setFont(QFont("Arial", 13));
@@ -323,7 +323,7 @@ void Menu::alElegirNivel(int num) {
     catch (const std::runtime_error& e) {         // fondo, mapa o sonido que no se pudo cargar
         volverPorError("Recurso no encontrado", e);
     }
-    catch (const std::exception& e) {             // cualquier otro error estandar
+    catch (const std::exception& e) {
         volverPorError("Error inesperado", e);
     }
 }
@@ -333,13 +333,12 @@ void Menu::alPausar() {
         return;
     }
     juego->pausar();
-    vista->detener();                             // se detiene el timer: no se gasta CPU en pausa
-    // Soltar todas las teclas. Si el jugador suelta una tecla mientras esta en el menu
-    // de pausa, la vista no recibe el keyRelease y Rei quedaria caminando sola al reanudar.
+    vista->detener();
     juego->manejarTecla(Tecla::IZQUIERDA, false);
     juego->manejarTecla(Tecla::DERECHA, false);
     juego->manejarTecla(Tecla::SALTAR, false);
     juego->manejarTecla(Tecla::DISPARAR, false);
+    juego->manejarTecla(Tecla::AGACHARSE, false);
     mostrarPausa();
 }
 
@@ -351,18 +350,18 @@ void Menu::alReanudar() {
 }
 
 void Menu::alReiniciar() {
-    // se reutiliza alElegirNivel(): ya tiene el try/catch y deja todo listo.
+
     alElegirNivel(ultimoNivel);
 }
 
 void Menu::alVolverAlMenu() {
     vista->detener();
-    juego->volverAlMenu();                        // borra el nivel y pasa a EstadoJuego::MENU
+    juego->volverAlMenu();
     mostrarPantallaDificultad();
 }
 
 void Menu::alTerminarNivel(bool gano) {
-    mostrarFin(gano);                             // la vista ya detuvo su timer antes de emitir
+    mostrarFin(gano);
 }
 
 void Menu::alternarPantallaCompleta() {

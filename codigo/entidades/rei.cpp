@@ -2,8 +2,6 @@
 #include "nucleo/nivel.h"
 #include "nucleo/nivel1.h"
 
-
-
 Rei::Rei(ModoRei modo, const ParamsComunes& comunes, const ParamsNivel1* p1, double x, double y)
     : Entidad(x, y, modo == ModoRei::MECHA ? Tamanio::REI_MECHA_ANCHO : Tamanio::REI_SOLDADO_ANCHO,
               modo == ModoRei::MECHA ? Tamanio::REI_MECHA_ALTO : Tamanio::REI_SOLDADO_ALTO,
@@ -25,13 +23,16 @@ Rei::Rei(ModoRei modo, const ParamsComunes& comunes, const ParamsNivel1* p1, dou
     this->duracionInvulnerabilidad=comunes.invulnerabilidad;
     this->tiempoInvulnerable=0;
     this->tiempoDisparoVisual=0;
-    this->tiempoDanioVisual=0;     // CAMBIO
+    this->tiempoDanioVisual=0;
 
     this->direccion=1;
     this->izquierdaPresionada=false;
     this->derechaPresionada=false;
     this->disparando=false;
     this->saltoSolicitado=false;
+    this->agachadaPresionada=false;
+    this->agachada=false;
+    this->altoDePie=this->alto;
     this->enSuelo=true;
     this->salto=nullptr;
     this->empuje=nullptr;
@@ -81,12 +82,13 @@ void Rei::actualizar(double dt){
     if(dir!=0){
         this->direccion=dir;
     }
+    this->actualizarAgachado();
     this->mover(dir,dt);
     if(saltoSolicitado){
         this->saltar();
     }
     this->actualizarSalto(dt);
-    // CAMBIO: avanzar la onda, sumar su desplazamiento y borrarla al terminar
+
     if(empuje!=nullptr){
         empuje->actualizar(dt);
         this->x += empuje->getDelta();
@@ -110,6 +112,31 @@ void Rei:: procesarEntrada(Tecla tecla, bool presionada){
     else if(tecla==Tecla::DISPARAR){
         this->disparando=presionada;
     }
+    else if(tecla==Tecla::AGACHARSE){
+        this->agachadaPresionada=presionada;
+    }
+}
+
+
+void Rei::actualizarAgachado(){
+    const bool quiere = agachadaPresionada && enSuelo && !saltoSolicitado;
+    if(quiere && !agachada){
+        const double nuevoAlto = altoDePie * Agachado::FACTOR_ALTO;
+        this->y += this->alto - nuevoAlto;
+        this->alto = nuevoAlto;
+        this->agachada = true;
+    }
+    else if(!quiere && agachada){
+        this->y -= altoDePie - this->alto;
+        this->alto = altoDePie;
+        this->agachada = false;
+    }
+}
+bool Rei::estaAgachada() const{
+    return agachada;
+}
+double Rei::getAltoVisual() const{
+    return altoDePie;
 }
 
 void Rei::mover(int dir, double dt){
@@ -235,7 +262,7 @@ void Rei::actualizarEfectos(double dt){
             tiempoInvulnerable=0;
         }
     }
-    // CAMBIO: los temporizadores visuales bajan igual que los demás, sin pasar de 0
+
     if(tiempoDisparoVisual>0){
         tiempoDisparoVisual-=dt;
         if(tiempoDisparoVisual<0){
@@ -251,6 +278,9 @@ void Rei::actualizarEfectos(double dt){
 }
 double Rei:: calcularVelocidadEfectiva() const{
     double v=velocidadBase;
+    if(agachada){
+        v*=Agachado::FACTOR_VELOCIDAD;
+    }
     if(bateriaActiva){
         v*=multVelocidadBateria;
     }
@@ -276,7 +306,7 @@ bool Rei:: recibirDanio(int n){
     }
     tiempoInvulnerable=duracionInvulnerabilidad;
     tiempoDanioVisual=Animacion::DURACION_DANIO_VISUAL;
-    // CAMBIO: sin poder disparar unos segundos tras el golpe (en nivel 2 vale 0)
+
     if(tiempoBloqueoGolpe > cooldownDisparo){
         cooldownDisparo = tiempoBloqueoGolpe;
     }
@@ -316,7 +346,7 @@ bool  Rei:: estaDisparando() const{
     return disparando;
 }
 
-// CAMBIO: gana el primero que se cumple (DANIADO va primero para verse incluso saltando)
+
 EstadoVisual Rei::getEstadoVisual() const{
     if(tiempoDanioVisual>0){
         return EstadoVisual::DANIADO;
@@ -324,16 +354,19 @@ EstadoVisual Rei::getEstadoVisual() const{
     if(!enSuelo){
         return EstadoVisual::SALTANDO;
     }
-    if(tiempoDisparoVisual>0 && modo==ModoRei::MECHA){   // el soldado (nivel 2) no dispara
+    if(agachada){                                        // agachada se ve agachada aunque dispare
+        return EstadoVisual::AGACHADO;
+    }
+    if(tiempoDisparoVisual>0 && modo==ModoRei::MECHA){
         return EstadoVisual::DISPARANDO;
     }
-    if(izquierdaPresionada!=derechaPresionada){          // exactamente una tecla de dirección
+    if(izquierdaPresionada!=derechaPresionada){
         return EstadoVisual::CORRIENDO;
     }
     return EstadoVisual::QUIETO;
 }
 
-// CAMBIO: direccion ya existe y conserva el último valor al soltar la tecla
+
 bool Rei::miraDerecha() const{
     return direccion==1;
 }

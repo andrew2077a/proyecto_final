@@ -9,7 +9,7 @@
 struct ParamsComunes;
 struct ParamsNivel1;
 
-enum class Tecla { IZQUIERDA, DERECHA, SALTAR, DISPARAR };
+enum class Tecla { IZQUIERDA, DERECHA, SALTAR, DISPARAR, AGACHARSE };
 enum class ModoRei{ MECHA , SOLDADO };
 class Rei : public Entidad{
 private:
@@ -24,6 +24,9 @@ private:
     bool derechaPresionada;
     bool disparando;
     bool saltoSolicitado;
+    bool agachadaPresionada;
+    bool agachada;
+    double altoDePie;
     bool enSuelo;
     MovParabolico* salto;
     OndaEmpuje* empuje;
@@ -59,6 +62,9 @@ public:
     void saltar();
     void actualizarSalto(double dt);
     void apoyarEn(double ySuperficie);
+    void actualizarAgachado();
+    bool estaAgachada() const;
+    double getAltoVisual() const override;
     void iniciarCaida();
     Proyectil* disparar();
     bool puedeDisparar() const;
