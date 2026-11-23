@@ -48,6 +48,8 @@ private:
     double gravedad;
     double duracionInvulnerabilidad;
     double tiempoRecargaCalor;
+    double tiempoDisparoVisual;
+    double tiempoDanioVisual;
 public:
     Rei(ModoRei modo, const ParamsComunes& comunes, const ParamsNivel1* p1, double x, double y);
     ~Rei() override;
@@ -76,6 +78,8 @@ public:
     bool tieneEscudo() const;
     bool tieneBateria() const;
     bool estaDisparando() const;
+    EstadoVisual getEstadoVisual() const override;
+    bool miraDerecha() const override;
 };
 
 #endif // REI_H

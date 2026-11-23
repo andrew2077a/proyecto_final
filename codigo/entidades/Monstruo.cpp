@@ -291,3 +291,13 @@ int Monstruo::getFase() const {
 bool Monstruo::tieneEscudo() const {
     return escudoActivo;
 }
+
+EstadoVisual Monstruo::getEstadoVisual() const {
+    if (vida <= 0) {
+        return EstadoVisual::MURIENDO;
+    }
+    if (cargando) {
+        return EstadoVisual::LANZANDO;
+    }
+    return EstadoVisual::QUIETO;
+}

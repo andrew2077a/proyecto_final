@@ -2,5 +2,49 @@
     <qresource prefix="/maps">
         <file>mundo.txt</file>
     </qresource>
-    <qresource prefix="/sprites"/>
+    <qresource prefix="/sprites">
+        <file>sprites/bateria.png</file>
+        <file>sprites/bloque.png</file>
+        <file>sprites/bomba.png</file>
+        <file>sprites/camion.png</file>
+        <file>sprites/fosa.png</file>
+        <file>sprites/gaseosa.png</file>
+        <file>sprites/monstruo.png</file>
+        <file>sprites/monstruo_lanzando.png</file>
+        <file>sprites/monstruo_muriendo.png</file>
+        <file>sprites/ondulatorio.png</file>
+        <file>sprites/proyectil_monstruo.png</file>
+        <file>sprites/proyectil_rei.png</file>
+        <file>sprites/pua.png</file>
+        <file>sprites/puas.png</file>
+        <file>sprites/rei_mecha.png</file>
+        <file>sprites/rei_mecha_corriendo.png</file>
+        <file>sprites/rei_mecha_danio.png</file>
+        <file>sprites/rei_mecha_disparando.png</file>
+        <file>sprites/rei_mecha_saltando.png</file>
+        <file>sprites/rei_soldado_corriendo.png</file>
+        <file>sprites/rei_soldado_danio.png</file>
+        <file>sprites/rei_soldado_saltando.png</file>
+        <file>sprites/rei_soldado.png</file>
+    </qresource>
+    <qresource prefix="/fondos">
+        <file>fondos/fondo.nivel1.jpg</file>
+        <file>fondos/fondo-ganaste.jpg</file>
+        <file>fondos/fondo-menu.jpg</file>
+        <file>fondos/fondo-nivel2-1.jpg</file>
+        <file>fondos/fondo-pausa.jpg</file>
+        <file>fondos/fondo-perdiste.jpg</file>
+    </qresource>
+    <qresource prefix="/musica-sonidos">
+        <file>musica-sonidos/disparo_rei.wav</file>
+        <file>musica-sonidos/explosion.wav</file>
+        <file>musica-sonidos/item.wav</file>
+        <file>musica-sonidos/monstruo_lanza.wav</file>
+        <file>musica-sonidos/rei_danio.wav</file>
+        <file>musica-sonidos/bomba_cae.wav</file>
+        <file>musica-sonidos/nivel1.mp3</file>
+        <file>musica-sonidos/nivel2.mp3</file>
+        <file>musica-sonidos/pausa.mp3</file>
+        <file>musica-sonidos/menu.mp3</file>
+    </qresource>
 </RCC>

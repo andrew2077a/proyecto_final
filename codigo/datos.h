@@ -2,55 +2,55 @@
 #define DATOS_H
 namespace Tamanio {
 // Rei
-constexpr double REI_MECHA_ANCHO = 140;
-constexpr double REI_MECHA_ALTO = 220;
-constexpr double REI_SOLDADO_ANCHO = 70;
-constexpr double REI_SOLDADO_ALTO = 110;
+constexpr double REI_MECHA_ANCHO = 280;     // CAMBIO: antes 140
+constexpr double REI_MECHA_ALTO = 440;      // CAMBIO: antes 220
+constexpr double REI_SOLDADO_ANCHO = 140;   // CAMBIO: antes 70
+constexpr double REI_SOLDADO_ALTO = 220;    // CAMBIO: antes 110
 
 // Monstruo
-constexpr double MONSTRUO_ANCHO = 300;
-constexpr double MONSTRUO_ALTO = 500;
+constexpr double MONSTRUO_ANCHO = 600;      // CAMBIO: antes 300
+constexpr double MONSTRUO_ALTO = 1000;      // CAMBIO: antes 500
 
 // Camion
-constexpr double CAMION_ANCHO = 180;
-constexpr double CAMION_ALTO = 90;
+constexpr double CAMION_ANCHO = 360;        // CAMBIO: antes 180
+constexpr double CAMION_ALTO = 180;         // CAMBIO: antes 90
 
 // Proyectiles
-constexpr double BALA_REI_ANCHO = 30;
-constexpr double BALA_REI_ALTO = 12;
-constexpr double PARABOLICO_ANCHO = 50;
-constexpr double PARABOLICO_ALTO = 50;
-constexpr double ONDULATORIO_ANCHO = 60;
-constexpr double ONDULATORIO_ALTO = 40;
-constexpr double PUA_ANCHO = 20;
-constexpr double PUA_ALTO = 20;
-constexpr double BALA_LATERAL_ANCHO = 40;
-constexpr double BALA_LATERAL_ALTO = 14;
-constexpr double BOMBA_ANCHO = 40;
-constexpr double BOMBA_ALTO = 60;
+constexpr double BALA_REI_ANCHO = 60;       // CAMBIO: antes 30
+constexpr double BALA_REI_ALTO = 24;        // CAMBIO: antes 12
+constexpr double PARABOLICO_ANCHO = 100;    // CAMBIO: antes 50
+constexpr double PARABOLICO_ALTO = 100;     // CAMBIO: antes 50
+constexpr double ONDULATORIO_ANCHO = 120;   // CAMBIO: antes 60
+constexpr double ONDULATORIO_ALTO = 80;     // CAMBIO: antes 40
+constexpr double PUA_ANCHO = 40;            // CAMBIO: antes 20
+constexpr double PUA_ALTO = 40;             // CAMBIO: antes 20
+constexpr double BALA_LATERAL_ANCHO = 80;   // CAMBIO: antes 40
+constexpr double BALA_LATERAL_ALTO = 28;    // CAMBIO: antes 14
+constexpr double BOMBA_ANCHO = 80;          // CAMBIO: antes 40
+constexpr double BOMBA_ALTO = 120;          // CAMBIO: antes 60
 
 // Obstaculos (bloque y fosa varian por pieza; estos son valores base)
-constexpr double BLOQUE_ANCHO = 200;
-constexpr double BLOQUE_ALTO = 120;
-constexpr double FOSA_ANCHO = 300;
-constexpr double FOSA_ALTO = 180;
-constexpr double PUAS_ANCHO = 120;
-constexpr double PUAS_ALTO = 30;
+constexpr double BLOQUE_ANCHO = 400;        // CAMBIO: antes 200
+constexpr double BLOQUE_ALTO = 240;         // CAMBIO: antes 120
+constexpr double FOSA_ANCHO = 600;          // CAMBIO: antes 300
+constexpr double FOSA_ALTO = 360;           // CAMBIO: antes 180
+constexpr double PUAS_ANCHO = 240;          // CAMBIO: antes 120
+constexpr double PUAS_ALTO = 60;            // CAMBIO: antes 30
 
 // Items
-constexpr double BATERIA_ANCHO = 40;
-constexpr double BATERIA_ALTO = 60;
-constexpr double GASEOSA_ANCHO = 40;
-constexpr double GASEOSA_ALTO = 70;
+constexpr double BATERIA_ANCHO = 80;        // CAMBIO: antes 40
+constexpr double BATERIA_ALTO = 120;        // CAMBIO: antes 60
+constexpr double GASEOSA_ANCHO = 80;        // CAMBIO: antes 40
+constexpr double GASEOSA_ALTO = 140;        // CAMBIO: antes 70
 
 // Meta
-constexpr double META_ANCHO = 80;
-constexpr double META_ALTO = 200;
+constexpr double META_ANCHO = 160;          // CAMBIO: antes 80
+constexpr double META_ALTO = 400;           // CAMBIO: antes 200
 
 // Pantalla logica
 constexpr double ANCHO_PANTALLA = 1920;
 constexpr double ALTO_PANTALLA = 1080;
-constexpr double ESPERA_FIN=100;
+constexpr double ESPERA_FIN = 2.5;
 }
 namespace ParametrosComunes{
 // NORMAL
@@ -74,31 +74,38 @@ constexpr double VELOCIDAD_SOLDADO = 400;
 constexpr double VELOCIDAD_SALTO = 900;
 constexpr double ANGULO_SALTO = 60;
 }
+
+namespace Animacion {
+constexpr double DURACION_DISPARO_VISUAL = 0.24;
+constexpr double DURACION_DANIO_VISUAL = 0.42;
+}
 namespace Rutas {
-constexpr const char* CARPETA_SPRITES = ":/sprites/";
+// CAMBIO: rutas = prefijo del .qrc + carpeta + archivo
+constexpr const char* CARPETA_SPRITES = ":/sprites/sprites/";
 constexpr const char* EXTENSION_SPRITES = ".png";
 
 constexpr const char* ARCHIVO_NIVEL2 = ":/maps/mundo.txt";
 
-constexpr const char* ARCHIVO_FONDO_NIVEL1 = ":/fondos/nivel1.png";
-constexpr const char* ARCHIVO_FONDO_NIVEL2 = ":/fondos/nivel2.png";
+// CAMBIO: los fondos son .jpg y están en :/fondos/fondos/
+constexpr const char* ARCHIVO_FONDO_NIVEL1 = ":/fondos/fondos/fondo.nivel1.jpg";
+constexpr const char* ARCHIVO_FONDO_NIVEL2 = ":/fondos/fondos/fondo-nivel2-1.jpg";
+constexpr const char* ARCHIVO_FONDO_MENU = ":/fondos/fondos/fondo-menu.jpg";
+constexpr const char* ARCHIVO_FONDO_PAUSA = ":/fondos/fondos/fondo-pausa.jpg";
+constexpr const char* ARCHIVO_FONDO_GANADO = ":/fondos/fondos/fondo-ganaste.jpg";
+constexpr const char* ARCHIVO_FONDO_PERDIDO = ":/fondos/fondos/fondo-perdiste.jpg";
 
-constexpr const char* ARCHIVO_FONDO_MENU = ":/fondos/menu.png";
-constexpr const char* ARCHIVO_FONDO_PAUSA = ":/fondos/pausa.png";
-constexpr const char* ARCHIVO_FONDO_GANADO = ":/fondos/ganado.png";
-constexpr const char* ARCHIVO_FONDO_PERDIDO = ":/fondos/perdido.png";
+// CAMBIO: música y sonidos en :/musica-sonidos/musica-sonidos/ (con los nombres ya renombrados)
+constexpr const char* MUSICA_MENU = ":/musica-sonidos/musica-sonidos/menu.mp3";
+constexpr const char* MUSICA_PAUSA = ":/musica-sonidos/musica-sonidos/pausa.mp3";
+constexpr const char* MUSICA_NIVEL1 = ":/musica-sonidos/musica-sonidos/nivel1.mp3";
+constexpr const char* MUSICA_NIVEL2 = ":/musica-sonidos/musica-sonidos/nivel2.mp3";
 
-constexpr const char* MUSICA_MENU = ":/musica/menu.mp3";
-constexpr const char* MUSICA_PAUSA = ":/musica/pausa.mp3";
-constexpr const char* MUSICA_NIVEL1 = ":/musica/nivel1.mp3";
-constexpr const char* MUSICA_NIVEL2 = ":/musica/nivel2.mp3";
-
-constexpr const char* SONIDO_DISPARO_REI = ":/sonidos/disparo_rei.wav";
-constexpr const char* SONIDO_BOMBA_CAE = ":/sonidos/bomba_cae.wav";
-constexpr const char* SONIDO_MONSTRUO_LANZA = ":/sonidos/monstruo_lanza.wav";
-constexpr const char* SONIDO_REI_DANIO = ":/sonidos/rei_danio.wav";
-constexpr const char* SONIDO_EXPLOSION = ":/sonidos/explosion.wav";
-constexpr const char* SONIDO_ITEM = ":/sonidos/item.wav";
+constexpr const char* SONIDO_DISPARO_REI = ":/musica-sonidos/musica-sonidos/disparo_rei.wav";
+constexpr const char* SONIDO_BOMBA_CAE = ":/musica-sonidos/musica-sonidos/bomba_cae.wav";
+constexpr const char* SONIDO_MONSTRUO_LANZA = ":/musica-sonidos/musica-sonidos/monstruo_lanza.wav";
+constexpr const char* SONIDO_REI_DANIO = ":/musica-sonidos/musica-sonidos/rei_danio.wav";
+constexpr const char* SONIDO_EXPLOSION = ":/musica-sonidos/musica-sonidos/explosion.wav";
+constexpr const char* SONIDO_ITEM = ":/musica-sonidos/musica-sonidos/item.wav";
 }
 namespace Nivel2Mundo {
 constexpr double REI_INICIO_X = 100;

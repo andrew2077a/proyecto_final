@@ -33,4 +33,3 @@ bool Obstaculo::esSolido()const{
     return tipoSprite==TipoSprite::BLOQUE;
 }
 
-

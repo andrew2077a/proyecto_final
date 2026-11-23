@@ -8,11 +8,7 @@ namespace {
 const double PI = std::acos(-1.0);
 }
 
-<<<<<<< HEAD
-Accion::Accion(const Nivel1::ParamsNivel1& p1, double gravedad)
-=======
 Accion::Accion(const ParamsNivel1& p1, double gravedad)
->>>>>>> origin/andres
     : gravedad(gravedad),
     anguloDisparo(p1.anguloDisparo),
     velocidadMax(p1.velocidadMaxDisparo),
@@ -47,5 +43,4 @@ Proyectil* Accion::ejecutar(int zona, double centroX, double origenX, double ori
     fis->setParametros(v0, anguloDisparo, gravedad, dirX);
     p->setFisica(fis);                              // el proyectil es dueño de la fisica
     return p;
-
 }

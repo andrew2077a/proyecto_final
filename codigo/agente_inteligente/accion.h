@@ -15,18 +15,10 @@ private:
     int danio;
 
 public:
-<<<<<<< HEAD
-    Accion(const Nivel1::ParamsNivel1& p1, double gravedad);
-=======
     Accion(const ParamsNivel1& p1, double gravedad);
->>>>>>> origin/andres
 
 
     Proyectil* ejecutar(int zona, double centroX, double origenX, double origenY);
 };
 
-<<<<<<< HEAD
 #endif
-=======
-#endif
->>>>>>> origin/andres

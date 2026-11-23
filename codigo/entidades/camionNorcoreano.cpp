@@ -43,3 +43,7 @@ ModoCamion CamionNorcoreano:: getModo()const{
     return modo;
 }
 CamionNorcoreano::~CamionNorcoreano(){}
+
+bool CamionNorcoreano::miraDerecha() const{
+    return direccion==1;
+}

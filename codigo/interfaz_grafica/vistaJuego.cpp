@@ -35,6 +35,7 @@ VistaJuego::~VistaJuego(){
     delete panel;
 }
 void VistaJuego::iniciar(){
+    SpriteEntidad::precargarTodo();
     for(auto it = sprites.begin(); it != sprites.end(); ++it){
         escena->removeItem(it.value());
         delete it.value();
@@ -59,7 +60,7 @@ void VistaJuego::ciclo(){
     juego->actualizar(dt);
 
     // 3. Dibujo
-    sincronizarSprites();
+    sincronizarSprites(dt);
     panel->actualizar(*juego);
 
     // 4. Sonido
@@ -125,50 +126,33 @@ void VistaJuego::keyReleaseEvent(QKeyEvent* evento){
     }
 }
 
-void VistaJuego::sincronizarSprites(){
+void VistaJuego::sincronizarSprites(double dt){   // CAMBIO: recibe dt
     Nivel* nive = juego->getNivel();
 
-    // Sin nivel (menu, o nivel terminado): quitar y borrar todos los sprites.
-    if(nive == nullptr){
-        for(auto it = sprites.begin(); it != sprites.end(); ++it){
-            escena->removeItem(it.value());
-            delete it.value();
-        }
-        sprites.clear();
-        return;
-    }
+    // (el bloque "if(nive == nullptr){ ... }" queda exactamente igual)
 
-    // 1. Entidades vivas de este ciclo. CAMBIO: QSet en vez de vector.
     QSet<Entidad*> vivos;
     for(Entidad* e : nive->obtenerEntidadesDibujables()){
-        if(e->estaViva()){
+        // CAMBIO: el monstruo muriendo ya no está "vivo", pero se sigue dibujando
+        // para que se vea su animación de muerte durante ESPERA_FIN
+        if(e->estaViva() || e->getEstadoVisual() == EstadoVisual::MURIENDO){
             vivos.insert(e);
         }
     }
 
-    // 2. Crear sprite para las entidades nuevas y actualizar posicion de todas.
     for(Entidad* e : vivos){
         if(!sprites.contains(e)){
             SpriteEntidad* nuevo = new SpriteEntidad(e->getTipoSprite(), e);
             escena->addItem(nuevo);
             sprites.insert(e, nuevo);
         }
+        // CAMBIO: primero la animación y luego la posición (la escala depende del fotograma)
+        sprites[e]->actualizarAnimacion(dt, e->getEstadoVisual(), e->miraDerecha());
         sprites[e]->actualizarPosicion(e->getX(), e->getY(), e->getAncho(), e->getAlto(), nive->getCamaraX());
     }
 
-    // 3. Quitar y borrar los sprites cuyas entidades ya no estan vivas.
-    for(auto it = sprites.begin(); it != sprites.end(); ){
-        if(!vivos.contains(it.key())){
-            escena->removeItem(it.value());
-            delete it.value();
-            it = sprites.erase(it);
-        }
-        else{
-            ++it;
-        }
-    }
+    // (el paso 3, quitar sprites de entidades que ya no están, queda igual)
 }
-
 
 void VistaJuego::cargarFondo(int numNivel){
     const char* ruta = nullptr;

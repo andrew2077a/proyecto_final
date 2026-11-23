@@ -19,6 +19,7 @@ public:
     void actualizar(double dt) override;
     void alTocarRei(Rei& rei, int danio) override;
     ModoCamion getModo() const;
+    bool miraDerecha() const override;
 };
 
 #endif // CAMIONNORCOREANO_H
