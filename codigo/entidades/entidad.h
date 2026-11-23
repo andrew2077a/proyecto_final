@@ -3,7 +3,7 @@
 #include "fisicas/fisica.h"
 
 class Rei;
-
+enum class EstadoVisual { QUIETO, CORRIENDO, SALTANDO, DISPARANDO, DANIADO, LANZANDO, MURIENDO };
 enum class TipoSprite { REI_MECHA, REI_SOLDADO, MONSTRUO, CAMION, PROYECTIL_REI,
                         PROYECTIL_MONSTRUO, ONDULATORIO, PUA, BOMBA, BLOQUE,
                         FOSA, PUAS, BATERIA, GASEOSA, META };
@@ -36,6 +36,9 @@ public:
     double getAlto() const;
     TipoSprite getTipoSprite() const;
     Fisica* getFisica() const;
+
+    virtual EstadoVisual getEstadoVisual() const { return EstadoVisual::QUIETO; }
+    virtual bool miraDerecha() const { return true; }
 };
 
 #endif // ENTIDAD_H

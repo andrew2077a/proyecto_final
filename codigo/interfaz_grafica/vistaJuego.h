@@ -42,7 +42,7 @@ public:
     void detener();
     void keyPressEvent(QKeyEvent* evento) override;
     void keyReleaseEvent(QKeyEvent* evento) override;
-    void sincronizarSprites();
+    void sincronizarSprites(double dt);
     void cargarFondo(int numNivel);
     void cargarRecursosSonido();
     void reproducirMusica(IdMusica id);

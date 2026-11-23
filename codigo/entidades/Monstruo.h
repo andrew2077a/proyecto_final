@@ -75,6 +75,7 @@ public:
     int getVida() const;
     int getFase() const;
     bool tieneEscudo() const;
+    EstadoVisual getEstadoVisual() const override;
 };
 
 #endif // MONSTRUO_H

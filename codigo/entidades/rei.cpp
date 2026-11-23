@@ -24,6 +24,8 @@ Rei::Rei(ModoRei modo, const ParamsComunes& comunes, const ParamsNivel1* p1, dou
     this->gravedad=comunes.gravedad;
     this->duracionInvulnerabilidad=comunes.invulnerabilidad;
     this->tiempoInvulnerable=0;
+    this->tiempoDisparoVisual=0;
+    this->tiempoDanioVisual=0;     // CAMBIO
 
     this->direccion=1;
     this->izquierdaPresionada=false;
@@ -117,6 +119,7 @@ void Rei::saltar(){
         delete salto;
     }
     salto =new MovParabolico(x,y);
+    salto->setParametros(velocidadSalto, anguloSalto, gravedad, 1);
 }
 void Rei::actualizarSalto(double dt){
     if(enSuelo||salto==nullptr){
@@ -136,6 +139,8 @@ void Rei::iniciarCaida(){
         this->enSuelo=false;
         delete salto;
         salto=new MovParabolico(x,y);
+
+        salto->setParametros(0, 0, gravedad, 1);
     }
 }
 Proyectil* Rei::disparar() {
@@ -154,6 +159,7 @@ Proyectil* Rei::disparar() {
     double xBala = (direccion > 0) ? x + ancho : x;
     Proyectil* bala = new Proyectil(xBala, y + alto / 2.0, TipoProyectil::RECTO, Propietario::REI, danioBase);
     bala->setVelocidad(direccion * 800.0, 0.0);
+    tiempoDisparoVisual = Animacion::DURACION_DISPARO_VISUAL;
     return bala;
 }
 bool Rei::puedeDisparar() const{
@@ -223,6 +229,19 @@ void Rei::actualizarEfectos(double dt){
             tiempoInvulnerable=0;
         }
     }
+    // CAMBIO: los temporizadores visuales bajan igual que los demás, sin pasar de 0
+    if(tiempoDisparoVisual>0){
+        tiempoDisparoVisual-=dt;
+        if(tiempoDisparoVisual<0){
+            tiempoDisparoVisual=0;
+        }
+    }
+    if(tiempoDanioVisual>0){
+        tiempoDanioVisual-=dt;
+        if(tiempoDanioVisual<0){
+            tiempoDanioVisual=0;
+        }
+    }
 }
 double Rei:: calcularVelocidadEfectiva() const{
     double v=velocidadBase;
@@ -250,6 +269,7 @@ bool Rei:: recibirDanio(int n){
         vida=0;
     }
     tiempoInvulnerable=duracionInvulnerabilidad;
+    tiempoDanioVisual=Animacion::DURACION_DANIO_VISUAL;
     return true;
 }
 void Rei::matar(){
@@ -284,4 +304,26 @@ bool  Rei:: tieneBateria() const{
 }
 bool  Rei:: estaDisparando() const{
     return disparando;
+}
+
+// CAMBIO: gana el primero que se cumple (DANIADO va primero para verse incluso saltando)
+EstadoVisual Rei::getEstadoVisual() const{
+    if(tiempoDanioVisual>0){
+        return EstadoVisual::DANIADO;
+    }
+    if(!enSuelo){
+        return EstadoVisual::SALTANDO;
+    }
+    if(tiempoDisparoVisual>0 && modo==ModoRei::MECHA){   // el soldado (nivel 2) no dispara
+        return EstadoVisual::DISPARANDO;
+    }
+    if(izquierdaPresionada!=derechaPresionada){          // exactamente una tecla de dirección
+        return EstadoVisual::CORRIENDO;
+    }
+    return EstadoVisual::QUIETO;
+}
+
+// CAMBIO: direccion ya existe y conserva el último valor al soltar la tecla
+bool Rei::miraDerecha() const{
+    return direccion==1;
 }
