@@ -53,6 +53,7 @@ public:
     void setVolumen(double v);
     void ajustarEscala();
     void conectarSenales();
+    void limpiarSprites();
 signals:
     void nivelTerminado(bool gano);
     void pausaSolicitada();

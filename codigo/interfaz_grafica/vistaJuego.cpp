@@ -59,19 +59,22 @@ void VistaJuego::ciclo(){
     // 2. Lógica
     juego->actualizar(dt);
 
+    // CAMBIO: si el nivel terminó, se corta aquí. El nivel ya fue borrado
+    // y no se debe dibujar ni leer sus entidades.
+    EstadoJuego estado = juego->getEstado();
+    if(estado == EstadoJuego::GANADO || estado == EstadoJuego::PERDIDO){
+        detener();
+        limpiarSprites();
+        emit nivelTerminado(estado == EstadoJuego::GANADO);
+        return;
+    }
+
     // 3. Dibujo
     sincronizarSprites(dt);
     panel->actualizar(*juego);
 
     // 4. Sonido
     reproducirEventos(juego->tomarEventos());
-
-    // 5. Fin del nivel
-    EstadoJuego estado = juego->getEstado();
-    if(estado == EstadoJuego::GANADO || estado == EstadoJuego::PERDIDO){
-        detener();
-        emit nivelTerminado(estado == EstadoJuego::GANADO);
-    }
 }
 void VistaJuego::keyPressEvent(QKeyEvent* evento){
     if(evento->isAutoRepeat()){
@@ -327,4 +330,13 @@ void VistaJuego::ajustarEscala() {
 }
 void VistaJuego::conectarSenales(){
     connect(&temporizador, &QTimer::timeout, this, &VistaJuego::ciclo);
+}
+
+
+void VistaJuego::limpiarSprites(){
+    for(auto it = sprites.begin(); it != sprites.end(); ++it){
+        escena->removeItem(it.value());
+        delete it.value();
+    }
+    sprites.clear();
 }
