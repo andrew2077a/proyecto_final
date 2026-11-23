@@ -54,7 +54,7 @@ constexpr double ESPERA_FIN = 2.5;
 }
 namespace ParametrosComunes{
 // NORMAL
-constexpr int VIDAS_REI = 5;
+constexpr int VIDAS_REI = 20;
 constexpr int DANIO_BASE = 1;
 constexpr double INVULNERABILIDAD = 1.5;
 constexpr double GRAVEDAD = 1500;
@@ -65,7 +65,7 @@ constexpr double ANGULO_SALTO = 60;
 }
 namespace comunesDificil {
 // DIFICIL
-constexpr int VIDAS_REI = 3;
+constexpr int VIDAS_REI = 20;
 constexpr int DANIO_BASE = 1;
 constexpr double INVULNERABILIDAD = 1.0;
 constexpr double GRAVEDAD = 1500;
@@ -158,7 +158,7 @@ constexpr double Y_SUELO = 900;
 constexpr double REI_INICIO_X = 100;
 constexpr double REI_INICIO_Y = Y_SUELO - Tamanio::REI_MECHA_ALTO;
 constexpr double MONSTRUO_INICIO_X = Tamanio::ANCHO_PANTALLA - Tamanio::MONSTRUO_ANCHO - 50;
-constexpr double MONSTRUO_INICIO_Y = Y_SUELO - Tamanio::MONSTRUO_ALTO;
+constexpr double MONSTRUO_INICIO_Y = Y_SUELO - Tamanio::MONSTRUO_ALTO+100;
 constexpr double LIMITE_REI_IZQ = 0;
 constexpr double LIMITE_REI_DER = MONSTRUO_INICIO_X - Tamanio::REI_MECHA_ANCHO;
 constexpr double CAMION_INICIO_X = Tamanio::ANCHO_PANTALLA;

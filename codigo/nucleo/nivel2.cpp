@@ -193,7 +193,10 @@ void Nivel2:: soltarBomba(){
         double Y= Nivel2Mundo::ALTURA_APARICION_BOMBA;
         Proyectil* bomba=new Proyectil(X,Y,TipoProyectil::BOMBA,Propietario::ENEMIGO,comunes.danioBase);
         bomba->configurarBomba(ySuelo,params.radioDanioBomba,params.radioEmpujeBomba,params.fuerzaEmpuje,params.amortiguamientoEmpuje);
-        bomba->setFisica(new MovParabolico(X, Y));
+        // CAMBIO: sin setParametros la gravedad quedaba en 0 y la bomba no caía
+        MovParabolico* caida = new MovParabolico(X, Y);
+        caida->setParametros(0, 0, comunes.gravedad, 1);
+        bomba->setFisica(caida);
         agregarEntidad(bomba);
         bombas.push_back(bomba);
         this->RegistrarEvento(TipoEvento::BOMBA_CAE);

@@ -132,7 +132,11 @@ void VistaJuego::keyReleaseEvent(QKeyEvent* evento){
 void VistaJuego::sincronizarSprites(double dt){   // CAMBIO: recibe dt
     Nivel* nive = juego->getNivel();
 
-    // (el bloque "if(nive == nullptr){ ... }" queda exactamente igual)
+    // CAMBIO: si no hay nivel, no hay nada que dibujar
+    if(nive == nullptr){
+        limpiarSprites();
+        return;
+    }
 
     QSet<Entidad*> vivos;
     for(Entidad* e : nive->obtenerEntidadesDibujables()){
@@ -154,7 +158,17 @@ void VistaJuego::sincronizarSprites(double dt){   // CAMBIO: recibe dt
         sprites[e]->actualizarPosicion(e->getX(), e->getY(), e->getAncho(), e->getAlto(), nive->getCamaraX());
     }
 
-    // (el paso 3, quitar sprites de entidades que ya no están, queda igual)
+    QList<Entidad*> aQuitar;
+    for(auto it = sprites.begin(); it != sprites.end(); ++it){
+        if(!vivos.contains(it.key())){
+            aQuitar.push_back(it.key());
+        }
+    }
+    for(Entidad* clave : aQuitar){
+        SpriteEntidad* s = sprites.take(clave);
+        escena->removeItem(s);
+        delete s;
+    }
 }
 
 void VistaJuego::cargarFondo(int numNivel){

@@ -86,8 +86,14 @@ void Rei::actualizar(double dt){
         this->saltar();
     }
     this->actualizarSalto(dt);
+    // CAMBIO: avanzar la onda, sumar su desplazamiento y borrarla al terminar
     if(empuje!=nullptr){
-        this->aplicarEmpuje(empuje);
+        empuje->actualizar(dt);
+        this->x += empuje->getDelta();
+        if(empuje->haTerminado()){
+            delete empuje;
+            empuje = nullptr;
+        }
     }
     this->actualizarEfectos(dt);
 }
