@@ -42,6 +42,7 @@ QString nombreEstadoDe(EstadoVisual estado) {
     case EstadoVisual::LANZANDO:   return "_lanzando";
     case EstadoVisual::MURIENDO:   return "_muriendo";
     case EstadoVisual::AGACHADO:   return "_agachado";
+    case EstadoVisual::EXPLOTANDO: return "_explotando";
     }
     return "";
 }
@@ -70,6 +71,7 @@ const EntradaAnimacion TABLA[] = {
     { TipoSprite::MONSTRUO,    EstadoVisual::QUIETO,     4, 0.25,  true  },
     { TipoSprite::MONSTRUO,    EstadoVisual::LANZANDO,   5, 0.20,  false },   // 5 * 0.20 = 1.0 s = TIEMPO_CARGA (Normal)
     { TipoSprite::MONSTRUO,    EstadoVisual::MURIENDO,   5, 0.25,  false },   // 5 * 0.5 = 2.5 s = ESPERA_FIN
+    { TipoSprite::BOMBA,       EstadoVisual::EXPLOTANDO, 4, 0.09,  false },   // 6 * 0.07 = 0.42 s = DURACION_EXPLOSION_VISUAL
     { TipoSprite::CAMION,      EstadoVisual::QUIETO,     4, 0.08,  true  }
 };
 const int NUM_ENTRADAS = static_cast<int>(sizeof(TABLA) / sizeof(TABLA[0]));
@@ -145,37 +147,57 @@ SpriteEntidad::~SpriteEntidad(){
 // Carga una tira, la corta en fotogramas iguales y guarda la version normal y la espejada
 void SpriteEntidad::cargarImagen(TipoSprite tipo, EstadoVisual estado){
     if(cache.contains(llaveDe(tipo, estado, true))){
-        return;                                   // ya esta en la cache
+        return;
     }
+
     QString ruta = QString(Rutas::CARPETA_SPRITES) + nombreDe(tipo)
                    + nombreEstadoDe(estado) + Rutas::EXTENSION_SPRITES;
 
-    // Si la tira de un ESTADO todavia no existe, se usa la del estado QUIETO.
+    // Si no existe la tira de este estado, usa la del estado QUIETO.
     if(estado != EstadoVisual::QUIETO && !QFile::exists(ruta)){
         cargarImagen(tipo, EstadoVisual::QUIETO);
-        cache.insert(llaveDe(tipo, estado, true),  cache.value(llaveDe(tipo, EstadoVisual::QUIETO, true)));
-        cache.insert(llaveDe(tipo, estado, false), cache.value(llaveDe(tipo, EstadoVisual::QUIETO, false)));
+
+        cache.insert(
+            llaveDe(tipo, estado, true),
+            cache.value(llaveDe(tipo, EstadoVisual::QUIETO, true))
+            );
+        cache.insert(
+            llaveDe(tipo, estado, false),
+            cache.value(llaveDe(tipo, EstadoVisual::QUIETO, false))
+            );
         return;
     }
 
     QPixmap tira(ruta);
     if(tira.isNull()){
-        throw std::runtime_error("No se pudo cargar el sprite: " + ruta.toStdString());
+        throw std::runtime_error(
+            "No se pudo cargar el sprite: " + ruta.toStdString()
+            );
     }
+
     const int n = infoDe(tipo, estado).fotogramas;
-    const int anchoFotograma = tira.width() / n;   // las tiras nuevas tienen celdas exactas
+    const int anchoFotograma = tira.width() / n;
 
     QVector<QPixmap> normales;
     QVector<QPixmap> espejados;
+
     for(int i = 0; i < n; ++i){
-        QPixmap fotograma = tira.copy(i * anchoFotograma, 0, anchoFotograma, tira.height());
+        QPixmap fotograma = tira.copy(
+            i * anchoFotograma,
+            0,
+            anchoFotograma,
+            tira.height()
+            );
+
         normales.push_back(fotograma);
-        espejados.push_back(QPixmap::fromImage(fotograma.toImage().mirrored(true, false)));
+        espejados.push_back(
+            QPixmap::fromImage(fotograma.toImage().mirrored(true, false))
+            );
     }
-    cache.insert(llaveDe(tipo, estado, true),  normales);
+
+    cache.insert(llaveDe(tipo, estado, true), normales);
     cache.insert(llaveDe(tipo, estado, false), espejados);
 }
-
 // Carga todo al iniciar el nivel, para que un archivo faltante falle ahi y no a mitad de partida
 void SpriteEntidad::precargarTodo(){
     const TipoSprite tipos[] = {

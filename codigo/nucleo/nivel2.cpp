@@ -233,7 +233,6 @@ void Nivel2:: soltarBomba(){
         this->RegistrarEvento(TipoEvento::BOMBA_CAE);
     }
 }
-
 void Nivel2::procesarExplosiones(){
     for(size_t k=0;k<bombas.size();){
         Proyectil* i=bombas[k];
@@ -241,20 +240,29 @@ void Nivel2::procesarExplosiones(){
             k++;
             continue;
         }
-        if(i->esImpactoDirecto(*rei)){
-            if(rei->recibirDanio(comunes.danioBase)){
-                this->RegistrarEvento(TipoEvento::REI_DANIO);
+        if(!i->estaExplotando()){
+            if(i->esImpactoDirecto(*rei)){
+                if(rei->recibirDanio(comunes.danioBase)){
+                    this->RegistrarEvento(TipoEvento::REI_DANIO);
+                }
             }
+            OndaEmpuje* onda=i->calcularEmpuje(*rei);
+            if(onda!=nullptr){
+                rei->aplicarEmpuje(onda);
+            }
+            this->RegistrarEvento(TipoEvento::EXPLOSION);
+            i->iniciarExplosion();
         }
-        OndaEmpuje* onda=i->calcularEmpuje(*rei);
-        if(onda!=nullptr){
-            rei->aplicarEmpuje(onda);
+        if(i->explosionTerminada()){
+            i->desactivar();
+            bombas.erase(bombas.begin()+k);
         }
-        this->RegistrarEvento(TipoEvento::EXPLOSION);
-        i->desactivar();
-        bombas.erase(bombas.begin()+k);
+        else{
+            k++;
+        }
     }
 }
+
 bool Nivel2::superficieBajo(const Rei& rei, double& y) const{
     const double pies=rei.getY()+rei.getAlto();
     const double centro=rei.getX()+rei.getAncho()/2.0;

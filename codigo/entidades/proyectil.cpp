@@ -22,7 +22,8 @@ Proyectil::Proyectil(double x, double y, TipoProyectil tipo, Propietario prop, i
     tipo(tipo), propietario(prop), danio(danio), zonaObjetivo(-1),
     explotaEnX(0.0), numPuas(6), impacto(false), reportado(false),
     vx(0.0), vy(0.0), ySuelo(0.0), radioDanio(0.0), radioEmpuje(0.0),
-    fuerzaEmpuje(0.0), amortiguamiento(0.0), explotada(false)
+    fuerzaEmpuje(0.0), amortiguamiento(0.0),
+    explotada(false),animandoExplosion(false), tiempoExplosion(0.0)
 {
     aplicarAspecto();
 }
@@ -73,7 +74,10 @@ double Proyectil::getRotacion() const {
 }
 
 void Proyectil::actualizar(double dt) {
-    if (explotada) return;               // la bomba queda quieta hasta que el nivel la procese
+    if (explotada) {                     // la bomba queda quieta: solo avanza su animacion
+        if (animandoExplosion) tiempoExplosion += dt;
+        return;
+    }              // la bomba queda quieta hasta que el nivel la procese
 
     if (fisica) {
         // parabolico, ondulatorio y bomba: la fisica calcula la posicion
@@ -180,6 +184,32 @@ bool Proyectil::haExplotado() const {
     return explotada;
 }
 
+// Agranda la caja al tamaño de la explosion, centrada en la bomba y con el mismo borde inferior.
+void Proyectil::iniciarExplosion() {
+    const double cx = x + ancho / 2.0;
+    const double pies = y + alto;
+    ancho = 2.0 * radioDanio;
+    alto = 2.0 * radioDanio;
+    x = cx - ancho / 2.0;
+    y = pies - alto;
+    animandoExplosion = true;
+    tiempoExplosion = 0.0;
+}
+
+bool Proyectil::estaExplotando() const {
+    return animandoExplosion;
+}
+
+bool Proyectil::explosionTerminada() const {
+    return animandoExplosion && tiempoExplosion >= Animacion::DURACION_EXPLOSION_VISUAL;
+}
+
+EstadoVisual Proyectil::getEstadoVisual() const {
+    if (tipo == TipoProyectil::BOMBA && animandoExplosion) {
+        return EstadoVisual::EXPLOTANDO;
+    }
+    return EstadoVisual::QUIETO;
+}
 bool Proyectil::esImpactoDirecto(const Rei& rei) const {
     return distanciaCentros(*this, rei) <= radioDanio;
 }

@@ -82,6 +82,7 @@ constexpr double FACTOR_VELOCIDAD = 0.40;   // agachada camina al 40 % de la vel
 namespace Animacion {
 constexpr double DURACION_DISPARO_VISUAL = 0.24;
 constexpr double DURACION_DANIO_VISUAL = 0.42;
+constexpr double DURACION_EXPLOSION_VISUAL = 0.36;
 }
 namespace Rutas {
 // CAMBIO: rutas = prefijo del .qrc + carpeta + archivo
@@ -135,14 +136,14 @@ namespace Nivel2Normal {
 constexpr double TIEMPO_LIMITE = 70;
 constexpr double INTERVALO_BOMBA = 4;
 constexpr int NUM_BOMBAS = 1;
-constexpr double RANGO_CAIDA_BOMBA = 200;
-constexpr double RADIO_DANIO_BOMBA = 90;
+constexpr double RANGO_CAIDA_BOMBA = 300;
+constexpr double RADIO_DANIO_BOMBA = 250;
 constexpr double RADIO_EMPUJE_BOMBA = 500;
 constexpr double FUERZA_EMPUJE = 1000;
 constexpr double AMORTIGUAMIENTO_EMPUJE = 3;
 constexpr double INTERVALO_BALA_LATERAL = 4;
 constexpr int NUM_BALAS_LATERALES = 1;
-constexpr double VELOCIDAD_BALA = 500;
+constexpr double VELOCIDAD_BALA = 800;
 constexpr double VELOCIDAD_CAMION_PATRULLA = 120;
 constexpr double DURACION_GASEOSA = 8;
 constexpr double MULT_VELOCIDAD_GASEOSA = 0.5;
@@ -150,17 +151,17 @@ constexpr double ESPERA_PUAS = 1;
 }
 
 namespace Nivel2Dificil {
-constexpr double TIEMPO_LIMITE = 50;
+constexpr double TIEMPO_LIMITE = 60;
 constexpr double INTERVALO_BOMBA = 4;
 constexpr int NUM_BOMBAS = 2;
 constexpr double RANGO_CAIDA_BOMBA = 100;
-constexpr double RADIO_DANIO_BOMBA = 90;
+constexpr double RADIO_DANIO_BOMBA = 350;
 constexpr double RADIO_EMPUJE_BOMBA = 500;
-constexpr double FUERZA_EMPUJE = 1000;
+constexpr double FUERZA_EMPUJE = 1050;
 constexpr double AMORTIGUAMIENTO_EMPUJE = 3;
 constexpr double INTERVALO_BALA_LATERAL = 2;
 constexpr int NUM_BALAS_LATERALES = 2;
-constexpr double VELOCIDAD_BALA = 700;
+constexpr double VELOCIDAD_BALA = 1000;
 constexpr double VELOCIDAD_CAMION_PATRULLA = 200;
 constexpr double DURACION_GASEOSA = 8;
 constexpr double MULT_VELOCIDAD_GASEOSA = 0.5;

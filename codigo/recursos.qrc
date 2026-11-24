@@ -29,6 +29,7 @@
         <file>sprites/rei_soldado_danio.png</file>
         <file>sprites/rei_soldado_saltando.png</file>
         <file>sprites/rei_soldado.png</file>
+        <file>sprites/bomba_explotando.png</file>
     </qresource>
     <qresource prefix="/fondos">
         <file>fondos/fondo.nivel1.jpg</file>

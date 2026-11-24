@@ -31,6 +31,8 @@ private:
     double fuerzaEmpuje;
     double amortiguamiento;
     bool explotada;
+    bool animandoExplosion;
+    double tiempoExplosion;
 
     void aplicarAspecto();
 
@@ -52,6 +54,11 @@ public:
     void configurarBomba(double ySuelo, double radioDanio, double radioEmpuje, double F, double k);
     void explotar();
     bool haExplotado() const;
+    void iniciarExplosion();
+    bool estaExplotando() const;
+    bool explosionTerminada() const;
+    EstadoVisual getEstadoVisual() const override;
+
     bool esImpactoDirecto(const Rei& rei) const;
     OndaEmpuje* calcularEmpuje(const Rei& rei) const;
 

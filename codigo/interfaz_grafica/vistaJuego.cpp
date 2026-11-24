@@ -215,7 +215,13 @@ void VistaJuego::sincronizarSprites(double dt){
         sprites[e]->actualizarAnimacion(dt, e->getEstadoVisual(), e->miraDerecha());
         // el sprite se escala con el alto "de pie" y se apoya en los pies de la caja (importa con Rei agachada)
         const double altoVisual = e->getAltoVisual();
-        const double yVisual = e->getY() + e->getAlto() - altoVisual;
+        double yVisual = e->getY() + e->getAlto() - altoVisual;
+
+        if(e->getTipoSprite() == TipoSprite::BOMBA &&
+            e->getEstadoVisual() == EstadoVisual::EXPLOTANDO){
+            yVisual += 140.0;
+        }
+
         sprites[e]->actualizarPosicion(e->getX(), yVisual, e->getAncho(), altoVisual, camaraX, e->getRotacion());
     }
 
