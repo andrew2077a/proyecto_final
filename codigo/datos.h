@@ -219,7 +219,7 @@ constexpr double CADENCIA_BASE = 0.25;
 constexpr double DURACION_BATERIA = 5;
 constexpr double MULT_CADENCIA_BATERIA = 2;
 constexpr double MULT_VELOCIDAD_BATERIA = 0.6;
-constexpr double INTERVALO_BATERIA = 5;
+constexpr double INTERVALO_BATERIA = 15;
 }
 
 namespace Nivel1Dificil {
@@ -258,6 +258,6 @@ constexpr double CADENCIA_BASE = 0.3;
 constexpr double DURACION_BATERIA = 10;
 constexpr double MULT_CADENCIA_BATERIA = 2;
 constexpr double MULT_VELOCIDAD_BATERIA = 0.6;
-constexpr double INTERVALO_BATERIA = 10;
+constexpr double INTERVALO_BATERIA = 20;
 }
 #endif // DATOS_H
