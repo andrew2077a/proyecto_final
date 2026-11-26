@@ -7,7 +7,7 @@ namespace {
 const double PI = std::acos(-1.0);
 const double VELOCIDAD_PUA_DEFECTO = 300.0;   // si el estallido no traia velocidad
 
-// Distancia entre los centros de dos entidades.
+// Distancia entre los centros de dos entidades
 double distanciaCentros(const Entidad& a, const Entidad& b) {
     const double ax = a.getX() + a.getAncho() / 2.0;
     const double ay = a.getY() + a.getAlto() / 2.0;
@@ -28,7 +28,7 @@ Proyectil::Proyectil(double x, double y, TipoProyectil tipo, Propietario prop, i
     aplicarAspecto();
 }
 
-// Elige sprite y tamaño segun el tipo y quien lo disparo.
+// Elige sprite y tamaño segun el tipo y quien lo disparo
 void Proyectil::aplicarAspecto() {
     switch (tipo) {
     case TipoProyectil::RECTO:
@@ -61,31 +61,31 @@ void Proyectil::aplicarAspecto() {
     }
 }
 
-
 bool Proyectil::miraDerecha() const {
     if (tipoSprite == TipoSprite::PUA) return true;   // la pua no se espeja: se rota
     return vx >= 0.0;
 }
 
-// La pua sale en todas direcciones (estallido): el sprite apunta a la derecha y se gira segun su velocidad.
+// La pua sale en todas direcciones: su sprite apunta a la derecha y se gira segun su velocidad
 double Proyectil::getRotacion() const {
     if (tipoSprite == TipoSprite::PUA) return std::atan2(vy, vx) * 180.0 / PI;
     return 0.0;
 }
 
 void Proyectil::actualizar(double dt) {
-    if (explotada) {                     // la bomba queda quieta: solo avanza su animacion
+    // La bomba explotada queda quieta: solo avanza su animacion
+    if (explotada) {
         if (animandoExplosion) tiempoExplosion += dt;
         return;
-    }              // la bomba queda quieta hasta que el nivel la procese
+    }
 
     if (fisica) {
-        // parabolico, ondulatorio y bomba: la fisica calcula la posicion
+        // Parabolico, ondulatorio y bomba: la fisica calcula la posicion
         fisica->actualizar(dt);
         x = fisica->getX();
         y = fisica->getY();
     } else {
-        // recto y estallido: velocidad constante
+        // Recto y estallido: velocidad constante
         x += vx * dt;
         y += vy * dt;
     }
@@ -102,25 +102,25 @@ void Proyectil::setVelocidad(double vx, double vy) {
     this->vy = vy;
 }
 
-
 bool Proyectil::fueraDePantalla(double xMin, double xMax, double yMin, double yMax) const {
     return (x + ancho < xMin) || (x > xMax) || (y + alto < yMin) || (y > yMax);
 }
 
+// Aplica el daño al objetivo y se desactiva
 void Proyectil::alImpactar(Entidad& objetivo) {
     objetivo.recibirDanio(danio);
     impacto = true;
     desactivar();
 }
 
-
+// Los proyectiles enemigos dañan a Rei al tocarla; la bomba daña por explosion, no por contacto
 void Proyectil::alTocarRei(Rei& rei, int danio) {
     if (propietario == Propietario::ENEMIGO && tipo != TipoProyectil::BOMBA) {
         alImpactar(rei);
     }
 }
 
-
+// Estallido
 
 void Proyectil::configurarEstallido(double xExplosion, int numPuas) {
     tipo = TipoProyectil::ESTALLIDO;
@@ -131,13 +131,13 @@ void Proyectil::configurarEstallido(double xExplosion, int numPuas) {
     aplicarAspecto();
 }
 
-// Llego a la posicion de explosion segun hacia donde se mueve.
+// Llego a la posicion de explosion segun hacia donde se mueve
 bool Proyectil::debeFragmentar() const {
     if (tipo != TipoProyectil::ESTALLIDO) return false;
     return (vx < 0.0) ? (x <= explotaEnX) : (x >= explotaEnX);
 }
 
-// Puas rectilineas repartidas en circulo desde el centro de la bomba.
+// Puas rectilineas repartidas en circulo desde el centro de la bomba
 std::vector<Proyectil*> Proyectil::fragmentar() {
     std::vector<Proyectil*> puas;
 
@@ -148,7 +148,7 @@ std::vector<Proyectil*> Proyectil::fragmentar() {
     const double cy = y + alto / 2.0;
 
     for (int i = 0; i < numPuas; ++i) {
-        const double ang = 2.0 * PI * i / numPuas;
+        const double ang = 2.0 * PI * i / numPuas;   // angulos equidistantes
         Proyectil* pua = new Proyectil(cx, cy, TipoProyectil::RECTO, propietario, danio);
         pua->tipoSprite = TipoSprite::PUA;
         pua->ancho = Tamanio::PUA_ANCHO;
@@ -159,7 +159,7 @@ std::vector<Proyectil*> Proyectil::fragmentar() {
         puas.push_back(pua);
     }
 
-    desactivar();
+    desactivar();   // la bomba original desaparece
     return puas;
 }
 
@@ -176,6 +176,7 @@ void Proyectil::configurarBomba(double ySuelo, double radioDanio, double radioEm
     aplicarAspecto();
 }
 
+// Solo marca la explosion; el nivel la procesa (daño, empuje y animacion)
 void Proyectil::explotar() {
     explotada = true;
 }
@@ -184,7 +185,7 @@ bool Proyectil::haExplotado() const {
     return explotada;
 }
 
-// Agranda la caja al tamaño de la explosion, centrada en la bomba y con el mismo borde inferior.
+// Agranda la caja al tamaño de la explosion, centrada en la bomba y con el mismo borde inferior
 void Proyectil::iniciarExplosion() {
     const double cx = x + ancho / 2.0;
     const double pies = y + alto;
@@ -210,18 +211,21 @@ EstadoVisual Proyectil::getEstadoVisual() const {
     }
     return EstadoVisual::QUIETO;
 }
+
+// Daño directo: el centro de Rei esta dentro del radio de daño
 bool Proyectil::esImpactoDirecto(const Rei& rei) const {
     return distanciaCentros(*this, rei) <= radioDanio;
 }
 
 // Onda de empuje segun la distancia a Rei; nullptr si esta fuera del radio.
+// El llamador (el nivel) entrega la onda a Rei, que se encarga de liberarla.
 OndaEmpuje* Proyectil::calcularEmpuje(const Rei& rei) const {
     if (tipo != TipoProyectil::BOMBA) return nullptr;
 
     const double d = distanciaCentros(*this, rei);
     if (d > radioEmpuje) return nullptr;
 
-
+    // Rei sale empujada en sentido contrario a la bomba
     const double centroBombaX = x + ancho / 2.0;
     const double centroReiX = rei.getX() + rei.getAncho() / 2.0;
     const int dir = (centroReiX >= centroBombaX) ? 1 : -1;
@@ -232,7 +236,7 @@ OndaEmpuje* Proyectil::calcularEmpuje(const Rei& rei) const {
     return onda;
 }
 
-// Agente inteligente
+// Seguimiento para el agente inteligente
 
 void Proyectil::setZonaObjetivo(int zona) {
     zonaObjetivo = zona;

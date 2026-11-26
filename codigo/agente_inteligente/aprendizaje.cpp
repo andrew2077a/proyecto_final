@@ -23,17 +23,20 @@ Aprendizaje::~Aprendizaje() {
     delete[] aciertos;
 }
 
+// Evita salirse de los arreglos
 void Aprendizaje::validarZona(int zona) const {
     if (zona < 0 || zona >= numZonas) {
         throw std::out_of_range("Aprendizaje: la zona no existe");
     }
 }
 
+// Se vio a Rei en esta zona
 void Aprendizaje::registrar(int zona) {
     validarZona(zona);
     visitas[zona] += 1.0;
 }
 
+// Resultado de un disparo a esta zona
 void Aprendizaje::registrarResultado(int zona, bool acierto) {
     validarZona(zona);
     intentos[zona] += 1.0;
@@ -49,7 +52,7 @@ double Aprendizaje::getFrecuencia(int zona) const {
 
 double Aprendizaje::getTasaAcierto(int zona) const {
     validarZona(zona);
-    if (intentos[zona] <= 0.0) return 0.0;   // todavia no hubo intentos
+    if (intentos[zona] <= 0.0) return 0.0;   // aun no hay intentos
     return aciertos[zona] / intentos[zona];
 }
 
@@ -57,8 +60,7 @@ int Aprendizaje::getNumZonas() const {
     return numZonas;
 }
 
-// Los tres contadores se multiplican por igual, asi la tasa de acierto
-// no cambia: solo pierde peso la cantidad de datos viejos.
+// Los datos viejos pierden peso; la tasa de acierto no cambia
 void Aprendizaje::aplicarOlvido() {
     for (int i = 0; i < numZonas; ++i) {
         visitas[i] *= factorOlvido;
@@ -67,6 +69,7 @@ void Aprendizaje::aplicarOlvido() {
     }
 }
 
+// Borra todo lo aprendido
 void Aprendizaje::reiniciar() {
     for (int i = 0; i < numZonas; ++i) {
         visitas[i] = 0.0;

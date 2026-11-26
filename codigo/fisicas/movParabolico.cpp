@@ -19,6 +19,7 @@ void MovParabolico::setParametros(double v0, double anguloGrados, double g, int 
     senTheta = std::sin(rad);
 }
 
+// Se calcula la posicion exacta para el tiempo acumulado, no se integra paso a paso
 void MovParabolico::actualizar(double dt) {
     t += dt;
     x = x0 + dirX * v0 * cosTheta * t;

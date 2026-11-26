@@ -14,7 +14,6 @@
 namespace {
 const double PI = std::acos(-1.0);
 
-
 const double EPS = 1e-6;
 
 // Valores del ataque ondulatorio y del estallido
@@ -54,7 +53,7 @@ Monstruo::Monstruo(double x, double y, const ParamsNivel1& p1, double gravedad)
     }
     // Si algun new o constructor falla, se libera lo ya creado antes de relanzar
     try {
-        // Las zonas cubren el recorrido de Rei: desde el borde izquierdo hasta el monstruo
+        // Las zonas cubren el recorrido de Rei: desde el borde izquierdo hasta su limite derecho
         percepcion = new Percepcion(p1.numZonas, 0.0, Nivel1Init::LIMITE_REI_DER);
         aprendizaje = new Aprendizaje(p1.numZonas, p1.factorOlvido);
         razonamiento = new Razonamiento(p1.numZonas, p1.suavizadoMin);
@@ -86,7 +85,7 @@ void Monstruo::actualizar(double dt) {
     temporizadorOndulatorio += dt;
     if (params->estallidoActivo) temporizadorEstallido += dt;
 
-
+    // La animacion de carga empieza "tiempoCarga" segundos antes de cada ataque
     if (cargando) {
         tiempoCarga -= dt;
         if (tiempoCarga <= 0.0) {
@@ -117,7 +116,7 @@ void Monstruo::actualizar(double dt) {
     actualizarFase();
 }
 
-
+// Devuelve true una sola vez por carga (el nivel lo usa para el sonido)
 bool Monstruo::consumirInicioCarga() {
     if (inicioCargaPendiente) {
         inicioCargaPendiente = false;
@@ -126,17 +125,19 @@ bool Monstruo::consumirInicioCarga() {
     return false;
 }
 
+// Lanza los ataques cuyo intervalo se cumplio y devuelve los proyectiles creados
 std::vector<Proyectil*> Monstruo::atacar(const Rei& rei) {
     std::vector<Proyectil*> lanzados;
     if (!estaViva()) return lanzados;
 
-
+    // Ataque parabolico apuntado por el agente: uno por fase (mas uno si hay ataques dobles)
     if (cumplido(temporizadorAtaque, params->intervaloParabolico)) {
         const int cantidad = fase + (params->ataquesDobles ? 1 : 0);
         for (int i = 0; i < cantidad; ++i) {
             lanzados.push_back(ejecutarAgente(rei));
         }
 
+        // Cada fase permite unos cuantos ondulatorios acompañando al parabolico
         if (ataquesCombinadosPendientes > 0) {
             lanzarOndulatorio(lanzados);
             --ataquesCombinadosPendientes;
@@ -144,12 +145,10 @@ std::vector<Proyectil*> Monstruo::atacar(const Rei& rei) {
         temporizadorAtaque = 0.0;
     }
 
-
     if (cumplido(temporizadorOndulatorio, params->intervaloOndulatorio)) {
         lanzarOndulatorio(lanzados);
         temporizadorOndulatorio = 0.0;
     }
-
 
     if (params->estallidoActivo && cumplido(temporizadorEstallido, params->intervaloEstallido)) {
         lanzarEstallido(lanzados);
@@ -172,10 +171,10 @@ int Monstruo::percibir(const Rei& rei) {
     return ultimaZona;
 }
 
-// Primero el olvido (lo viejo pesa menos) y luego la nueva visita.
+// Primero el olvido (lo viejo pesa menos) y luego la nueva visita
 void Monstruo::aprender(int zona) {
     aprendizaje->aplicarOlvido();
-    aprendizaje->registrar(zona);   // lanza  si la zona no existe
+    aprendizaje->registrar(zona);   // lanza excepcion si la zona no existe
 }
 
 int Monstruo::razonar() {
@@ -190,8 +189,7 @@ Proyectil* Monstruo::actuar(int zona) {
     return accion->ejecutar(zona, centroX, x, y + alto / 3.0);
 }
 
-
-
+// Ondulatorio: avanza a la izquierda oscilando en vertical
 void Monstruo::lanzarOndulatorio(std::vector<Proyectil*>& salida) {
     const int cantidad = params->ataquesDobles ? 2 : 1;
     const double origenX = x;
@@ -208,6 +206,7 @@ void Monstruo::lanzarOndulatorio(std::vector<Proyectil*>& salida) {
     }
 }
 
+// Estallido: avanza recto y a mitad de pantalla se fragmenta en puas
 void Monstruo::lanzarEstallido(std::vector<Proyectil*>& salida) {
     Proyectil* p = new Proyectil(x, y + alto / 3.0, TipoProyectil::ESTALLIDO,
                                  Propietario::ENEMIGO, params->danioDisparo);
@@ -215,8 +214,6 @@ void Monstruo::lanzarEstallido(std::vector<Proyectil*>& salida) {
     p->configurarEstallido(X_EXPLOSION, aleatorio(params->puasMin, params->puasMax));
     salida.push_back(p);
 }
-
-
 
 // Sube la fase al cruzar los umbrales de vida (66 % y 33 %). Nunca baja.
 void Monstruo::actualizarFase() {
@@ -238,6 +235,7 @@ void Monstruo::activarEscudo(double duracion) {
     tiempoEscudo = duracion;
 }
 
+// Con escudo activo no recibe daño. En Dificil, al cruzar cada umbral de vida activa un escudo.
 bool Monstruo::recibirDanio(int n) {
     if (!estaViva() || escudoActivo || n <= 0) return false;
 
@@ -248,10 +246,10 @@ bool Monstruo::recibirDanio(int n) {
         return true;
     }
 
-
     if (params->escudoMonstruo) {
         const double relativa = getVidaRelativa();
         bool cruzo = false;
+        // while por si un solo golpe cruza varios umbrales
         while (escudosUsados < 3 && relativa <= params->umbralesEscudo[escudosUsados]) {
             ++escudosUsados;
             cruzo = true;
@@ -267,11 +265,12 @@ bool Monstruo::estaViva() const {
 
 // Aprendizaje y consultas
 
+// El nivel informa si un disparo acerto o fallo
 void Monstruo::notificarResultado(int zona, bool acierto) {
     aprendizaje->registrarResultado(zona, acierto);
 }
 
-// Cada partida empieza de cero.
+// Cada partida empieza de cero
 void Monstruo::reiniciarAgente() {
     aprendizaje->reiniciar();
 }
@@ -292,7 +291,7 @@ bool Monstruo::tieneEscudo() const {
     return escudoActivo;
 }
 
-
+// El dibujo del monstruo mira a la izquierda (hacia Rei)
 bool Monstruo::miraDerecha() const {
     return false;
 }

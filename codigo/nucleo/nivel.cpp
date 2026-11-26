@@ -19,6 +19,7 @@ Nivel::~Nivel(){
     }
 }
 
+// Toma las constantes de datos.h segun la dificultad y las valida
 void Nivel::cargarParametrosComunes(){
     if(dificultad==ModoDificultad::NORMAL){
         comunes.anguloSalto=ParametrosComunes::ANGULO_SALTO;
@@ -43,6 +44,7 @@ void Nivel::cargarParametrosComunes(){
     validarParametros();
 }
 
+// Rechaza valores que romperian la fisica (el angulo debe quedar entre 0 y 90 grados)
 void Nivel::validarParametros(){
     if(comunes.velocidadMecha<=0||comunes.velocidadSoldado<=0||comunes.velocidadSalto<=0){
         throw invalid_argument("Velocidades incorrectas");
@@ -73,7 +75,9 @@ void Nivel::agregarItem(Item* i){
     }
 }
 
-
+// Cada objeto decide que hace al tocar a Rei (alTocarRei).
+// Se registra el evento de daño comparando las vidas antes y despues,
+// y el de item cuando el item se desactiva al ser recogido.
 void Nivel::detectarColisiones(){
     for(auto i: entidades){
         if(i->estaViva() && i->colisionaCon(*rei)){
@@ -103,6 +107,7 @@ void Nivel::detectarColisiones(){
     }
 }
 
+// Borra las entidades e items inactivos. Los obstaculos son permanentes.
 void Nivel::eliminarInactivos(){
     for(size_t k=0;k<entidades.size();){
         if(!entidades[k]->estaViva()){
@@ -128,6 +133,7 @@ void Nivel::actualizarTemporizador(double dt){
     this->tiempoTranscurrido+=dt;
 }
 
+// -1 si el nivel no tiene limite; 0 cuando se acabo el tiempo
 double Nivel::TiempoRestante(){
     if(this->tiempoLimite==0){
         return -1;
@@ -143,12 +149,14 @@ void Nivel::RegistrarEvento(TipoEvento tipo){
     eventos.push_back(tipo);
 }
 
+// Entrega los eventos pendientes y vacia la cola
 vector<TipoEvento> Nivel::tomarEventos(){
     vector<TipoEvento> newEvent=eventos;
     eventos.clear();
     return newEvent;
 }
 
+// Todo lo que la vista debe dibujar
 vector<Entidad*> Nivel::obtenerEntidadesDibujables() {
     vector<Entidad*> dibujas;
     dibujas.reserve(entidades.size() + obstaculos.size() + items.size() + 1);

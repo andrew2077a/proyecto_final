@@ -1,5 +1,6 @@
 #include "movOndulatorio.h"
 #include <cmath>
+
 MovOndulatorio::MovOndulatorio(double x0, double y0)
     : Fisica(x0, y0), vx(0.0), amplitud(0.0), frecuencia(0.0), fase(0.0) {}
 

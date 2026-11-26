@@ -22,25 +22,28 @@
 #include <QVector>
 
 enum class IdMusica { MENU, PAUSA, NIVEL1, NIVEL2 };
+
+// Pantalla del juego: cada ciclo avanza la logica y dibuja lo que esta
+// devuelve (sprites, HUD, fondo y sonidos). Tambien lee el teclado.
 class VistaJuego: public QGraphicsView{
     Q_OBJECT
 private:
     QGraphicsScene* escena;
-    QTimer temporizador;
-    QElapsedTimer reloj;
-    Juego* juego;
+    QTimer temporizador;     // dispara ciclo() cada 16 ms
+    QElapsedTimer reloj;     // mide el tiempo real entre ciclos
+    Juego* juego;            // pertenece a Menu
     QMediaPlayer* musica;
     QAudioOutput* salidaAudio;
     QMap<TipoEvento, QSoundEffect*> efectos;
     IdMusica pistaActual;
-    double volumen;
+    double volumen;          // entre 0 y 1
     PanelEstado* panel;
-    QHash<Entidad*, SpriteEntidad*> sprites;
+    QHash<Entidad*, SpriteEntidad*> sprites;   // un sprite por entidad dibujada
     QGraphicsPixmapItem* fondo;
 
-    QGraphicsPixmapItem* fondo2;
+    QGraphicsPixmapItem* fondo2;      // segundo fondo para el scroll del nivel 2
     QVector<QPixmap> fondosNivel2;
-    int tramoFondo;
+    int tramoFondo;                   // tramo de pantalla (1920 px) que muestra el scroll
     QGraphicsPixmapItem* meta;
 
 public:

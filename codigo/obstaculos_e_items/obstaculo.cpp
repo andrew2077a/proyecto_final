@@ -5,6 +5,8 @@ Obstaculo::Obstaculo(TipoSprite tipo, double x, double y, double ancho, double a
     :Entidad(x,y,ancho,alto,tipo),espera(espera),esperaActual(0){}
 
 Obstaculo::~Obstaculo(){}
+
+// Puas: dañan y entran en espera (para no quitar vida en cada frame). Fosa: mata.
 void Obstaculo::alTocarRei(Rei& rei,int danio){
     if(esperaActual==0){
         switch (tipoSprite) {
@@ -20,6 +22,8 @@ void Obstaculo::alTocarRei(Rei& rei,int danio){
         }
     }
 }
+
+// Descuenta la espera de las puas hasta llegar a 0
 void Obstaculo::actualizar(double dt){
     if(tipoSprite==TipoSprite::PUAS&&esperaActual>0){
         this->esperaActual-=dt;
@@ -29,7 +33,7 @@ void Obstaculo::actualizar(double dt){
     }
 }
 
+// Solo los bloques sirven de plataforma
 bool Obstaculo::esSolido()const{
     return tipoSprite==TipoSprite::BLOQUE;
 }
-

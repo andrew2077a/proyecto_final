@@ -13,12 +13,12 @@ Percepcion::Percepcion(int numZonas, double xMin, double xMax)
     }
 }
 
+// Zona actual de Rei
 int Percepcion::percibir(const Rei& rei) const {
     return zonaDe(rei.getX());
 }
 
-// zona = parte entera de (x - xMin) / (xMax - xMin) * numZonas,
-// con x limitada al rango para que siempre caiga en 0 .. numZonas-1.
+// Zona = parte entera de la posicion relativa por numZonas
 int Percepcion::zonaDe(double x) const {
     if (x < xMin) x = xMin;
     int zona = static_cast<int>((x - xMin) / (xMax - xMin) * numZonas);
@@ -26,7 +26,7 @@ int Percepcion::zonaDe(double x) const {
     return zona;
 }
 
-// x del centro de la zona: xMin + (zona + 0,5) * (xMax - xMin) / numZonas
+// Coordenada x del centro de la zona
 double Percepcion::centroDeZona(int zona) const {
     if (zona < 0 || zona >= numZonas) {
         throw std::out_of_range("Percepcion: la zona no existe");

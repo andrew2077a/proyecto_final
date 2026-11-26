@@ -29,6 +29,7 @@ void OndaEmpuje::calcularV0() {
     v0 = (d >= R) ? 0.0 : F * (1.0 - d / R);
 }
 
+// Calcula el desplazamiento total y entrega a Rei solo la diferencia con el frame anterior
 void OndaEmpuje::actualizar(double dt) {
     t += dt;
     const double nuevo = (v0 / k) * (1.0 - std::exp(-k * t));
@@ -42,6 +43,7 @@ double OndaEmpuje::getDelta() const {
     return delta;
 }
 
+// Termina cuando la velocidad restante baja del umbral
 bool OndaEmpuje::haTerminado() const {
     return v0 * std::exp(-k * t) < umbralFin;
 }

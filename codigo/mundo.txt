@@ -1,225 +1,112 @@
 # ===== REGLAS FÍSICAS CALIBRADAS (datos.h) =====
-
 # Salto máximo en Normal: ~302px | Salto máximo en Difícil: ~188px
-
-# Camión alto = 120px | Y_camion sobre plataforma = Y_bloque - 120
-
+# Camión alto = 120px | Ancho camión = 240px | Y_camion sobre plataforma = Y_bloque - 120
 # Ningún bloque está puesto al azar: todos conectan saltos largos, rutas altas o sostienen camiones.
 
-
-
 # ===== TRAMO 1 (0-2300): Escalera de entrada y Corral Doble de Camiones =====
-
 BLOQUE 550 780 180 120
-
 BLOQUE 730 660 200 240
 
-
-
 # Corral 1: Dos camiones patrullando en el suelo + Escalón de salida + Plataforma aérea con camión arriba
-
 CAMION 1050 780 940 1350
-
 CAMION 1450 780 1360 1750
-
 BLOQUE 1770 770 150 130
-
 BLOQUE 1920 650 200 250
+GASEOSA 1980 505
 
-
-
-# Plataforma larga arriba del corral con un CAMIÓN patrullando en las alturas
-
+# Plataforma larga arriba del corral con el CAMIÓN recorriendo toda la plataforma (X=1060 a X=1780)
 BLOQUE 1060 540 720 45
-
-CAMION 1250 420 1070 1530
-
-
+CAMION 1250 420 1060 1780
 
 # ===== TRAMO 2 (2250-4150): Gran Salto sobre Fosa y Autopista de Camiones =====
-
 FOSA 2260 900 420 180
-
 BLOQUE 2380 750 180 45
 
-
-
-# Zona abierta de acción con 2 camiones en suelo y plataforma alta para esquivarlos o caerles encima
-
+# Zona abierta de acción con 2 camiones en suelo y plataforma alta limpia (sin camión atascado)
 CAMION 2850 780 2720 3300
-
 CAMION 3450 780 3320 3900
-
 BLOQUE 3100 620 460 45
 
-CAMION 3200 500 3110 3310
-
-
-
 # Escalón de salida hacia el castillo
-
 BLOQUE 3920 770 180 130
 
-
-
 # ===== TRAMO 3 (4150-6550): Castillo Escalonado con Camiones en Terraza =====
-
 BLOQUE 4150 650 190 250
-
 BLOQUE 4340 530 220 370
 
-
-
-# Puente elevado largo con CAMIÓN patrullando arriba + Púas + Gaseosa al final
-
+# Puente elevado largo con CAMIÓN patrullando todo el tramo libre antes de las púas (X=4600 a X=5320)
 BLOQUE 4600 490 1120 50
-
-CAMION 4750 370 4610 5100
-
+CAMION 4750 370 4600 5320
 PUAS 5360 430
 
-GASEOSA 5620 345
-
-
-
 # Piso inferior con púas y un camión patrullando en la sombra
-
 PUAS 4650 840
-
 PUAS 4890 840
-
 CAMION 5250 780 5140 5720
-
 BLOQUE 5750 770 170 130
-
 BLOQUE 5920 650 220 250
 
-
-
 # ===== TRAMO 4 (6250-8200): Salto Grande de Fe y Doble Nivel de Camiones =====
-
 # Salto largo sobre fosa con púas; si fallas el salto alto, caes en zona de camiones
-
 FOSA 6250 900 380 180
-
 BLOQUE 6720 770 180 130
 
-
-
-# Arena de 2 camiones abajo + plataforma aérea con otro camión arriba
-
+# Arena de 2 camiones abajo + plataforma aérea con camión recorriendo toda la plataforma (X=7050 a X=7810)
 CAMION 7050 780 6920 7500
-
 CAMION 7600 780 7510 8020
-
 BLOQUE 7050 560 760 45
-
-CAMION 7250 440 7060 7560
-
-GASEOSA 7710 415
-
-
+CAMION 7250 440 7050 7810
 
 BLOQUE 8040 770 160 130
 
-
-
 # ===== TRAMO 5 (8250-10800): Torres Altas y Salto Largo sobre Mar de Púas =====
-
 BLOQUE 8250 650 190 250
-
 BLOQUE 8440 525 220 375
 
-
-
-# Campo de púas abajo + 2 plataformas largas (la segunda tiene un camión patrullando encima)
-
+# Campo de púas abajo + 2 plataformas largas (la segunda tiene un camión recorriéndola completa: X=9180 a X=9820)
 PUAS 8700 840
-
 PUAS 8940 840
-
 PUAS 9180 840
-
 PUAS 9420 840
-
 PUAS 9660 840
 
-
-
 BLOQUE 8760 560 280 45
-
 BLOQUE 9180 470 640 45
+CAMION 9350 350 9180 9820
 
-CAMION 9350 350 9190 9570
-
-
-
-# Bajada a zona con camión guardián
-
+# Bajada a zona con camión guardián (gaseosa movida aquí en zona segura lejos de fosas)
 BLOQUE 9940 640 220 260
-
+GASEOSA 10010 495
 CAMION 10300 780 10180 10720
 
-
-
 # ===== TRAMO 6 (10800-12150): Fosa Abismal con Puente de Riesgo =====
-
 BLOQUE 10800 770 180 130
-
 FOSA 11020 900 660 180
-
 BLOQUE 11100 650 200 45
-
 BLOQUE 11420 540 240 45
-
 BLOQUE 11760 730 220 170
 
-
-
 # ===== TRAMO 7 (12150-14700): Fortaleza Final con Convoy de Camiones y Gran Pirámide =====
-
 BLOQUE 12150 650 180 250
 
-
-
-# Convoy de 2 camiones en el patio de la fortaleza + camión aéreo en el puente superior
-
+# Convoy de 2 camiones en el patio de la fortaleza + camión aéreo recorriendo todo el puente (X=12420 a X=13160)
 CAMION 12450 780 12340 12800
-
 CAMION 12900 780 12810 13260
-
 BLOQUE 12420 530 740 45
-
-CAMION 12600 410 12430 12910
-
-
+CAMION 12600 410 12420 13160
 
 # Escalón de acceso a la Gran Pirámide de 4 niveles
-
 BLOQUE 13280 770 160 130
-
 BLOQUE 13440 650 180 250
-
 BLOQUE 13620 525 180 375
-
 BLOQUE 13800 400 260 500
-
 GASEOSA 13900 255
 
-
-
 # Gran salto final desde la cima de la pirámide sobre púas y camión
-
 PUAS 14100 840
-
 PUAS 14340 840
-
 BLOQUE 14180 560 260 45
 
-
-
 # ===== TRAMO 8 (14600-15360): Última defensa antes de la meta =====
-
 CAMION 14680 780 14600 15020
-
 PUAS 15040 840

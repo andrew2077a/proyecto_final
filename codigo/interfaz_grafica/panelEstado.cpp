@@ -11,7 +11,7 @@
 
 namespace {
 // Posiciones en coordenadas logicas (pantalla de 1920 x 1080)
-constexpr int MAX_ICONOS_VIDA = ParametrosComunes::VIDAS_REI;   // 5, el maximo entre Normal y Dificil
+constexpr int MAX_ICONOS_VIDA = ParametrosComunes::VIDAS_REI;   // el maximo entre Normal y Dificil
 constexpr double CAPA_HUD = 100;   // por encima de los sprites (1-8) y del fondo (-10)
 
 // Placa izquierda: vidas, calor y efectos
@@ -49,11 +49,11 @@ constexpr double JEFE_Y = 62;
 constexpr double PLACA_JEFE_ANCHO = JEFE_ANCHO_MAX + 60;
 constexpr double PLACA_JEFE_ALTO = 86;
 
-const QColor COLOR_TEXTO(191, 247, 224);      // verde menta, el mismo de los menus
+const QColor COLOR_TEXTO(191, 247, 224);      // el mismo verde de los menus
 const QColor COLOR_PLACA(6, 26, 28, 175);
 const QColor COLOR_BORDE(191, 247, 224, 170);
 
-// Corazon dibujado por codigo (antes eran cuadros rojos provisionales)
+// Dibuja el corazon con una curva de Bezier, sin usar imagen
 QPixmap crearCorazon(bool lleno) {
     QPixmap pix(VIDA_ANCHO, VIDA_ALTO);
     pix.fill(Qt::transparent);
@@ -75,10 +75,10 @@ QPixmap crearCorazon(bool lleno) {
         pintor.setBrush(QColor(30, 40, 42, 170));
     }
     pintor.drawPath(ruta);
-    if (lleno) {                                   // brillo
+    if (lleno) {
         pintor.setPen(Qt::NoPen);
         pintor.setBrush(QColor(255, 255, 255, 110));
-        pintor.drawEllipse(QPointF(12, 12), 3.5, 2.5);
+        pintor.drawEllipse(QPointF(12, 12), 3.5, 2.5);   // brillo
     }
     return pix;
 }
@@ -96,7 +96,7 @@ QGraphicsTextItem* crearTexto(QGraphicsScene* escena, const QString& texto, int 
     t->setDefaultTextColor(color);
     t->setFont(QFont("Arial", puntos, QFont::Bold));
     t->setZValue(CAPA_HUD + 1);
-    QGraphicsDropShadowEffect* sombra = new QGraphicsDropShadowEffect();   // el item es su dueño
+    QGraphicsDropShadowEffect* sombra = new QGraphicsDropShadowEffect();   // el item se queda con el efecto y lo libera
     sombra->setBlurRadius(3);
     sombra->setOffset(2, 2);
     sombra->setColor(QColor(0, 0, 0, 220));
@@ -115,13 +115,11 @@ QGraphicsRectItem* crearMarco(QGraphicsScene* escena, double x, double y, double
 PanelEstado::PanelEstado(QGraphicsScene* escena)
     : escena(escena), visible(true), vidasMaximas(0)
 {
-    //  placas de fondo
     placaIzquierda = crearPlaca(escena, PLACA_X, PLACA_Y, PLACA_ANCHO, PLACA_ALTO);
     placaTiempo = crearPlaca(escena, TIEMPO_CENTRO_X - PLACA_TIEMPO_ANCHO / 2.0, TIEMPO_Y - 8,
                              PLACA_TIEMPO_ANCHO, PLACA_TIEMPO_ALTO);
     placaJefe = crearPlaca(escena, JEFE_X - 30, 16, PLACA_JEFE_ANCHO, PLACA_JEFE_ALTO);
 
-    // iconos de vida (corazones)
     vidaLlena = crearCorazon(true);
     vidaVacia = crearCorazon(false);
     for(int i = 0; i < MAX_ICONOS_VIDA; ++i){
@@ -131,25 +129,21 @@ PanelEstado::PanelEstado(QGraphicsScene* escena)
         iconosVida.push_back(icono);
     }
 
-    // tiempo
     textoTiempo = crearTexto(escena, "00:00", 26, Qt::white);
     textoTiempo->setPos(TIEMPO_CENTRO_X - 50, TIEMPO_Y - 6);
 
-    // calor
     textoCalor = crearTexto(escena, "CALOR", 13, COLOR_TEXTO);
     textoCalor->setPos(CALOR_X - 8, CALOR_ROTULO_Y);
     marcoCalor = crearMarco(escena, CALOR_X, CALOR_Y, CALOR_ANCHO_MAX, CALOR_ALTO);
     barraCalor = escena->addRect(CALOR_X, CALOR_Y, 0, CALOR_ALTO, QPen(Qt::NoPen), QBrush(QColor(255, 180, 0)));
     barraCalor->setZValue(CAPA_HUD + 1);
 
-    // vida del jefe
     textoJefe = crearTexto(escena, "MONSTRUO", 14, COLOR_TEXTO);
     textoJefe->setPos(TIEMPO_CENTRO_X - 52, 16);
     marcoJefe = crearMarco(escena, JEFE_X, JEFE_Y, JEFE_ANCHO_MAX, JEFE_ALTO);
     barraJefe = escena->addRect(JEFE_X, JEFE_Y, JEFE_ANCHO_MAX, JEFE_ALTO, QPen(Qt::NoPen), QBrush(QColor(220, 30, 50)));
     barraJefe->setZValue(CAPA_HUD + 1);
 
-    // efectos activos
     textoEfectos = crearTexto(escena, "", 14, QColor(255, 225, 90));
     textoEfectos->setPos(EFECTOS_X, EFECTOS_Y);
 
@@ -160,6 +154,7 @@ PanelEstado::PanelEstado(QGraphicsScene* escena)
     }
 }
 
+// Cada seccion se muestra u oculta segun lo que tenga el nivel actual
 void PanelEstado::actualizar(const Juego& juego){
     if(!visible){
         return;
@@ -174,9 +169,8 @@ void PanelEstado::actualizar(const Juego& juego){
         return;
     }
 
-    // 1. VIDAS
-    // Corazon lleno por cada vida y corazon vacio por cada vida perdida.
-
+    // 1. Vidas: corazon lleno por cada vida y vacio por cada vida perdida.
+    // Se recuerda el maximo visto para saber cuantos corazones mostrar (5 en Normal, 3 en Dificil).
     int vidas = rei->getVidas();
     vidasMaximas = std::max(vidasMaximas, vidas);
     vidasMaximas = std::min(vidasMaximas, static_cast<int>(iconosVida.size()));
@@ -185,7 +179,7 @@ void PanelEstado::actualizar(const Juego& juego){
         iconosVida[i]->setPixmap(i < vidas ? vidaLlena : vidaVacia);
     }
 
-    // 2. TIEMPO
+    // 2. Tiempo (TiempoRestante devuelve -1 si el nivel no tiene limite)
     double restante = nivel->TiempoRestante();
     const bool hayTiempo = restante >= 0;
     placaTiempo->setVisible(hayTiempo);
@@ -197,11 +191,10 @@ void PanelEstado::actualizar(const Juego& juego){
         textoTiempo->setPlainText(QString("%1:%2").arg(minutos, 2, 10, QChar('0')).arg(segundos, 2, 10, QChar('0')));
         textoTiempo->setDefaultTextColor(restante < 30 ? QColor(255, 90, 90) : QColor(Qt::white));   // ultimos 30 s en rojo
         const QRectF caja = textoTiempo->boundingRect();
-        textoTiempo->setPos(TIEMPO_CENTRO_X - caja.width() / 2.0, TIEMPO_Y - 6);                      // siempre centrado
+        textoTiempo->setPos(TIEMPO_CENTRO_X - caja.width() / 2.0, TIEMPO_Y - 6);   // recentra cuando cambia el ancho del texto
     }
 
-    //  3. CALOR
-    // Solo existe en el nivel 1. Es una proporcion entre 0 y 1.
+    // 3. Calor: solo existe en el nivel 1; el color cambia al acercarse al limite
     const bool hayCalor = (juego.getNumNivel() == 1);
     textoCalor->setVisible(hayCalor);
     marcoCalor->setVisible(hayCalor);
@@ -209,12 +202,12 @@ void PanelEstado::actualizar(const Juego& juego){
     if(hayCalor){
         const double calor = std::min(1.0, std::max(0.0, rei->getCalorRelativo()));
         barraCalor->setRect(CALOR_X, CALOR_Y, CALOR_ANCHO_MAX * calor, CALOR_ALTO);
-        QColor color(255, 190, 0);                         // amarillo
+        QColor color(255, 190, 0);
         if(calor > 0.85){
-            color = QColor(235, 40, 40);                   // rojo: a punto de bloquearse
+            color = QColor(235, 40, 40);
         }
         else if(calor > 0.6){
-            color = QColor(255, 120, 0);                   // naranja
+            color = QColor(255, 120, 0);
         }
         if(rei->estaBloqueadaPorCalor()){
             color = QColor(200, 0, 0);
@@ -228,7 +221,7 @@ void PanelEstado::actualizar(const Juego& juego){
         barraCalor->setBrush(QBrush(color));
     }
 
-    //  4. VIDA DEL JEFE
+    // 4. Vida del jefe (getVidaJefeRelativa devuelve -1 si el nivel no tiene jefe)
     double vidaJefe = nivel->getVidaJefeRelativa();
     const bool hayJefe = vidaJefe >= 0;
     placaJefe->setVisible(hayJefe);
@@ -240,7 +233,7 @@ void PanelEstado::actualizar(const Juego& juego){
         barraJefe->setRect(JEFE_X, JEFE_Y, JEFE_ANCHO_MAX * vidaJefe, JEFE_ALTO);
     }
 
-    // 5. EFECTOS ACTIVOS
+    // 5. Efectos activos
     QString efectos;
     if(rei->tieneBateria()){
         efectos += "BATERIA   ";
@@ -253,7 +246,7 @@ void PanelEstado::actualizar(const Juego& juego){
 
 void PanelEstado::mostrar(){
     this->visible = true;
-    this->vidasMaximas = 0;                    // partida nueva: se vuelve a contar las vidas
+    this->vidasMaximas = 0;   // partida nueva: se vuelven a contar las vidas
     for(QGraphicsItem* e : elementos){
         e->setVisible(true);
     }

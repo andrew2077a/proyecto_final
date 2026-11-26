@@ -19,6 +19,7 @@ Nivel1::~Nivel1(){
     delete monstruo;
 }
 
+// Copia las constantes de Nivel1Normal o Nivel1Dificil (datos.h) y las valida
 void Nivel1::cargarParametros() {
     if (dificultad == ModoDificultad::NORMAL) {
         params.vidaMonstruo = Nivel1Normal::VIDA_MONSTRUO;
@@ -96,6 +97,7 @@ void Nivel1::cargarParametros() {
         params.intervaloBateria = Nivel1Dificil::INTERVALO_BATERIA;
     }
 
+    // Rangos invertidos o valores que provocarian divisiones por cero
     if (params.vidaMonstruo <= 0 || params.numZonas <= 0 ||
         params.ataquesCombinadosMin > params.ataquesCombinadosMax ||
         params.puasMin > params.puasMax ||
@@ -114,6 +116,7 @@ void Nivel1::actualizar(double dt){
     monstruo->actualizar(dt);
     rei->actualizar(dt);
 
+    // Suelo y limites horizontales de Rei
     if(rei->getY() + rei->getAlto() >= Nivel1Init::Y_SUELO){
         rei->apoyarEn(Nivel1Init::Y_SUELO);
     }
@@ -126,6 +129,7 @@ void Nivel1::actualizar(double dt){
 
     actualizarTemporizador(dt);
 
+    // El tiempo para la siguiente bateria solo corre si no hay una en pantalla
     if(items.empty()){
         temporizadorBateria += dt;
     }
@@ -154,19 +158,26 @@ ResultadoNivel Nivel1:: verificarFin(){
     return ResultadoNivel::EN_CURSO;
 }
 
-void Nivel1:: colocarItems(){
+// Una bateria a la vez, en una posicion horizontal aleatoria dentro del recorrido de Rei
+void Nivel1::colocarItems(){
     if(!items.empty()){
         return;
     }
-    double ale = static_cast<double>(rand() % (static_cast<int>(Nivel1Init::BATERIA_X_MAX) - static_cast<int>(Nivel1Init::BATERIA_X_MIN) + 1)) + Nivel1Init::BATERIA_X_MIN;
-    if(temporizadorBateria>=params.intervaloBateria){
-        temporizadorBateria=0.0;
-        Item *i=new Item(TipoItem::BATERIA,ale,Nivel1Init::BATERIA_Y,Tamanio::BATERIA_ANCHO,Tamanio::BATERIA_ALTO
-                           ,params.duracionBateria,params.multVelocidadBateria,params.multCadenciaBateria);
+
+    if(temporizadorBateria >= params.intervaloBateria){
+        temporizadorBateria = 0.0;
+
+        const int rango =static_cast<int>(Nivel1Init::BATERIA_X_MAX) -static_cast<int>(Nivel1Init::BATERIA_X_MIN) + 1;
+
+        const double ale =static_cast<double>(rand() % rango) + Nivel1Init::BATERIA_X_MIN;
+
+        Item *i = new Item(TipoItem::BATERIA,ale,Nivel1Init::BATERIA_Y,Tamanio::BATERIA_ANCHO,Tamanio::BATERIA_ALTO,
+            params.duracionBateria,params.multVelocidadBateria,params.multCadenciaBateria);
         agregarItem(i);
     }
 }
 
+// Los proyectiles se agregan a "entidades" (dueño) y a "proyectiles" (acceso rapido)
 void Nivel1::procesarDisparoMonstruo(){
     if(monstruo->consumirInicioCarga()){
         RegistrarEvento(TipoEvento::MONSTRUO_LANZA);
@@ -189,6 +200,7 @@ void Nivel1::procesarDisparoRei(){
     }
 }
 
+// Las balas de Rei no pasan por detectarColisiones (esa funcion solo comprueba contra Rei)
 void Nivel1::procesarImpactosAlMonstruo(){
     for(Proyectil* p:proyectiles){
         if(p->getPropietario()==Propietario::REI){
@@ -200,6 +212,8 @@ void Nivel1::procesarImpactosAlMonstruo(){
     }
 }
 
+// Cuando un estallido llega a su punto, se reemplaza por sus puas.
+// Se recorre por indice porque las puas nuevas se agregan al mismo vector durante el bucle.
 void Nivel1::fragmentarEstallidos(){
     for(size_t k = 0; k < proyectiles.size(); ++k){
         Proyectil* p = proyectiles[k];
@@ -215,9 +229,11 @@ void Nivel1::fragmentarEstallidos(){
     }
 }
 
+// Aprendizaje del agente: cuando un disparo apuntado termina (impacta o cae
+// al suelo o sale de la pantalla) se le informa una sola vez si acerto.
 void Nivel1::notificarAgente(){
     for (Proyectil* p : proyectiles){
-        if (p->fueReportado() || p->getZonaObjetivo() < 0){
+        if (p->fueReportado() || p->getZonaObjetivo() < 0){   // zona -1 = no es un disparo del agente
             continue;
         }
         bool impacto = p->haImpactado();
@@ -230,6 +246,7 @@ void Nivel1::notificarAgente(){
     }
 }
 
+// Cada camion sale un poco antes y mas rapido que el anterior (el intervalo nunca baja de 0.5 s)
 void Nivel1::actualizarGeneracionCamiones(double dt){
     temporizadorCamiones += dt;
     if(temporizadorCamiones >= intervaloCamiones){
@@ -241,6 +258,9 @@ void Nivel1::actualizarGeneracionCamiones(double dt){
     }
 }
 
+// Primero se descartan los proyectiles que cayeron al suelo o se alejaron y se quitan
+// de "proyectiles"; despues Nivel::eliminarInactivos los borra de "entidades".
+// Ese orden evita dejar punteros colgando en "proyectiles".
 void Nivel1:: eliminarInactivos(){
     for(Proyectil* p : proyectiles){
         if(p->getTipo() == TipoProyectil::PARABOLICO && p->getY() + p->getAlto() >= Nivel1Init::Y_SUELO){
@@ -262,6 +282,7 @@ void Nivel1:: eliminarInactivos(){
     Nivel::eliminarInactivos();
 }
 
+// El monstruo no esta en "entidades", asi que se agrega aparte
 vector<Entidad*> Nivel1::obtenerEntidadesDibujables(){
     vector<Entidad*> dibujas;
     dibujas.reserve(entidades.size() + obstaculos.size() + items.size() + 2);

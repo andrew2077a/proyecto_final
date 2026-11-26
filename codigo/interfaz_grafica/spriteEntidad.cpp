@@ -10,6 +10,7 @@
 QHash<int, QVector<QPixmap>> SpriteEntidad::cache;
 
 namespace {
+// Nombre base del archivo de imagen de cada tipo
 QString nombreDe(TipoSprite tipo) {
     switch (tipo) {
     case TipoSprite::REI_MECHA:          return "rei_mecha";
@@ -38,7 +39,7 @@ QString nombreEstadoDe(EstadoVisual estado) {
     case EstadoVisual::CORRIENDO:  return "_corriendo";
     case EstadoVisual::SALTANDO:   return "_saltando";
     case EstadoVisual::DISPARANDO: return "_disparando";
-    case EstadoVisual::DANIADO:    return "_danio";      // sin enie
+    case EstadoVisual::DANIADO:    return "_danio";      // sin ñ en el nombre del archivo
     case EstadoVisual::LANZANDO:   return "_lanzando";
     case EstadoVisual::MURIENDO:   return "_muriendo";
     case EstadoVisual::AGACHADO:   return "_agachado";
@@ -47,6 +48,7 @@ QString nombreEstadoDe(EstadoVisual estado) {
     return "";
 }
 
+// Cada animacion es una tira horizontal de fotogramas del mismo ancho
 struct EntradaAnimacion {
     TipoSprite tipo;
     EstadoVisual estado;
@@ -55,7 +57,7 @@ struct EntradaAnimacion {
     bool repite;               // true: vuelve al primero; false: se queda en el ultimo
 };
 
-
+// Los comentarios de la derecha indican con que duracion de datos.h debe coincidir la animacion
 const EntradaAnimacion TABLA[] = {
     { TipoSprite::REI_MECHA,   EstadoVisual::QUIETO,     1, 0.25,  true  },
     { TipoSprite::REI_MECHA,   EstadoVisual::CORRIENDO,  6, 0.08,  true  },
@@ -70,13 +72,13 @@ const EntradaAnimacion TABLA[] = {
     { TipoSprite::REI_SOLDADO, EstadoVisual::DANIADO,    6, 0.07,  false },
     { TipoSprite::MONSTRUO,    EstadoVisual::QUIETO,     4, 0.25,  true  },
     { TipoSprite::MONSTRUO,    EstadoVisual::LANZANDO,   5, 0.20,  false },   // 5 * 0.20 = 1.0 s = TIEMPO_CARGA (Normal)
-    { TipoSprite::MONSTRUO,    EstadoVisual::MURIENDO,   5, 0.25,  false },   // 5 * 0.5 = 2.5 s = ESPERA_FIN
-    { TipoSprite::BOMBA,       EstadoVisual::EXPLOTANDO, 4, 0.09,  false },   // 6 * 0.07 = 0.42 s = DURACION_EXPLOSION_VISUAL
+    { TipoSprite::MONSTRUO,    EstadoVisual::MURIENDO,   5, 0.25,  false },   // 5 * 0.25 = 1.25 s (ESPERA_FIN vale 0.5 s)
+    { TipoSprite::BOMBA,       EstadoVisual::EXPLOTANDO, 4, 0.09,  false },   // 4 * 0.09 = 0.36 s = DURACION_EXPLOSION_VISUAL
     { TipoSprite::CAMION,      EstadoVisual::QUIETO,     4, 0.08,  true  }
 };
 const int NUM_ENTRADAS = static_cast<int>(sizeof(TABLA) / sizeof(TABLA[0]));
 
-// Busca la fila de la tabla. Si no hay: 1 fotograma y no repite.
+// Si no hay fila: 1 fotograma y no repite
 EntradaAnimacion infoDe(TipoSprite tipo, EstadoVisual estado) {
     for (int i = 0; i < NUM_ENTRADAS; ++i) {
         if (TABLA[i].tipo == tipo && TABLA[i].estado == estado) {
@@ -91,14 +93,19 @@ int llaveDe(TipoSprite tipo, EstadoVisual estado, bool normal) {
     return static_cast<int>(tipo) * 1000 + static_cast<int>(estado) * 10 + (normal ? 0 : 1);
 }
 
-
+// Como se adapta la imagen a la caja de colision de la entidad:
+//   PERSONAJE        escala segun el alto del sprite quieto, con los pies en el borde inferior de la caja
+//   ESTIRAR          rellena la caja completa
+//   CONTENER_PIES    cabe dentro de la caja sin deformarse, apoyada abajo
+//   CONTENER_CENTRO  cabe dentro de la caja sin deformarse, centrada
+//   REPETIR          una baldosa repetida a lo ancho de la caja
 enum class Ajuste { PERSONAJE, ESTIRAR, CONTENER_PIES, CONTENER_CENTRO, REPETIR };
 
 struct ConfigDibujo {
     TipoSprite tipo;
     Ajuste ajuste;
-    bool nativoDerecha;
-    double z;
+    bool nativoDerecha;   // el dibujo original mira a la derecha
+    double z;             // capa: mayor se dibuja encima
     double escala;
 };
 
@@ -153,7 +160,7 @@ void SpriteEntidad::cargarImagen(TipoSprite tipo, EstadoVisual estado){
     QString ruta = QString(Rutas::CARPETA_SPRITES) + nombreDe(tipo)
                    + nombreEstadoDe(estado) + Rutas::EXTENSION_SPRITES;
 
-    // Si no existe la tira de este estado, usa la del estado QUIETO.
+    // Si la tira de este estado no existe se usa la de QUIETO, asi se pueden ir agregando animaciones de a una
     if(estado != EstadoVisual::QUIETO && !QFile::exists(ruta)){
         cargarImagen(tipo, EstadoVisual::QUIETO);
 
@@ -198,7 +205,8 @@ void SpriteEntidad::cargarImagen(TipoSprite tipo, EstadoVisual estado){
     cache.insert(llaveDe(tipo, estado, true), normales);
     cache.insert(llaveDe(tipo, estado, false), espejados);
 }
-// Carga todo al iniciar el nivel, para que un archivo faltante falle ahi y no a mitad de partida
+
+// Se llama al iniciar el nivel para que un archivo faltante falle ahi y no a mitad de partida
 void SpriteEntidad::precargarTodo(){
     const TipoSprite tipos[] = {
         TipoSprite::REI_MECHA, TipoSprite::REI_SOLDADO, TipoSprite::MONSTRUO, TipoSprite::CAMION,
@@ -214,20 +222,19 @@ void SpriteEntidad::precargarTodo(){
     }
 }
 
-// Si el dibujo original mira a la izquierda (camion), "normal" corresponde a mirar a la izquierda.
+// Si el dibujo original mira a la izquierda (camion), la imagen "normal" es la que mira a la izquierda
 bool SpriteEntidad::usarImagenNormal() const{
     return mirandoDerecha == configDe(tipoSprite).nativoDerecha;
 }
 
-
+// Alto del sprite quieto: sirve de referencia para que todas las animaciones del personaje tengan la misma escala
 double SpriteEntidad::alturaReferencia() const{
     const QVector<QPixmap> quieto = cache.value(llaveDe(tipoSprite, EstadoVisual::QUIETO, true));
     return quieto.isEmpty() ? 0.0 : quieto[0].height();
 }
 
-// Avanza la animacion con el dt del ciclo
 void SpriteEntidad::actualizarAnimacion(double dt, EstadoVisual estado, bool miraDerecha){
-    if(estado != estadoActual){                   // cambio el estado: se reinicia la animacion
+    if(estado != estadoActual){   // al cambiar de estado la animacion arranca de cero
         estadoActual = estado;
         fotogramaActual = 0;
         tiempoFotograma = 0.0;
@@ -239,6 +246,7 @@ void SpriteEntidad::actualizarAnimacion(double dt, EstadoVisual estado, bool mir
     const EntradaAnimacion info = infoDe(tipoSprite, estadoActual);
     if(n > 1 && info.duracionFotograma > 0.0){
         tiempoFotograma += dt;
+        // while por si un frame largo salta varios fotogramas
         while(tiempoFotograma >= info.duracionFotograma){
             tiempoFotograma -= info.duracionFotograma;
             if(fotogramaActual < n - 1){
@@ -248,7 +256,7 @@ void SpriteEntidad::actualizarAnimacion(double dt, EstadoVisual estado, bool mir
                 fotogramaActual = 0;
             }
             else{
-                tiempoFotograma = 0.0;            // se queda en el ultimo fotograma
+                tiempoFotograma = 0.0;   // se queda en el ultimo fotograma
                 break;
             }
         }
@@ -258,7 +266,7 @@ void SpriteEntidad::actualizarAnimacion(double dt, EstadoVisual estado, bool mir
 
 void SpriteEntidad::mostrarFotograma(){
     if(configDe(tipoSprite).ajuste == Ajuste::REPETIR && !repetido.isNull()){
-        return;                                   // las puas ya tienen su imagen compuesta
+        return;   // las puas ya tienen su imagen compuesta
     }
     const int llave = llaveDe(tipoSprite, estadoActual, usarImagenNormal());
     const QVector<QPixmap> fotogramas = cache.value(llave);
@@ -270,14 +278,14 @@ void SpriteEntidad::mostrarFotograma(){
         i = fotogramas.size() - 1;
     }
     if(llave == llaveMostrada && i == indiceMostrado){
-        return;
+        return;   // ya es la imagen que se esta mostrando
     }
     setPixmap(fotogramas[i]);
     llaveMostrada = llave;
     indiceMostrado = i;
 }
 
-// Arma UNA vez la imagen de las puas: la baldosa se repite a lo ancho de la caja de colision.
+// Arma una sola vez la imagen de las puas: la baldosa se repite a lo ancho de la caja de colision
 void SpriteEntidad::prepararRepetido(double ancho, double alto){
     if(!repetido.isNull() && tamanioRepetido == QSizeF(ancho, alto)){
         return;
@@ -288,11 +296,11 @@ void SpriteEntidad::prepararRepetido(double ancho, double alto){
     }
     const QPixmap& baldosa = base[0];
     const double relacion = static_cast<double>(baldosa.width()) / baldosa.height();
-    int n = static_cast<int>(std::lround(ancho / (alto * relacion)));
+    int n = static_cast<int>(std::lround(ancho / (alto * relacion)));   // cuantas baldosas caben sin deformarse
     if(n < 1){
         n = 1;
     }
-    const int pw = static_cast<int>(ancho * 2);     // al doble para que no se vea borroso
+    const int pw = static_cast<int>(ancho * 2);   // se arma al doble de tamaño para que no se vea borrosa
     const int ph = static_cast<int>(alto * 2);
     QPixmap compuesto(pw, ph);
     compuesto.fill(Qt::transparent);
@@ -308,6 +316,7 @@ void SpriteEntidad::prepararRepetido(double ancho, double alto){
     setPixmap(repetido);
 }
 
+// Coloca y escala el sprite sobre la caja de colision de la entidad (x, y, ancho, alto en coordenadas del mundo)
 void SpriteEntidad::actualizarPosicion(double x, double y, double ancho, double alto, double camaraX, double rotacion) {
     const ConfigDibujo cfg = configDe(tipoSprite);
     if(cfg.ajuste == Ajuste::REPETIR){
@@ -320,11 +329,11 @@ void SpriteEntidad::actualizarPosicion(double x, double y, double ancho, double 
     const double w = imagen.width();
     const double h = imagen.height();
 
-    // caja de colision en coordenadas de pantalla (restando la camara)
+    // Caja en coordenadas de pantalla: se resta la camara
     const double cajaX = x - camaraX;
     const double cajaY = y;
 
-    double dw = ancho;      // tamaño final con que se dibuja
+    double dw = ancho;   // tamaño final con que se dibuja
     double dh = alto;
     double cx = cajaX + ancho / 2.0;   // centro final
     double cy = cajaY + alto / 2.0;
@@ -335,7 +344,7 @@ void SpriteEntidad::actualizarPosicion(double x, double y, double ancho, double 
         const double s = (ref > 0.0) ? alto / ref : alto / h;
         dw = w * s;
         dh = h * s;
-        cy = cajaY + alto - dh / 2.0;           // pies sobre el borde inferior de la caja
+        cy = cajaY + alto - dh / 2.0;
         break;
     }
     case Ajuste::CONTENER_PIES:
@@ -350,10 +359,10 @@ void SpriteEntidad::actualizarPosicion(double x, double y, double ancho, double 
     }
     case Ajuste::ESTIRAR:
     case Ajuste::REPETIR:
-        break;                                  // rellena la caja completa
+        break;   // rellena la caja completa
     }
 
-    // Transformacion completa: se centra la imagen, se escala y se rota alrededor de su centro.
+    // El orden importa: la imagen se centra en su origen, se escala y se rota alrededor de su centro
     QTransform t;
     t.rotate(rotacion);
     t.scale(dw / w, dh / h);

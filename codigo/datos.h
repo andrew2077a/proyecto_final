@@ -69,8 +69,8 @@ constexpr double INVULNERABILIDAD = 1.0;
 constexpr double GRAVEDAD = 1500;
 constexpr double VELOCIDAD_MECHA = 400;
 constexpr double VELOCIDAD_SOLDADO = 400;
-constexpr double VELOCIDAD_SALTO = 1000;
-constexpr double ANGULO_SALTO = 70;
+constexpr double VELOCIDAD_SALTO = 1200;
+constexpr double ANGULO_SALTO = 60;
 }
 
 // Agacharse (tecla S): la caja de colision baja a este porcentaje y los pies siguen en el suelo
@@ -133,15 +133,15 @@ constexpr double ALTURA_APARICION_BOMBA = -200;  // y por encima de la pantalla
 }
 
 namespace Nivel2Normal {
-constexpr double TIEMPO_LIMITE = 70;
-constexpr double INTERVALO_BOMBA = 4;
+constexpr double TIEMPO_LIMITE = 80;
+constexpr double INTERVALO_BOMBA = 5;
 constexpr int NUM_BOMBAS = 1;
 constexpr double RANGO_CAIDA_BOMBA = 300;
 constexpr double RADIO_DANIO_BOMBA = 250;
 constexpr double RADIO_EMPUJE_BOMBA = 500;
 constexpr double FUERZA_EMPUJE = 1000;
 constexpr double AMORTIGUAMIENTO_EMPUJE = 3;
-constexpr double INTERVALO_BALA_LATERAL = 4;
+constexpr double INTERVALO_BALA_LATERAL = 5;
 constexpr int NUM_BALAS_LATERALES = 1;
 constexpr double VELOCIDAD_BALA = 800;
 constexpr double VELOCIDAD_CAMION_PATRULLA = 120;
@@ -151,18 +151,18 @@ constexpr double ESPERA_PUAS = 1;
 }
 
 namespace Nivel2Dificil {
-constexpr double TIEMPO_LIMITE = 60;
+constexpr double TIEMPO_LIMITE = 70;
 constexpr double INTERVALO_BOMBA = 4;
 constexpr int NUM_BOMBAS = 2;
-constexpr double RANGO_CAIDA_BOMBA = 100;
-constexpr double RADIO_DANIO_BOMBA = 350;
+constexpr double RANGO_CAIDA_BOMBA = 200;
+constexpr double RADIO_DANIO_BOMBA = 310;
 constexpr double RADIO_EMPUJE_BOMBA = 500;
 constexpr double FUERZA_EMPUJE = 1050;
 constexpr double AMORTIGUAMIENTO_EMPUJE = 3;
-constexpr double INTERVALO_BALA_LATERAL = 2;
+constexpr double INTERVALO_BALA_LATERAL = 3;
 constexpr int NUM_BALAS_LATERALES = 2;
-constexpr double VELOCIDAD_BALA = 1000;
-constexpr double VELOCIDAD_CAMION_PATRULLA = 200;
+constexpr double VELOCIDAD_BALA = 900;
+constexpr double VELOCIDAD_CAMION_PATRULLA = 180;
 constexpr double DURACION_GASEOSA = 8;
 constexpr double MULT_VELOCIDAD_GASEOSA = 0.5;
 constexpr double ESPERA_PUAS = 1;
@@ -184,7 +184,7 @@ constexpr double BATERIA_X_MIN = 300;
 constexpr double BATERIA_X_MAX = LIMITE_REI_DER - Tamanio::BATERIA_ANCHO;
 }
 namespace Nivel1Normal {
-constexpr int VIDA_MONSTRUO = 30;
+constexpr int VIDA_MONSTRUO = 40;
 constexpr double UMBRAL_FASE1 = 0.66;
 constexpr double UMBRAL_FASE2 = 0.33;
 constexpr double INTERVALO_PARABOLICO = 5;
@@ -213,7 +213,7 @@ constexpr double VELOCIDAD_CAMION_INICIAL = 250;
 constexpr double RAMPA_CAMIONES = 0.01;
 constexpr double CALOR_MAX = 100;
 constexpr double CALOR_POR_DISPARO = 10;
-constexpr double TIEMPO_RECARGA_CALOR = 2.5;
+constexpr double TIEMPO_RECARGA_CALOR = 1.0;
 constexpr double TIEMPO_BLOQUEO_GOLPE = 2;
 constexpr double CADENCIA_BASE = 0.25;
 constexpr double DURACION_BATERIA = 5;
@@ -223,11 +223,11 @@ constexpr double INTERVALO_BATERIA = 5;
 }
 
 namespace Nivel1Dificil {
-constexpr int VIDA_MONSTRUO = 40;
+constexpr int VIDA_MONSTRUO = 35;
 constexpr double UMBRAL_FASE1 = 0.66;
 constexpr double UMBRAL_FASE2 = 0.33;
-constexpr double INTERVALO_PARABOLICO = 3;
-constexpr double INTERVALO_ONDULATORIO = 8;
+constexpr double INTERVALO_PARABOLICO = 4;
+constexpr double INTERVALO_ONDULATORIO = 15;
 constexpr double TIEMPO_CARGA = 0.7;
 constexpr int ATAQUES_COMBINADOS_MIN = 2;
 constexpr int ATAQUES_COMBINADOS_MAX = 2;
@@ -240,19 +240,19 @@ constexpr double DURACION_ESCUDO = 10;
 constexpr bool ESTALLIDO_ACTIVO = true;
 constexpr int PUAS_MIN = 6;
 constexpr int PUAS_MAX = 8;
-constexpr double INTERVALO_ESTALLIDO = 6;
+constexpr double INTERVALO_ESTALLIDO = 7;
 constexpr int DANIO_DISPARO = 1;
 constexpr double ANGULO_DISPARO = 45;
-constexpr double VELOCIDAD_MAX_DISPARO = 1800;
+constexpr double VELOCIDAD_MAX_DISPARO = 1700;
 constexpr int NUM_ZONAS = 5;
 constexpr double FACTOR_OLVIDO = 0.98;
 constexpr double SUAVIZADO_MIN = 0.05;
 constexpr double INTERVALO_CAMION_INICIAL = 3;
-constexpr double VELOCIDAD_CAMION_INICIAL = 350;
+constexpr double VELOCIDAD_CAMION_INICIAL = 300;
 constexpr double RAMPA_CAMIONES = 0.02;
 constexpr double CALOR_MAX = 100;
 constexpr double CALOR_POR_DISPARO = 8.5;
-constexpr double TIEMPO_RECARGA_CALOR = 3.5;
+constexpr double TIEMPO_RECARGA_CALOR = 2;
 constexpr double TIEMPO_BLOQUEO_GOLPE = 2;
 constexpr double CADENCIA_BASE = 0.3;
 constexpr double DURACION_BATERIA = 10;

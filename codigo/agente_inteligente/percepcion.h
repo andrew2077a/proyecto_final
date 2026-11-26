@@ -3,15 +3,13 @@
 
 class Rei;
 
-// Tarea 1 del agente: observa a Rei y ubica su posicion en una zona.
-// Reduce infinitas posiciones a pocas zonas manejables, lo que hace posible
-// llevar una estadistica de donde suele estar Rei.
+// Tarea 1 del agente: ubica a Rei en una zona (pocas zonas en vez de infinitas posiciones).
 class Percepcion
 {
 private:
     int numZonas;
-    double xMin;
-    double xMax;
+    double xMin;   // inicio del rango dividido en zonas
+    double xMax;   // fin del rango
 
 public:
     Percepcion(int numZonas, double xMin, double xMax);

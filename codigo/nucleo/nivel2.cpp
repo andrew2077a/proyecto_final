@@ -13,11 +13,13 @@ Nivel2::Nivel2(ModoDificultad modo):Nivel(modo){
     this->camaraX=0;
     this->anchoMundo=Nivel2Mundo::ANCHO_MUNDO;
     this->ySuelo=Nivel2Mundo::Y_SUELO;
+    // Los temporizadores cuentan hacia atras: la primera bomba y la primera bala salen tras un intervalo completo
     this->temporizadorBomba=params.intervaloBomba;
     this->temporizadorBala=params.intervaloBalaLateral;
     srand(time(NULL));
 }
 
+// Copia las constantes de Nivel2Normal o Nivel2Dificil (datos.h)
 void Nivel2::cargarParametros(){
     if(this->dificultad==ModoDificultad::NORMAL){
         params.tiempoLimite=Nivel2Normal::TIEMPO_LIMITE;
@@ -65,9 +67,13 @@ void Nivel2:: iniciar(){
     construirMundo();
 }
 
+// En este nivel los items se colocan al construir el mundo (ver construirMundo)
+void Nivel2::colocarItems(){}
 
-void Nivel2::colocarItems(){}//mezclar con construir mundo
-
+// Lee mundo.txt. Cada linea empieza con el tipo de objeto seguido de sus numeros:
+//   BLOQUE x y ancho alto     FOSA x y ancho alto     PUAS x y
+//   CAMION x y limiteIzq limiteDer     GASEOSA x y
+// Las lineas que empiezan con otra cosa (como los comentarios con #) se ignoran.
 void Nivel2::construirMundo(){
     obstaculos.reserve(60);
     entidades.reserve(60);
@@ -110,12 +116,11 @@ void Nivel2::construirMundo(){
     }
 }
 
-
-
 void Nivel2:: actualizar(double dt){
     rei->actualizar(dt);
 
-    // CAMBIO: colisión lateral con bloques y límites del mundo
+    // Choque lateral con bloques: si los pies estan mas de 60 px por debajo del borde
+    // superior del bloque no es un aterrizaje, asi que se empuja a Rei hacia afuera
     for(auto o : obstaculos){
         if(o->esSolido() && rei->colisionaCon(*o) &&
             rei->getY() + rei->getAlto() > o->getY() + 60){
@@ -128,12 +133,17 @@ void Nivel2:: actualizar(double dt){
             }
         }
     }
+    // Limites del mundo
     if(rei->getX() < 0){
         rei->setPosicion(0, rei->getY());
     }
     if(rei->getX() + rei->getAncho() > anchoMundo){
         rei->setPosicion(anchoMundo - rei->getAncho(), rei->getY());
     }
+
+    // Suelo: Rei aterriza sobre la superficie que tenga debajo; si no hay
+    // ninguna (fosa) o se va por el borde de un bloque, empieza a caer.
+    // Los pies quedan 20 px por debajo del borde superior de la superficie.
     double ySup;
     if(superficieBajo(*rei,ySup)){
         double pies=rei->getY()+rei->getAlto();
@@ -158,6 +168,8 @@ void Nivel2:: actualizar(double dt){
     }
     actualizarTemporizador(dt);
     detectarColisiones();
+
+    // Balas y bombas salen cuando su temporizador llega a cero
     this->temporizadorBomba-=dt;
     this->temporizadorBala-=dt;
     if (temporizadorBala<=0){
@@ -168,8 +180,7 @@ void Nivel2:: actualizar(double dt){
         soltarBomba();
         temporizadorBomba=params.intervaloBomba;
     }
-    procesarExplosiones();
-    // CAMBIO: la bomba tambien explota al chocar con un bloque
+    // La bomba tambien explota si choca con un bloque antes de llegar al suelo
     for(auto b : bombas){
         if(!b->haExplotado()){
             for(auto o : obstaculos){
@@ -180,10 +191,12 @@ void Nivel2:: actualizar(double dt){
             }
         }
     }
+    procesarExplosiones();
     actualizarScroll();
     eliminarInactivos();
 }
 
+// Pierde si Rei muere o se acaba el tiempo; gana al llegar a la meta
 ResultadoNivel Nivel2:: verificarFin(){
     if(!rei->estaViva()||TiempoRestante()==0){
         return ResultadoNivel::PERDIDO;
@@ -193,6 +206,9 @@ ResultadoNivel Nivel2:: verificarFin(){
     }
     return ResultadoNivel::EN_CURSO;
 }
+
+// La camara sigue a Rei manteniendola en el centro de la pantalla,
+// sin salirse de los bordes del mundo
 void Nivel2::actualizarScroll() {
     if (!rei) return;
     double scroll = rei->getX() - (Tamanio::ANCHO_PANTALLA / 2.0);
@@ -206,6 +222,9 @@ void Nivel2::actualizarScroll() {
     }
     this->camaraX = scroll;
 }
+
+// Las balas aparecen fuera de la pantalla por la izquierda, a la altura de Rei,
+// y avanzan hacia la derecha. Si hay varias, se apilan hacia arriba cada 60 px.
 void Nivel2::lanzarBalaLateral(){
 
     for(int i=0;i<params.numBalasLaterales;i++){
@@ -217,6 +236,9 @@ void Nivel2::lanzarBalaLateral(){
     }
 }
 
+// Las bombas caen en caida libre (velocidad inicial 0 y solo gravedad) desde
+// arriba de la pantalla, en una x aleatoria cerca de Rei.
+// Sin llamar a setParametros la gravedad quedaria en 0 y no caerian.
 void Nivel2:: soltarBomba(){
     for(int i=0;i<params.numBombas;i++){
         int rango = static_cast<int>(params.rangoCaidaBomba);
@@ -224,7 +246,6 @@ void Nivel2:: soltarBomba(){
         double Y= Nivel2Mundo::ALTURA_APARICION_BOMBA;
         Proyectil* bomba=new Proyectil(X,Y,TipoProyectil::BOMBA,Propietario::ENEMIGO,comunes.danioBase);
         bomba->configurarBomba(ySuelo,params.radioDanioBomba,params.radioEmpujeBomba,params.fuerzaEmpuje,params.amortiguamientoEmpuje);
-        // CAMBIO: sin setParametros la gravedad quedaba en 0 y la bomba no caía
         MovParabolico* caida = new MovParabolico(X, Y);
         caida->setParametros(0, 0, comunes.gravedad, 1);
         bomba->setFisica(caida);
@@ -233,6 +254,10 @@ void Nivel2:: soltarBomba(){
         this->RegistrarEvento(TipoEvento::BOMBA_CAE);
     }
 }
+
+// Cuando una bomba explota, el daño y el empuje se aplican una sola vez
+// (iniciarExplosion marca estaExplotando). Despues se espera a que termine
+// la animacion y la bomba se desactiva.
 void Nivel2::procesarExplosiones(){
     for(size_t k=0;k<bombas.size();){
         Proyectil* i=bombas[k];
@@ -263,6 +288,10 @@ void Nivel2::procesarExplosiones(){
     }
 }
 
+// Busca la y de la superficie sobre la que esta Rei. Devuelve false si esta sobre una fosa.
+// Un bloque cuenta como superficie si Rei esta encima de el y su borde superior
+// no esta a mas de MARGEN px por encima de los pies (asi puede subir escalones
+// pequeños). Si hay varios, se elige el mas alto.
 bool Nivel2::superficieBajo(const Rei& rei, double& y) const{
     const double pies=rei.getY()+rei.getAlto();
     const double centro=rei.getX()+rei.getAncho()/2.0;
@@ -282,6 +311,7 @@ bool Nivel2::superficieBajo(const Rei& rei, double& y) const{
         y=techo;
         return true;
     }
+    // Sin bloque debajo: solo hay suelo si el centro de Rei no esta sobre una fosa
     for(auto o:obstaculos){
         if(o->getTipoSprite()==TipoSprite::FOSA && centro>o->getX() && centro<o->getX()+o->getAncho()){
             return false;
@@ -291,6 +321,8 @@ bool Nivel2::superficieBajo(const Rei& rei, double& y) const{
     return true;
 }
 
+// Solo las balas laterales (RECTO) se descartan al alejarse de la camara.
+// Despues se quitan las bombas muertas de "bombas" antes de que Nivel::eliminarInactivos
 void Nivel2::eliminarInactivos(){
     for(auto e:entidades){
         Proyectil* p=dynamic_cast<Proyectil*>(e);

@@ -2,6 +2,7 @@
 #include "nucleo/nivel.h"
 #include "nucleo/nivel1.h"
 
+// p1 es nullptr en el nivel 2, donde Rei no dispara ni usa calor
 Rei::Rei(ModoRei modo, const ParamsComunes& comunes, const ParamsNivel1* p1, double x, double y)
     : Entidad(x, y, modo == ModoRei::MECHA ? Tamanio::REI_MECHA_ANCHO : Tamanio::REI_SOLDADO_ANCHO,
               modo == ModoRei::MECHA ? Tamanio::REI_MECHA_ALTO : Tamanio::REI_SOLDADO_ALTO,
@@ -58,6 +59,7 @@ Rei::Rei(ModoRei modo, const ParamsComunes& comunes, const ParamsNivel1* p1, dou
         this->cadenciaBase=p1->cadenciaBase;
     }
     else{
+        // Sin parametros de nivel 1: calorMax=1 evita dividir por cero
         this->calorMax=1;
         this->calorPorDisparo=0;
         this->tiempoRecargaCalor=0;
@@ -70,6 +72,8 @@ Rei::~Rei(){
     delete salto;
     delete empuje;
 }
+
+// Orden por frame: direccion, agachado, movimiento, salto, empuje y efectos
 void Rei::actualizar(double dt){
 
     int dir=0;
@@ -80,7 +84,7 @@ void Rei::actualizar(double dt){
         dir--;
     }
     if(dir!=0){
-        this->direccion=dir;
+        this->direccion=dir;   // conserva la ultima direccion al soltar las teclas
     }
     this->actualizarAgachado();
     this->mover(dir,dt);
@@ -89,6 +93,7 @@ void Rei::actualizar(double dt){
     }
     this->actualizarSalto(dt);
 
+    // La onda de una bomba desplaza a Rei un poco cada frame hasta extinguirse
     if(empuje!=nullptr){
         empuje->actualizar(dt);
         this->x += empuje->getDelta();
@@ -99,6 +104,8 @@ void Rei::actualizar(double dt){
     }
     this->actualizarEfectos(dt);
 }
+
+// Solo guarda el estado de las teclas; la accion ocurre en actualizar()
 void Rei:: procesarEntrada(Tecla tecla, bool presionada){
     if(tecla==Tecla::DERECHA){
         this->derechaPresionada=presionada;
@@ -117,7 +124,7 @@ void Rei:: procesarEntrada(Tecla tecla, bool presionada){
     }
 }
 
-
+// Solo se agacha en el suelo. Al cambiar el alto se ajusta y para que los pies no se muevan.
 void Rei::actualizarAgachado(){
     const bool quiere = agachadaPresionada && enSuelo && !saltoSolicitado;
     if(quiere && !agachada){
@@ -135,6 +142,8 @@ void Rei::actualizarAgachado(){
 bool Rei::estaAgachada() const{
     return agachada;
 }
+
+// Alto del sprite: siempre el de pie, aunque la caja de colision este agachada
 double Rei::getAltoVisual() const{
     return altoDePie;
 }
@@ -143,6 +152,7 @@ void Rei::mover(int dir, double dt){
     this->x+=dir*dt*calcularVelocidadEfectiva();
 }
 
+// Salto: tiro parabolico con la velocidad y angulo de los parametros
 void Rei::saltar(){
     if(!enSuelo){
         return;
@@ -159,14 +169,18 @@ void Rei::actualizarSalto(double dt){
         return;
     }
     salto->actualizar(dt);
-    this->y=salto->getY();
+    this->y=salto->getY();   // solo toma la y: el movimiento horizontal lo controla el jugador
 }
+
+// El nivel la llama al detectar una superficie bajo los pies
 void Rei::apoyarEn(double ySuperficie){
     this->y=ySuperficie-alto;
     this->enSuelo=true;
     delete salto;
     salto=nullptr;
 }
+
+// Caida libre (sin velocidad inicial) al perder el suelo
 void Rei::iniciarCaida(){
     if(enSuelo){
         this->enSuelo=false;
@@ -176,6 +190,8 @@ void Rei::iniciarCaida(){
         salto->setParametros(0, 0, gravedad, 1);
     }
 }
+
+// Crea la bala si puede disparar. Cada disparo suma calor; al llenarse, el arma se bloquea un tiempo.
 Proyectil* Rei::disparar() {
     if (!puedeDisparar()) {
         return nullptr;
@@ -187,6 +203,7 @@ Proyectil* Rei::disparar() {
         bloqueadaPorCalor = true;
         tiempoBloqueoCalor = tiempoRecargaCalor;
     }
+    // La bateria acorta el tiempo entre disparos
     cooldownDisparo = bateriaActiva ? (cadenciaBase / multCadenciaBateria) : cadenciaBase;
 
     double xBala = (direccion > 0) ? x + ancho : x;
@@ -202,22 +219,25 @@ bool Rei::puedeDisparar() const{
     return true;
 }
 
+// Bloqueada: espera y se vacia el calor de golpe. Si no, se enfria poco a poco.
 void Rei::actualizarCalor(double dt) {
     if (bloqueadaPorCalor) {
         tiempoBloqueoCalor -= dt;
         if (tiempoBloqueoCalor <= 0.0) {
             tiempoBloqueoCalor = 0.0;
             bloqueadaPorCalor = false;
-            calor = 0.0;
+            calor = calorMax-1;
         }
     } else if (calor > 0.0) {
-        const double tasaEnfriamiento = 5.0;
+        const double tasaEnfriamiento = 5.0;   // unidades de calor por segundo
         calor -= tasaEnfriamiento * dt;
         if (calor < 0.0) {
             calor = 0.0;
         }
     }
 }
+
+// Bateria: dispara mas rapido pero camina mas lento
 void Rei:: activarBateria(double duracion, double multCadencia, double multVelocidad){
     this->tiempoBateria=duracion;
     this->multCadenciaBateria=multCadencia;
@@ -225,12 +245,14 @@ void Rei:: activarBateria(double duracion, double multCadencia, double multVeloc
     this->bateriaActiva=true;
 
 }
+// Gaseosa: escudo contra daño pero camina mas lento
 void Rei::activarEscudo(double duracion, double multVelocidad){
     this->escudoActivo=true;
     this->tiempoEscudo=duracion;
     this->multVelocidadEscudo=multVelocidad;
 }
 
+// Hace avanzar todos los temporizadores; cada uno se detiene en 0
 void Rei::actualizarEfectos(double dt){
     actualizarCalor(dt);
     if(cooldownDisparo>0){
@@ -276,6 +298,8 @@ void Rei::actualizarEfectos(double dt){
         }
     }
 }
+
+// Los multiplicadores de agacharse, bateria y escudo se acumulan
 double Rei:: calcularVelocidadEfectiva() const{
     double v=velocidadBase;
     if(agachada){
@@ -290,12 +314,15 @@ double Rei:: calcularVelocidadEfectiva() const{
     return v;
 }
 
+// Rei se queda con la onda y la libera al terminar (ver actualizar)
 void Rei:: aplicarEmpuje(OndaEmpuje* onda){
     if(empuje!=onda){
         delete empuje;
         empuje=onda;
     }
 }
+
+// Devuelve false si no hubo daño (escudo o invulnerabilidad). Un golpe tambien bloquea el disparo un rato.
 bool Rei:: recibirDanio(int n){
     if(escudoActivo||tiempoInvulnerable>0){
         return false;
@@ -312,6 +339,8 @@ bool Rei:: recibirDanio(int n){
     }
     return true;
 }
+
+// Muerte instantanea (fosas)
 void Rei::matar(){
     vida=0;
     desactivar();
@@ -327,6 +356,7 @@ int Rei::getVidas() const{
     return vida;
 }
 
+// Calor entre 0 y 1, para la barra del HUD
 double Rei::getCalorRelativo() const{
     if(calorMax<=0){
         return 0;
@@ -346,7 +376,7 @@ bool  Rei:: estaDisparando() const{
     return disparando;
 }
 
-
+// Prioridad de animaciones: daño, aire, agachada, disparo, correr, quieta
 EstadoVisual Rei::getEstadoVisual() const{
     if(tiempoDanioVisual>0){
         return EstadoVisual::DANIADO;
@@ -360,12 +390,11 @@ EstadoVisual Rei::getEstadoVisual() const{
     if(tiempoDisparoVisual>0 && modo==ModoRei::MECHA){
         return EstadoVisual::DISPARANDO;
     }
-    if(izquierdaPresionada!=derechaPresionada){
+    if(izquierdaPresionada!=derechaPresionada){          // exactamente una tecla de direccion
         return EstadoVisual::CORRIENDO;
     }
     return EstadoVisual::QUIETO;
 }
-
 
 bool Rei::miraDerecha() const{
     return direccion==1;

@@ -3,13 +3,13 @@
 
 class Aprendizaje;
 
-// Tarea 2 del agente: decide a que zona atacar a partir de lo aprendido.
+// Tarea 2 del agente: decide a que zona atacar segun lo aprendido.
 class Razonamiento
 {
 private:
     int numZonas;
-    double* probabilidades;
-    double suavizadoMin;
+    double* probabilidades;   // probabilidad de atacar cada zona (suman 1)
+    double suavizadoMin;      // probabilidad minima de cualquier zona
 
     void normalizar();
 
@@ -17,7 +17,7 @@ public:
     Razonamiento(int numZonas, double suavizadoMin);
     ~Razonamiento();
 
-
+    // Arreglo propio
     Razonamiento(const Razonamiento&) = delete;
     Razonamiento& operator=(const Razonamiento&) = delete;
 

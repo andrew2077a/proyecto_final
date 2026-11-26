@@ -5,10 +5,10 @@
 #include "entidades/entidad.h"
 #include "fisicas/ondaEmpuje.h"
 
-// Que trayectoria o comportamiento lleva el proyectil.
+// Trayectoria o comportamiento del proyectil
 enum class TipoProyectil { RECTO, PARABOLICO, ONDULATORIO, ESTALLIDO, BOMBA };
 
-// Quien lo disparo (define a quien daña).
+// Quien lo disparo (define a quien daña)
 enum class Propietario { REI, ENEMIGO };
 
 
@@ -18,21 +18,29 @@ private:
     TipoProyectil tipo;
     Propietario propietario;
     int danio;
-    int zonaObjetivo;
-    double explotaEnX;
+
+    // Datos del agente inteligente
+    int zonaObjetivo;    // zona a la que apuntaba (-1 si no es del agente)
+    bool impacto;        // dio en Rei
+    bool reportado;      // el resultado ya se le informo al agente
+
+    // Estallido (bomba de puas del monstruo)
+    double explotaEnX;   // posicion x donde se fragmenta
     int numPuas;
-    bool impacto;
-    bool reportado;
+
+    // Movimiento sin fisica (recto y estallido): velocidad constante
     double vx;
     double vy;
+
+    // Bomba del nivel 2
     double ySuelo;
-    double radioDanio;
-    double radioEmpuje;
+    double radioDanio;       // dentro de este radio hace daño directo
+    double radioEmpuje;      // dentro de este radio empuja a Rei
     double fuerzaEmpuje;
     double amortiguamiento;
     bool explotada;
     bool animandoExplosion;
-    double tiempoExplosion;
+    double tiempoExplosion;  // tiempo transcurrido de la animacion
 
     void aplicarAspecto();
 
@@ -45,10 +53,10 @@ public:
     void alImpactar(Entidad& objetivo);
     void alTocarRei(Rei& rei, int danio) override;
 
-    // Bomba de puas del monstruo
+    // Estallido: se fragmenta en puas al llegar a explotaEnX
     void configurarEstallido(double xExplosion, int numPuas);
     bool debeFragmentar() const;
-    std::vector<Proyectil*> fragmentar();
+    std::vector<Proyectil*> fragmentar();   // el llamador es dueño de las puas
 
     // Bomba del nivel 2
     void configurarBomba(double ySuelo, double radioDanio, double radioEmpuje, double F, double k);
@@ -60,15 +68,14 @@ public:
     EstadoVisual getEstadoVisual() const override;
 
     bool esImpactoDirecto(const Rei& rei) const;
-    OndaEmpuje* calcularEmpuje(const Rei& rei) const;
+    OndaEmpuje* calcularEmpuje(const Rei& rei) const;   // nullptr si Rei esta fuera del radio
 
-    // Agente inteligente
+    // Seguimiento para el agente inteligente
     void setZonaObjetivo(int zona);
     int getZonaObjetivo() const;
     bool haImpactado() const;
     void marcarReportado();
     bool fueReportado() const;
-
 
     bool miraDerecha() const override;
     double getRotacion() const override;

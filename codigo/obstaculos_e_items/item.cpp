@@ -18,6 +18,8 @@ Item::Item(TipoItem tipo, double x, double y, double ancho, double alto,
     recogido(false) {}
 
 Item::~Item() {}
+
+// Le da el efecto a Rei (bateria o escudo) y se desactiva para que el nivel lo borre
 void Item::alTocarRei(Rei& rei, int danio) {
     (void)danio;
     if (recogido) return;

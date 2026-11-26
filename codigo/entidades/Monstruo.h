@@ -12,40 +12,44 @@ class Aprendizaje;
 class Proyectil;
 class Rei;
 
-// Enemigo principal del nivel 1 y, a la vez, el agente inteligente: es el
-// cuerpo que ejecuta lo que su cerebro decide. Coordina las cuatro tareas
+// Enemigo del nivel 1 y agente inteligente: coordina las cuatro tareas
 // (percibir, aprender, razonar y actuar), cada una en su propia clase.
 class Monstruo : public Entidad
 {
 private:
-    Percepcion* percepcion;      // Tarea 1: percibir (Monstruo es su dueño)
-    Razonamiento* razonamiento;  // Tarea 2: decidir
-    Accion* accion;              // Tarea 3: disparar
-    Aprendizaje* aprendizaje;    // Tarea 4: recordar y mejorar
-    int ultimaZona;              // Ultima zona donde se percibio a Rei
-    int vida;                    // Vida actual (Entidad no tiene vida)
-    const ParamsNivel1* params;
-    int fase;
+    Percepcion* percepcion;
+    Razonamiento* razonamiento;
+    Accion* accion;
+    Aprendizaje* aprendizaje;
+    int ultimaZona;
+
+    int vida;
     int vidaMax;
-    double temporizadorAtaque;
+    const ParamsNivel1* params;  // pertenece a Nivel1; el monstruo solo lo lee
+    int fase;                    // 1 a 3
+
+    double temporizadorAtaque;   // ataque parabolico (el del agente)
     double temporizadorOndulatorio;
     double temporizadorEstallido;
+
+    // Animacion de carga previa al ataque
     bool cargando;
     double tiempoCarga;
-    bool inicioCargaPendiente;
-    int ataquesCombinadosPendientes;
+    bool inicioCargaPendiente;   // el nivel lo consulta para reproducir el sonido
+
+    int ataquesCombinadosPendientes;   // ondulatorios que acompañan al parabolico
+
     bool escudoActivo;
     double tiempoEscudo;
     int escudosUsados;
 
-    // Las cuatro tareas del agente y su ciclo
+    // Ciclo del agente: percibir -> aprender -> razonar -> actuar
     Proyectil* ejecutarAgente(const Rei& rei);
     int percibir(const Rei& rei);
     void aprender(int zona);
     int razonar();
     Proyectil* actuar(int zona);
 
-    // Ataques que no apunta el agente (agregan sus proyectiles a "salida")
     void lanzarOndulatorio(std::vector<Proyectil*>& salida);
     void lanzarEstallido(std::vector<Proyectil*>& salida);
 
@@ -57,18 +61,19 @@ public:
     Monstruo(double x, double y, const ParamsNivel1& p1, double gravedad);
     ~Monstruo() override;
 
-    // Las cuatro partes son propias: copiar el objeto las liberaria dos veces
+    // Se prohibe copiar: copiar duplicaria los punteros a las cuatro partes
+    // del agente y el destructor haria delete dos veces sobre la misma memoria.
     Monstruo(const Monstruo&) = delete;
     Monstruo& operator=(const Monstruo&) = delete;
 
     void actualizar(double dt = 0) override;
     bool consumirInicioCarga();
-    std::vector<Proyectil*> atacar(const Rei& rei);
+    std::vector<Proyectil*> atacar(const Rei& rei);   // quien lo llama se encarga de liberar los proyectiles
 
     bool recibirDanio(int n) override;
     bool estaViva() const override;
 
-    void notificarResultado(int zona, bool acierto);
+    void notificarResultado(int zona, bool acierto);   // informa al agente si su disparo acerto
     void reiniciarAgente();
 
     double getVidaRelativa() const;

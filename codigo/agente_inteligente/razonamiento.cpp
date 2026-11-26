@@ -1,11 +1,10 @@
 #include "razonamiento.h"
-
-#include "razonamiento.h"
 #include "aprendizaje.h"
 #include <random>
 #include <stdexcept>
 
 namespace {
+// Un solo generador para todo el programa
 std::mt19937& generador() {
     static std::mt19937 gen{std::random_device{}()};
     return gen;
@@ -32,7 +31,7 @@ Razonamiento::~Razonamiento() {
     delete[] probabilidades;
 }
 
-// Divide cada probabilidad entre la suma. Si la suma es 0 (no hay nada que repartir) deja todas las zonas igual de probables.
+// Hace que las probabilidades sumen 1
 void Razonamiento::normalizar() {
     double suma = 0.0;
     for (int i = 0; i < numZonas; ++i) {
@@ -43,6 +42,7 @@ void Razonamiento::normalizar() {
     }
 }
 
+// Peso de cada zona = visitas * (1 + tasa de acierto)
 void Razonamiento::calcularProbabilidades(const Aprendizaje& apr) {
     if (apr.getNumZonas() != numZonas) {
         throw std::invalid_argument("Razonamiento: Aprendizaje con distinto numero de zonas");
@@ -54,7 +54,7 @@ void Razonamiento::calcularProbabilidades(const Aprendizaje& apr) {
     normalizar();
 }
 
-// Sube a suavizado minimo toda probabilidad menor y vuelve a normalizar.
+// Ninguna zona baja del minimo
 void Razonamiento::suavizar() {
     for (int i = 0; i < numZonas; ++i) {
         if (probabilidades[i] < suavizadoMin) {
@@ -64,7 +64,7 @@ void Razonamiento::suavizar() {
     normalizar();
 }
 
-// Ruleta: sortea r en [0, 1) y recorre las probabilidades acumuladas.
+// Ruleta: sortea r y recorre las probabilidades acumuladas
 int Razonamiento::decidir() const {
     std::uniform_real_distribution<double> dist(0.0, 1.0);
     const double r = dist(generador());
@@ -76,5 +76,5 @@ int Razonamiento::decidir() const {
             return i;
         }
     }
-    return numZonas - 1;   // por redondeo, la suma puede quedar apenas bajo 1
+    return numZonas - 1;   // por redondeo la suma puede quedar apenas bajo 1
 }

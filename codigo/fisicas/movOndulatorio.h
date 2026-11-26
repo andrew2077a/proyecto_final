@@ -2,14 +2,16 @@
 #define MOVONDULATORIO_H
 
 #include "fisicas/fisica.h"
+
+// Movimiento ondulatorio: avanza a velocidad constante en x y oscila
 //   x = x0 + vx * t
 //   y = y0 + A * sen(w * t + fase)      (y0 es la linea central de la onda)
 class MovOndulatorio : public Fisica{
 private:
-    double vx;
-    double amplitud;
-    double frecuencia;
-    double fase;
+    double vx;           // negativa si avanza hacia la izquierda
+    double amplitud;     // A
+    double frecuencia;   // w, en rad/s
+    double fase;         // desfase inicial; PI hace que dos ondas se crucen
 
 public:
     MovOndulatorio(double x0, double y0);

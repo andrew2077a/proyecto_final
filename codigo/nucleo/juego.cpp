@@ -15,6 +15,9 @@ void Juego::configurar(ModoDificultad modo){
     this->dificultad=modo;
 }
 
+// Reemplaza el nivel actual por uno nuevo.
+// Si el constructor o iniciar() lanzan una excepcion, quien llama (Menu)
+// limpia con volverAlMenu().
 void Juego::iniciarNivel(int num){
     if(num!=1 && num!=2){
         throw invalid_argument("Nivel no encontrado");
@@ -45,6 +48,8 @@ void Juego::iniciarNivel(int num){
     }
 }
 
+// Mientras el nivel esta en curso lo avanza. Al detectar el fin, lo deja
+// congelado esperaFin segundos y despues lo termina.
 void Juego::actualizar(double dt){
     if(this->estado==EstadoJuego::JUGANDO && nivelActual!=nullptr){
         if(finPendiente){
@@ -86,6 +91,7 @@ void Juego::reanudar(){
     }
 }
 
+// Borra el nivel: despues de esto la vista ya no debe leer sus entidades
 void Juego::terminarNivel(bool gano){
     delete nivelActual;
     nivelActual=nullptr;
@@ -111,6 +117,7 @@ void Juego::volverAlMenu(){
     this->estado=EstadoJuego::MENU;
 }
 
+// Eventos de sonido acumulados desde la ultima llamada
 vector<TipoEvento> Juego::tomarEventos(){
     if(nivelActual==nullptr){
         return {};

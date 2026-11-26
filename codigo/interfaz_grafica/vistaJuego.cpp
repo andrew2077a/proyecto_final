@@ -7,6 +7,7 @@
 #include <QPainter>
 
 namespace {
+// Escala la imagen a la resolucion logica una sola vez, no en cada ciclo
 QPixmap cargarFondoEscalado(const char* ruta){
     QPixmap imagen(ruta);
     if(imagen.isNull()){
@@ -17,6 +18,7 @@ QPixmap cargarFondoEscalado(const char* ruta){
                          Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 }
 
+// El mundo del nivel 2 mide 8 pantallas y hay 8 fondos: a cada tramo le toca el fondo que le corresponde
 int indiceFondoNivel2(int tramo){
     const int tramos = static_cast<int>(std::ceil(Nivel2Mundo::ANCHO_MUNDO / Tamanio::ANCHO_PANTALLA));
     if(tramo < 0){
@@ -61,7 +63,7 @@ VistaJuego::VistaJuego(Juego* juego, QWidget* parent)
     try {
         cargarRecursosSonido();
     } catch (...) {
-        delete panel;
+        delete panel;   // el destructor no se ejecuta si el constructor lanza
         throw;
     }
 }
@@ -80,30 +82,30 @@ void VistaJuego::iniciar(){
 void VistaJuego:: detener(){
     temporizador.stop();
 }
+
+// Un ciclo del juego: logica, dibujo, sonido y comprobacion de fin
 void VistaJuego::ciclo(){
-    // 1. Tiempo
+    // Tiempo real desde el ciclo anterior, con tope para que un congelamiento no haga saltar la fisica
     double dt = reloj.restart() / 1000.0;
     if(dt > 0.05){
         dt = 0.05;
     }
 
-    // 2. Lógica
     juego->actualizar(dt);
 
-    // 3. Dibujo
     sincronizarSprites(dt);
     panel->actualizar(*juego);
 
-    // 4. Sonido
     reproducirEventos(juego->tomarEventos());
 
-    // 5. Fin del nivel
     EstadoJuego estado = juego->getEstado();
     if(estado == EstadoJuego::GANADO || estado == EstadoJuego::PERDIDO){
         detener();
         emit nivelTerminado(estado == EstadoJuego::GANADO);
     }
 }
+
+// isAutoRepeat: se ignora la repeticion automatica al mantener una tecla pulsada
 void VistaJuego::keyPressEvent(QKeyEvent* evento){
     if(evento->isAutoRepeat()){
         return;
@@ -163,7 +165,6 @@ void VistaJuego::keyReleaseEvent(QKeyEvent* evento){
     }
 }
 
-// Quita todos los sprites de la escena (no hay nivel o se reinicia).
 void VistaJuego::limpiarSprites(){
     for(auto it = sprites.begin(); it != sprites.end(); ++it){
         escena->removeItem(it.value());
@@ -172,9 +173,9 @@ void VistaJuego::limpiarSprites(){
     sprites.clear();
 }
 
+// Crea, actualiza y elimina sprites para que coincidan con las entidades del nivel
 void VistaJuego::sincronizarSprites(double dt){
     Nivel* nive = juego->getNivel();
-
 
     if(nive == nullptr){
         limpiarSprites();
@@ -183,16 +184,15 @@ void VistaJuego::sincronizarSprites(double dt){
 
     QSet<Entidad*> vivos;
     for(Entidad* e : nive->obtenerEntidadesDibujables()){
-        // el monstruo muriendo ya no esta "vivo", pero se sigue dibujando para ver su animacion de muerte
+        // El monstruo muriendo ya no esta "vivo", pero se sigue dibujando para ver su animacion de muerte
         if(e->estaViva() || e->getEstadoVisual() == EstadoVisual::MURIENDO){
             vivos.insert(e);
         }
     }
 
-
     for(auto it = sprites.begin(); it != sprites.end(); ){
         Entidad* dueno = it.key();
-        // tambien se descarta si otro objeto nuevo ocupo la misma direccion de memoria (tipo distinto)
+        // Tambien se descarta si un objeto nuevo de otro tipo ocupo la misma direccion de memoria
         const bool sigue = vivos.contains(dueno) && it.value()->getTipo() == dueno->getTipoSprite();
         if(!sigue){
             escena->removeItem(it.value());
@@ -211,12 +211,13 @@ void VistaJuego::sincronizarSprites(double dt){
             escena->addItem(nuevo);
             sprites.insert(e, nuevo);
         }
-        // primero la animacion y luego la posicion (la escala depende del fotograma)
+        // Primero la animacion y luego la posicion: la escala depende del fotograma mostrado
         sprites[e]->actualizarAnimacion(dt, e->getEstadoVisual(), e->miraDerecha());
-        // el sprite se escala con el alto "de pie" y se apoya en los pies de la caja (importa con Rei agachada)
+        // El sprite se escala con el alto "de pie" y se apoya en los pies de la caja (importa con Rei agachada)
         const double altoVisual = e->getAltoVisual();
         double yVisual = e->getY() + e->getAlto() - altoVisual;
 
+        // Ajuste manual de la posicion vertical de la animacion de explosion
         if(e->getTipoSprite() == TipoSprite::BOMBA &&
             e->getEstadoVisual() == EstadoVisual::EXPLOTANDO){
             yVisual += 140.0;
@@ -229,6 +230,8 @@ void VistaJuego::sincronizarSprites(double dt){
     actualizarMeta(camaraX);
 }
 
+// Dos fondos pegados que se desplazan con la camara: el segundo entra por la derecha.
+// Las imagenes solo se cambian al pasar a otro tramo de pantalla.
 void VistaJuego::actualizarFondo(double camaraX){
     if(fondo == nullptr || fondo2 == nullptr){
         return;
@@ -236,7 +239,6 @@ void VistaJuego::actualizarFondo(double camaraX){
     const double W = Tamanio::ANCHO_PANTALLA;
     const int tramo = static_cast<int>(camaraX / W);
 
-    // Solo se cambia el pixmap al entrar a otra pantalla, no en cada ciclo
     if(!fondosNivel2.isEmpty() && tramo != tramoFondo){
         tramoFondo = tramo;
         fondo->setPixmap(fondosNivel2[indiceFondoNivel2(tramo)]);
@@ -248,7 +250,7 @@ void VistaJuego::actualizarFondo(double camaraX){
     fondo2->setPos(W - desplazamiento, 0);
 }
 
-// La meta del nivel 2 no tenia ninguna imagen: el jugador no sabia a donde ir.
+// La meta no es una entidad: es una imagen fija en el mundo que se mueve con la camara
 void VistaJuego::actualizarMeta(double camaraX){
     if(meta != nullptr && meta->isVisible()){
         meta->setPos(Nivel2Mundo::META_X - camaraX, Nivel2Mundo::Y_SUELO - Tamanio::META_ALTO);
@@ -272,7 +274,7 @@ void VistaJuego::cargarFondo(int numNivel){
         throw std::invalid_argument("cargarFondo: nivel no valido");
     }
 
-    tramoFondo = -1;    // fuerza a actualizarFondo a poner las imagenes
+    tramoFondo = -1;   // fuerza a actualizarFondo a poner las imagenes
     if(fondo == nullptr){
         fondo = escena->addPixmap(primero);
         fondo->setZValue(-10);
@@ -285,10 +287,10 @@ void VistaJuego::cargarFondo(int numNivel){
         fondo->setPixmap(primero);
         fondo2->setPixmap(primero);
     }
-    fondo2->setVisible(numNivel == 2);
+    fondo2->setVisible(numNivel == 2);   // el nivel 1 es una sola pantalla fija
     actualizarFondo(0.0);
 
-    // Bandera de meta (solo nivel 2): esta parte queda igual que la tenias
+    // La meta solo existe en el nivel 2
     if(numNivel == 2){
         if(meta == nullptr){
             const QString ruta = QString(Rutas::CARPETA_SPRITES) + "meta" + Rutas::EXTENSION_SPRITES;
@@ -308,8 +310,8 @@ void VistaJuego::cargarFondo(int numNivel){
     }
 }
 
+// Verifica que todos los archivos de sonido existan; tipos[i] se asocia con rutas[i]
 void VistaJuego::cargarRecursosSonido(){
-    //  MUSICAS
     const char* musicas[] = {
         Rutas::MUSICA_MENU,
         Rutas::MUSICA_PAUSA,
@@ -322,7 +324,6 @@ void VistaJuego::cargarRecursosSonido(){
         }
     }
 
-    // EFECTOS
     const TipoEvento tipos[] = {
         TipoEvento::DISPARO_REI,
         TipoEvento::BOMBA_CAE,
@@ -352,6 +353,7 @@ void VistaJuego::cargarRecursosSonido(){
 }
 void VistaJuego::reproducirMusica(IdMusica id){
 
+    // Si esa pista ya esta sonando no se reinicia
     if(id == pistaActual && musica->playbackState() == QMediaPlayer::PlayingState){
         return;
     }
@@ -419,8 +421,9 @@ void VistaJuego::reproducirEventos(const vector<TipoEvento>& eventos){
         }
     }
 }
+
+// Aplica el mismo volumen (entre 0 y 1) a la musica y a todos los efectos
 void VistaJuego::setVolumen(double v) {
-    // 1. Asegura que v este estrictamente entre 0.0 y 1.0
     if (v < 0.0){
         v = 0.0;
     }
@@ -428,17 +431,17 @@ void VistaJuego::setVolumen(double v) {
         v = 1.0;
     }
     volumen = v;
-    // 2. Ajusta la musica a traves de su salida de audio
     if (salidaAudio != nullptr) {
         salidaAudio->setVolume(static_cast<float>(volumen));
     }
-    // 3. Ajusta cada efecto de sonido cargado
     for (auto* efecto : as_const(efectos)) {
         if (efecto != nullptr) {
             efecto->setVolume(volumen);
         }
     }
 }
+
+// Ajusta la escena logica (1920x1080) al tamaño de la ventana manteniendo la proporcion
 void VistaJuego::ajustarEscala() {
     fitInView(0, 0, Tamanio::ANCHO_PANTALLA, Tamanio::ALTO_PANTALLA, Qt::KeepAspectRatio);
 }

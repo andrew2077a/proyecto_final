@@ -19,6 +19,7 @@ void Fisica::setPosicionInicial(double x0, double y0) {
     reiniciar();
 }
 
+// Vuelve al punto de partida y pone el tiempo en cero
 void Fisica::reiniciar() {
     t = 0.0;
     x = x0;

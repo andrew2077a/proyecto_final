@@ -10,35 +10,56 @@ struct ParamsComunes;
 struct ParamsNivel1;
 
 enum class Tecla { IZQUIERDA, DERECHA, SALTAR, DISPARAR, AGACHARSE };
+// MECHA: nivel 1 (dispara). SOLDADO: nivel 2 (no dispara).
 enum class ModoRei{ MECHA , SOLDADO };
+
+// Personaje del jugador
 class Rei : public Entidad{
 private:
     int danioBase;
-
     ModoRei modo;
+
+    // Vida
     int vida;
-    double velocidadBase;
     int vidaMax;
-    int direccion;
+    double tiempoInvulnerable;        // restante tras recibir daño
+    double duracionInvulnerabilidad;
+
+    // Movimiento y entrada
+    double velocidadBase;
+    int direccion;                    // -1 izquierda, 1 derecha (ultima direccion usada)
     bool izquierdaPresionada;
     bool derechaPresionada;
     bool disparando;
     bool saltoSolicitado;
+
+    // Agacharse: la caja baja de alto pero los pies siguen en el suelo
     bool agachadaPresionada;
     bool agachada;
-    double altoDePie;
+    double altoDePie;                 // alto original, para volver a levantarse
+
+    // Salto y caida
     bool enSuelo;
-    MovParabolico* salto;
-    OndaEmpuje* empuje;
+    MovParabolico* salto;             // fisica activa mientras esta en el aire
+    double velocidadSalto;
+    double anguloSalto;
+    double gravedad;
+
+    // Empuje de las bombas del nivel 2
+    OndaEmpuje* empuje;               // Rei es su dueña y la libera al terminar
+
+    // Disparo y calor (nivel 1)
     double calor;
     double calorMax;
     double calorPorDisparo;
     bool bloqueadaPorCalor;
     double tiempoBloqueoCalor;
-    double tiempoBloqueoGolpe;
-    double tiempoInvulnerable;
-    double cadenciaBase;
+    double tiempoRecargaCalor;
+    double tiempoBloqueoGolpe;        // tiempo sin poder disparar tras un golpe
+    double cadenciaBase;              // segundos entre disparos
     double cooldownDisparo;
+
+    // Items
     bool bateriaActiva;
     double tiempoBateria;
     double multCadenciaBateria;
@@ -46,11 +67,8 @@ private:
     bool escudoActivo;
     double tiempoEscudo;
     double multVelocidadEscudo;
-    double velocidadSalto;
-    double anguloSalto;
-    double gravedad;
-    double duracionInvulnerabilidad;
-    double tiempoRecargaCalor;
+
+    // Temporizadores de las animaciones de disparo y daño
     double tiempoDisparoVisual;
     double tiempoDanioVisual;
 public:

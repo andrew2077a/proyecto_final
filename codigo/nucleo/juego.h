@@ -3,13 +3,19 @@
 #include "nucleo/nivel.h"
 
 enum class EstadoJuego {MENU , JUGANDO, PAUSA, GANADO , PERDIDO};
+
+// Controla la partida: crea y destruye el nivel, lo avanza en cada ciclo y
+// recibe el teclado. Es la capa logica: no depende de Qt.
 class Juego{
 private:
     EstadoJuego estado;
-    Nivel* nivelActual;
+    Nivel* nivelActual;   // Juego es su dueño; nullptr si no hay partida en curso
     int numNivel;
     ModoDificultad dificultad;
     void terminarNivel(bool gano);
+
+    // Al terminar el nivel se espera esperaFin segundos (para ver la animacion
+    // final) antes de cambiar de estado
     bool finPendiente;
     bool ganoPendiente;
     double esperaFin;

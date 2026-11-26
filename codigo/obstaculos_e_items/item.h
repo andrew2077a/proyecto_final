@@ -4,11 +4,11 @@
 #include "entidades/entidad.h"
 enum class TipoItem { BATERIA, GASEOSA };
 
-class Item : public Entidad
-{
+// Objeto que Rei recoge al tocarlo para obtener un efecto temporal
+class Item : public Entidad{
 private:
     TipoItem tipo;
-    double duracion;
+    double duracion;       // segundos que dura el efecto
     double multCadencia;
     double multVelocidad;
     bool recogido;

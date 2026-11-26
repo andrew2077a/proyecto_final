@@ -6,21 +6,20 @@
 #include "nucleo/juego.h"
 #include "interfaz_grafica/vistaJuego.h"
 
-
 class QWidget;
 class QResizeEvent;
 class QKeyEvent;
 
+// Ventana principal: maneja la navegacion entre pantallas (menus, juego, pausa, fin)
 class Menu : public QWidget {
     Q_OBJECT
 
 private:
-    QStackedWidget* pantallas;
+    QStackedWidget* pantallas;   // muestra una sola pantalla a la vez
     ModoDificultad modo;
-    int ultimoNivel;
-    Juego* juego;
-    VistaJuego* vista;
-
+    int ultimoNivel;             // para poder reiniciar
+    Juego* juego;                // Menu es su dueño (no es QObject, se libera a mano)
+    VistaJuego* vista;           // hija de Menu: Qt la libera
 
     QWidget* paginaDificultad;
     QWidget* paginaNiveles;
@@ -28,15 +27,12 @@ private:
     QWidget* paginaGanado;
     QWidget* paginaPerdido;
 
-
-    void construirPaginas();   // crea las 5 páginas con sus botones
-    void conectarSenales();    // conecta las señales de VistaJuego
-    void mostrarJuego();       // muestra la vista del juego y ajusta su escala
+    void construirPaginas();
+    void conectarSenales();
+    void mostrarJuego();
 
 protected:
-
     void resizeEvent(QResizeEvent* evento) override;
-
     void keyPressEvent(QKeyEvent* evento) override;
 
 public:

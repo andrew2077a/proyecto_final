@@ -8,21 +8,22 @@
 #include <QSizeF>
 #include "entidades/entidad.h"
 
-
+// Imagen animada de una entidad. No guarda logica del juego: solo muestra
+// el fotograma que corresponde al estado visual que le pide la entidad.
 class SpriteEntidad : public QGraphicsPixmapItem{
 private:
     TipoSprite tipoSprite;
-    Entidad* clave;
-    EstadoVisual estadoActual;     // estado que se muestra ahora
-    int fotogramaActual;           // indice del fotograma mostrado
+    Entidad* clave;                // entidad a la que representa
+    EstadoVisual estadoActual;
+    int fotogramaActual;
     double tiempoFotograma;        // tiempo acumulado en el fotograma actual
-    bool mirandoDerecha;           // sentido pedido por la logica
-    int llaveMostrada;
+    bool mirandoDerecha;
+    int llaveMostrada;             // ultima imagen puesta, para no repetir setPixmap
     int indiceMostrado;
-    QPixmap repetido;
+    QPixmap repetido;              // imagen ya compuesta (solo para las puas)
     QSizeF tamanioRepetido;
 
-    // Lista de fotogramas por tipo, estado y sentido (0 = como viene dibujado, 1 = espejado)
+    // Fotogramas de cada tipo, estado y sentido (normal o espejado); compartida entre todos los sprites
     static QHash<int, QVector<QPixmap>> cache;
 
     void mostrarFotograma();
