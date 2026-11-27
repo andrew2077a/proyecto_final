@@ -12,7 +12,7 @@ enum class TipoSprite { REI_MECHA, REI_SOLDADO, MONSTRUO, CAMION, PROYECTIL_REI,
                         PROYECTIL_MONSTRUO, ONDULATORIO, PUA, BOMBA, BLOQUE,
                         FOSA, PUAS, BATERIA, GASEOSA, META };
 
-// Clase base de todo lo que existe en el nivel (logica, sin nada de Qt)
+// Clase base de todo lo que existe en el nivel
 class Entidad{
 protected:
     double x;       // esquina superior izquierda de la caja de colision
@@ -43,10 +43,10 @@ public:
     Fisica* getFisica() const;
 
     // Datos para dibujar; las clases hijas los sobrescriben si les hace falta
-    virtual EstadoVisual getEstadoVisual() const { return EstadoVisual::QUIETO; }
-    virtual bool miraDerecha() const { return true; }
-    virtual double getRotacion() const { return 0.0; }   // grados
-    virtual double getAltoVisual() const { return alto; }
+    virtual EstadoVisual getEstadoVisual() const;
+    virtual bool miraDerecha() const;
+    virtual double getRotacion() const;
+    virtual double getAltoVisual() const;
 };
 
 #endif // ENTIDAD_H

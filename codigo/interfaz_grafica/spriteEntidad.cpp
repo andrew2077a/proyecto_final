@@ -157,8 +157,7 @@ void SpriteEntidad::cargarImagen(TipoSprite tipo, EstadoVisual estado){
         return;
     }
 
-    QString ruta = QString(Rutas::CARPETA_SPRITES) + nombreDe(tipo)
-                   + nombreEstadoDe(estado) + Rutas::EXTENSION_SPRITES;
+    QString ruta = QString(Rutas::CARPETA_SPRITES) + nombreDe(tipo)+ nombreEstadoDe(estado) + Rutas::EXTENSION_SPRITES;
 
     // Si la tira de este estado no existe se usa la de QUIETO, asi se pueden ir agregando animaciones de a una
     if(estado != EstadoVisual::QUIETO && !QFile::exists(ruta)){

@@ -4,7 +4,7 @@
 #include "nucleo/nivel1.h"
 class Proyectil;
 
-// Tarea 3 del agente: convierte la decision en un disparo.
+// Tarea 4 del agente: convierte la decision en un disparo.
 class Accion
 {
 private:

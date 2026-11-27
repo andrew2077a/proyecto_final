@@ -10,7 +10,8 @@
 #include <QFrame>
 #include <QPixmap>
 #include <QPainter>
-#include <QPaintEvent>
+#include <QEvent>
+#include <QVariant>
 #include <QFont>
 #include <QMessageBox>
 #include <QTimer>
@@ -25,27 +26,6 @@ const char* ESTILO_BOTON =
     "QPushButton { background-color: rgba(10, 52, 54, 230); color: #BFF7E0; border: 3px solid #BFF7E0; border-radius: 12px; padding: 6px 18px; }"
     "QPushButton:hover { background-color: #BFF7E0; color: #08302F; }"
     "QPushButton:pressed { background-color: #7FD9B8; color: #08302F; border-color: #7FD9B8; }";
-
-// Pagina con imagen de fondo que cubre toda la ventana sin deformarse (recorta lo que sobra)
-class PaginaConFondo : public QWidget {
-public:
-    PaginaConFondo(const QPixmap& fondo, QWidget* padre) : QWidget(padre), imagen(fondo) {}
-
-protected:
-    void paintEvent(QPaintEvent*) override {
-        QPainter pintor(this);
-        pintor.setRenderHint(QPainter::SmoothPixmapTransform);
-        pintor.fillRect(rect(), Qt::black);
-
-        const QSize destino = imagen.size().scaled(size(), Qt::KeepAspectRatioByExpanding);
-        QRect zona(QPoint(0, 0), destino);
-        zona.moveCenter(rect().center());
-        pintor.drawPixmap(zona, imagen);
-    }
-
-private:
-    QPixmap imagen;
-};
 
 struct Pagina {
     QWidget* widget;          // la pagina completa (se agrega al QStackedWidget)
@@ -71,7 +51,8 @@ QLabel* crearEtiqueta(QWidget* padre, const QString& texto, int puntos, const QS
 // Crea una pagina con una tarjeta (a la izquierda o a la derecha) donde van titulo y botones
 Pagina crearPagina(QWidget* padre, const QPixmap& fondo, bool alaIzquierda,
                    const QString& titulo, const QString& encabezado) {
-    PaginaConFondo* pagina = new PaginaConFondo(fondo, padre);
+    QWidget* pagina = new QWidget(padre);
+    pagina->setProperty("fondoPagina", QVariant::fromValue(fondo));
 
     QHBoxLayout* externo = new QHBoxLayout(pagina);
     externo->setContentsMargins(100, 60, 100, 60);
@@ -234,6 +215,13 @@ void Menu::construirPaginas() {
     connect(bReiniciarD, &QPushButton::clicked, this, &Menu::alReiniciar);
     connect(bMenuD,      &QPushButton::clicked, this, &Menu::alVolverAlMenu);
     pantallas->addWidget(paginaPerdido);
+
+    QWidget* const paginas[] = {
+        paginaDificultad, paginaNiveles, paginaPausa, paginaGanado, paginaPerdido
+    };
+    for (QWidget* pagina : paginas) {
+        pagina->installEventFilter(this);
+    }
 }
 
 void Menu::conectarSenales() {
@@ -269,6 +257,32 @@ void Menu::mostrarFin(bool gano) {
 void Menu::mostrarJuego() {
     pantallas->setCurrentWidget(vista);
     QTimer::singleShot(0, vista, &VistaJuego::ajustarEscala);
+}
+
+bool Menu::eventFilter(QObject* objeto, QEvent* evento) {
+    if (evento->type() != QEvent::Paint) {
+        return QWidget::eventFilter(objeto, evento);
+    }
+
+    auto* pagina = qobject_cast<QWidget*>(objeto);
+    if (pagina == nullptr) {
+        return QWidget::eventFilter(objeto, evento);
+    }
+
+    const QPixmap fondo = pagina->property("fondoPagina").value<QPixmap>();
+    if (fondo.isNull()) {
+        return QWidget::eventFilter(objeto, evento);
+    }
+
+    QPainter pintor(pagina);
+    pintor.setRenderHint(QPainter::SmoothPixmapTransform);
+    pintor.fillRect(pagina->rect(), Qt::black);
+
+    const QSize destino = fondo.size().scaled(pagina->size(), Qt::KeepAspectRatioByExpanding);
+    QRect zona(QPoint(0, 0), destino);
+    zona.moveCenter(pagina->rect().center());
+    pintor.drawPixmap(zona, fondo);
+    return true;
 }
 
 void Menu::resizeEvent(QResizeEvent* evento) {

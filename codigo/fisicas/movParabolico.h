@@ -14,7 +14,7 @@ private:
     double anguloGrados;
     double g;              // gravedad
     int dirX;              // +1 derecha, -1 izquierda
-    double cosTheta;       // precalculados para no repetir trigonometria en cada frame
+    double cosTheta;
     double senTheta;
 
 public:

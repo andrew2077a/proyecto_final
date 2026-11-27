@@ -5,7 +5,7 @@
 enum class EstadoJuego {MENU , JUGANDO, PAUSA, GANADO , PERDIDO};
 
 // Controla la partida: crea y destruye el nivel, lo avanza en cada ciclo y
-// recibe el teclado. Es la capa logica: no depende de Qt.
+// recibe el teclado.
 class Juego{
 private:
     EstadoJuego estado;

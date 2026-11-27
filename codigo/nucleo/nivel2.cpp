@@ -62,8 +62,7 @@ void Nivel2:: iniciar(){
     if(rei!=nullptr){
         delete rei;
     }
-    rei=new Rei(ModoRei::SOLDADO,comunes,nullptr,Nivel2Mundo::REI_INICIO_X,
-                  Nivel2Mundo::Y_SUELO-Tamanio::REI_SOLDADO_ALTO);
+    rei=new Rei(ModoRei::SOLDADO,comunes,nullptr,Nivel2Mundo::REI_INICIO_X,Nivel2Mundo::Y_SUELO-Tamanio::REI_SOLDADO_ALTO);
     construirMundo();
 }
 
@@ -99,8 +98,7 @@ void Nivel2::construirMundo(){
         }
         else if(tipo=="PUAS"){
             flujoLinea>>x>>y;
-            agregarObstaculo(new Obstaculo(TipoSprite::PUAS,x,y,Tamanio::PUAS_ANCHO,
-                                           Tamanio::PUAS_ALTO,params.esperaPuas));
+            agregarObstaculo(new Obstaculo(TipoSprite::PUAS,x,y,Tamanio::PUAS_ANCHO,Tamanio::PUAS_ALTO,params.esperaPuas));
         }
         else if(tipo=="CAMION"){
             flujoLinea>>x>>y>>izq>>der;

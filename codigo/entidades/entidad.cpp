@@ -9,7 +9,7 @@ Entidad::~Entidad(){
 }
 
 // Por defecto una entidad no recibe daño
-bool Entidad::recibirDanio(int n){
+bool Entidad::recibirDanio(int ){
     return false;
 }
 
@@ -22,7 +22,7 @@ bool Entidad::estaViva() const{
 }
 
 // Por defecto no pasa nada al tocar a Rei
-void Entidad::alTocarRei(Rei& rei, int danio){
+void Entidad::alTocarRei(Rei& , int ){
 }
 
 // Colision entre rectangulos (AABB): se solapan en x y en y a la vez
@@ -65,4 +65,16 @@ TipoSprite Entidad::getTipoSprite() const{
 }
 Fisica* Entidad::getFisica() const{
     return this->fisica;
+}
+EstadoVisual Entidad::getEstadoVisual() const {
+    return EstadoVisual::QUIETO;
+}
+bool Entidad::miraDerecha() const {
+    return true;
+}
+double Entidad::getRotacion() const {
+    return 0.0;
+}
+double Entidad::getAltoVisual() const {
+    return alto;
 }

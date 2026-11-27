@@ -8,7 +8,7 @@
 #include <QSizeF>
 #include "entidades/entidad.h"
 
-// Imagen animada de una entidad. No guarda logica del juego: solo muestra
+// Imagen animada de una entidad. solo muestra
 // el fotograma que corresponde al estado visual que le pide la entidad.
 class SpriteEntidad : public QGraphicsPixmapItem{
 private:

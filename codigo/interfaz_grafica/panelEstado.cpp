@@ -105,8 +105,7 @@ QGraphicsTextItem* crearTexto(QGraphicsScene* escena, const QString& texto, int 
 }
 
 QGraphicsRectItem* crearMarco(QGraphicsScene* escena, double x, double y, double ancho, double alto) {
-    QGraphicsRectItem* marco = escena->addRect(x - 3, y - 3, ancho + 6, alto + 6,
-                                               QPen(COLOR_BORDE, 2), QBrush(QColor(0, 0, 0, 190)));
+    QGraphicsRectItem* marco = escena->addRect(x - 3, y - 3, ancho + 6, alto + 6, QPen(COLOR_BORDE, 2), QBrush(QColor(0, 0, 0, 190)));
     marco->setZValue(CAPA_HUD);
     return marco;
 }

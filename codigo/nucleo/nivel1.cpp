@@ -11,6 +11,7 @@ Nivel1::Nivel1(ModoDificultad modo)
     intervaloCamiones(0.0), velocidadCamiones(0.0), temporizadorBateria(0.0)
 {
     srand(time(0));
+    proyectiles.reserve(64);
     cargarParametros();
     intervaloCamiones = params.intervaloCamionInicial;
     velocidadCamiones = params.velocidadCamionInicial;
@@ -108,8 +109,7 @@ void Nivel1::cargarParametros() {
 }
 void Nivel1::iniciar(){
     rei = new Rei(ModoRei::MECHA, comunes, &params, Nivel1Init::REI_INICIO_X, Nivel1Init::REI_INICIO_Y);
-    monstruo = new Monstruo(Nivel1Init::MONSTRUO_INICIO_X, Nivel1Init::MONSTRUO_INICIO_Y,
-                            params, comunes.gravedad);
+    monstruo = new Monstruo(Nivel1Init::MONSTRUO_INICIO_X, Nivel1Init::MONSTRUO_INICIO_Y,params, comunes.gravedad);
 }
 
 void Nivel1::actualizar(double dt){

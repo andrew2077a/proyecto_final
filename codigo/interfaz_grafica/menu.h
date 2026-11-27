@@ -32,6 +32,7 @@ private:
     void mostrarJuego();
 
 protected:
+    bool eventFilter(QObject* objeto, QEvent* evento) override;
     void resizeEvent(QResizeEvent* evento) override;
     void keyPressEvent(QKeyEvent* evento) override;
 

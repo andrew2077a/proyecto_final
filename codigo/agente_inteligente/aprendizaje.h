@@ -1,7 +1,7 @@
 #ifndef APRENDIZAJE_H
 #define APRENDIZAJE_H
 
-// Tarea 4 del agente: la memoria (visitas y aciertos por zona).
+// Tarea 2 del agente: la memoria (visitas y aciertos por zona).
 class Aprendizaje
 {
 private:
@@ -15,10 +15,6 @@ private:
 public:
     Aprendizaje(int numZonas, double factorOlvido);
     ~Aprendizaje();
-
-    // Arreglos propios
-    Aprendizaje(const Aprendizaje&) = delete;
-    Aprendizaje& operator=(const Aprendizaje&) = delete;
 
     void registrar(int zona);
     void registrarResultado(int zona, bool acierto);

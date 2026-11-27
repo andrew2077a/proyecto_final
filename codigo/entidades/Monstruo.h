@@ -14,8 +14,7 @@ class Rei;
 
 // Enemigo del nivel 1 y agente inteligente: coordina las cuatro tareas
 // (percibir, aprender, razonar y actuar), cada una en su propia clase.
-class Monstruo : public Entidad
-{
+class Monstruo : public Entidad{
 private:
     Percepcion* percepcion;
     Razonamiento* razonamiento;

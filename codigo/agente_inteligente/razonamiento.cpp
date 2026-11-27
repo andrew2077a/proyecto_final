@@ -1,15 +1,8 @@
 #include "razonamiento.h"
 #include "aprendizaje.h"
-#include <random>
+#include <cstdlib>
+#include <ctime>
 #include <stdexcept>
-
-namespace {
-// Un solo generador para todo el programa
-std::mt19937& generador() {
-    static std::mt19937 gen{std::random_device{}()};
-    return gen;
-}
-}
 
 Razonamiento::Razonamiento(int numZonas, double suavizadoMin)
     : numZonas(numZonas), probabilidades(nullptr), suavizadoMin(suavizadoMin)
@@ -20,6 +13,9 @@ Razonamiento::Razonamiento(int numZonas, double suavizadoMin)
     if (suavizadoMin < 0.0 || suavizadoMin > 1.0) {
         throw std::invalid_argument("Razonamiento: suavizado minimo debe estar entre 0 y 1");
     }
+
+    std::srand(static_cast<unsigned>(std::time(nullptr)));
+
     probabilidades = new double[numZonas];
     // Sin historial todas las zonas son igual de probables
     for (int i = 0; i < numZonas; ++i) {
@@ -66,8 +62,7 @@ void Razonamiento::suavizar() {
 
 // Ruleta: sortea r y recorre las probabilidades acumuladas
 int Razonamiento::decidir() const {
-    std::uniform_real_distribution<double> dist(0.0, 1.0);
-    const double r = dist(generador());
+    const double r = std::rand() / (static_cast<double>(RAND_MAX) + 1.0);
 
     double acumulada = 0.0;
     for (int i = 0; i < numZonas; ++i) {

@@ -5,7 +5,6 @@
 
 class Monstruo;
 
-// Parametros del nivel 1. Se llenan segun la dificultad en Nivel1::cargarParametros().
 // Los tiempos estan en segundos.
 struct ParamsNivel1{
     // Monstruo

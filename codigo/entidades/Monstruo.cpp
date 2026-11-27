@@ -8,7 +8,7 @@
 #include "fisicas/movOndulatorio.h"
 #include "datos.h"
 #include <cmath>
-#include <random>
+#include <cstdlib>
 #include <stdexcept>
 
 namespace {
@@ -23,15 +23,10 @@ const double FRECUENCIA_ONDULATORIO = 2.0 * PI / 1.5;   // una oscilacion cada 1
 const double VX_ESTALLIDO = 350.0;       // px/s hacia la izquierda
 const double X_EXPLOSION = Tamanio::ANCHO_PANTALLA / 2.0;   // a mitad de pantalla
 
-std::mt19937& generador() {
-    static std::mt19937 gen{std::random_device{}()};
-    return gen;
-}
-
 // Entero aleatorio en [a, b]
 int aleatorio(int a, int b) {
     if (b <= a) return a;
-    return std::uniform_int_distribution<int>(a, b)(generador());
+    return a + std::rand() % (b - a + 1);
 }
 
 // Ya se cumplio el intervalo (con margen por los decimales acumulados)
@@ -43,7 +38,7 @@ bool cumplido(double transcurrido, double intervalo) {
 Monstruo::Monstruo(double x, double y, const ParamsNivel1& p1, double gravedad)
     : Entidad(x, y, Tamanio::MONSTRUO_ANCHO, Tamanio::MONSTRUO_ALTO, TipoSprite::MONSTRUO),
     percepcion(nullptr), razonamiento(nullptr), accion(nullptr), aprendizaje(nullptr),
-    ultimaZona(-1), vida(p1.vidaMonstruo), params(&p1), fase(1), vidaMax(p1.vidaMonstruo),
+    ultimaZona(-1), vida(p1.vidaMonstruo), vidaMax(p1.vidaMonstruo), params(&p1), fase(1),
     temporizadorAtaque(0.0), temporizadorOndulatorio(0.0), temporizadorEstallido(0.0),
     cargando(false), tiempoCarga(0.0), inicioCargaPendiente(false),
     ataquesCombinadosPendientes(0), escudoActivo(false), tiempoEscudo(0.0), escudosUsados(0)

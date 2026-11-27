@@ -1,15 +1,13 @@
 #ifndef DATOS_H
 #define DATOS_H
 namespace Tamanio {
-// Rei
-// CAMBIO: tamaños reducidos (ajusta probando)
 constexpr double REI_MECHA_ANCHO = 100;
 constexpr double REI_MECHA_ALTO = 200;
 constexpr double REI_SOLDADO_ANCHO = 100;
 constexpr double REI_SOLDADO_ALTO = 160;
 
-constexpr double MONSTRUO_ANCHO = 384;      // proporción 3:5
-constexpr double MONSTRUO_ALTO = 640;       // y = 900 - 640 = 260, se ve completo
+constexpr double MONSTRUO_ANCHO = 384;
+constexpr double MONSTRUO_ALTO = 640;
 
 constexpr double CAMION_ANCHO = 240;
 constexpr double CAMION_ALTO = 120;
@@ -25,25 +23,25 @@ constexpr double PUA_ALTO = 30;
 constexpr double BALA_LATERAL_ANCHO = 60;
 constexpr double BALA_LATERAL_ALTO = 22;
 constexpr double BOMBA_ANCHO = 60;
-constexpr double BOMBA_ALTO = 90;      // CAMBIO: antes 60
+constexpr double BOMBA_ALTO = 90;
 
 // Obstaculos (bloque y fosa varian por pieza; estos son valores base)
-constexpr double BLOQUE_ANCHO = 400;        // CAMBIO: antes 200
-constexpr double BLOQUE_ALTO = 240;         // CAMBIO: antes 120
-constexpr double FOSA_ANCHO = 600;          // CAMBIO: antes 300
-constexpr double FOSA_ALTO = 360;           // CAMBIO: antes 180
-constexpr double PUAS_ANCHO = 240;          // CAMBIO: antes 120
-constexpr double PUAS_ALTO = 60;            // CAMBIO: antes 30
+constexpr double BLOQUE_ANCHO = 400;
+constexpr double BLOQUE_ALTO = 240;
+constexpr double FOSA_ANCHO = 600;
+constexpr double FOSA_ALTO = 360;
+constexpr double PUAS_ANCHO = 240;
+constexpr double PUAS_ALTO = 60;
 
 // Items
-constexpr double BATERIA_ANCHO = 80;        // CAMBIO: antes 40
-constexpr double BATERIA_ALTO = 120;        // CAMBIO: antes 60
-constexpr double GASEOSA_ANCHO = 80;        // CAMBIO: antes 40
-constexpr double GASEOSA_ALTO = 140;        // CAMBIO: antes 70
+constexpr double BATERIA_ANCHO = 80;
+constexpr double BATERIA_ALTO = 120;
+constexpr double GASEOSA_ANCHO = 80;
+constexpr double GASEOSA_ALTO = 140;
 
 // Meta
-constexpr double META_ANCHO = 160;          // CAMBIO: antes 80
-constexpr double META_ALTO = 400;           // CAMBIO: antes 200
+constexpr double META_ANCHO = 160;
+constexpr double META_ALTO = 400;
 
 // Pantalla logica
 constexpr double ANCHO_PANTALLA = 1920;
@@ -75,7 +73,7 @@ constexpr double ANGULO_SALTO = 60;
 
 // Agacharse (tecla S): la caja de colision baja a este porcentaje y los pies siguen en el suelo
 namespace Agachado {
-constexpr double FACTOR_ALTO = 0.60;        // alto agachada / alto de pie (los sprites *_agachado.png miden eso)
+constexpr double FACTOR_ALTO = 0.60;
 constexpr double FACTOR_VELOCIDAD = 0.40;   // agachada camina al 40 % de la velocidad
 }
 
@@ -85,15 +83,10 @@ constexpr double DURACION_DANIO_VISUAL = 0.42;
 constexpr double DURACION_EXPLOSION_VISUAL = 0.36;
 }
 namespace Rutas {
-// CAMBIO: rutas = prefijo del .qrc + carpeta + archivo
 constexpr const char* CARPETA_SPRITES = ":/sprites/sprites/";
 constexpr const char* EXTENSION_SPRITES = ".png";
-
 constexpr const char* ARCHIVO_NIVEL2 = ":/maps/mundo.txt";
-
-// CAMBIO: los fondos son .jpg y están en :/fondos/fondos/
 constexpr const char* ARCHIVO_FONDO_NIVEL1 = ":/fondos/fondos/fondo.nivel1.jpg";
-
 constexpr int NUM_FONDOS_NIVEL2 = 8;
 constexpr const char* FONDOS_NIVEL2[NUM_FONDOS_NIVEL2] = {
     ":/fondos/fondos/fondo-nivel2-1.jpg",
@@ -110,7 +103,6 @@ constexpr const char* ARCHIVO_FONDO_PAUSA = ":/fondos/fondos/fondo-pausa.jpg";
 constexpr const char* ARCHIVO_FONDO_GANADO = ":/fondos/fondos/fondo-ganaste.jpg";
 constexpr const char* ARCHIVO_FONDO_PERDIDO = ":/fondos/fondos/fondo-perdiste.jpg";
 
-// CAMBIO: música y sonidos en :/musica-sonidos/musica-sonidos/ (con los nombres ya renombrados)
 constexpr const char* MUSICA_MENU = ":/musica-sonidos/musica-sonidos/menu.mp3";
 constexpr const char* MUSICA_PAUSA = ":/musica-sonidos/musica-sonidos/pausa.mp3";
 constexpr const char* MUSICA_NIVEL1 = ":/musica-sonidos/musica-sonidos/nivel1.mp3";
@@ -126,10 +118,10 @@ constexpr const char* SONIDO_ITEM = ":/musica-sonidos/musica-sonidos/item.wav";
 namespace Nivel2Mundo {
 constexpr double REI_INICIO_X = 100;
 constexpr double Y_SUELO = 900;
-constexpr double ANCHO_MUNDO = 15360;        // 8 pantallas de 1920
+constexpr double ANCHO_MUNDO = 15360;
 constexpr double META_X = ANCHO_MUNDO - Tamanio::META_ANCHO - 100;
-constexpr double MARGEN_APARICION_BALA = 100;    // px a la izquierda de la camara
-constexpr double ALTURA_APARICION_BOMBA = -200;  // y por encima de la pantalla
+constexpr double MARGEN_APARICION_BALA = 100;
+constexpr double ALTURA_APARICION_BOMBA = -200;
 }
 
 namespace Nivel2Normal {
