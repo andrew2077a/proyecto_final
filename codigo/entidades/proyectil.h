@@ -56,7 +56,7 @@ public:
     // Estallido: se fragmenta en puas al llegar a explotaEnX
     void configurarEstallido(double xExplosion, int numPuas);
     bool debeFragmentar() const;
-    std::vector<Proyectil*> fragmentar();   // el llamador es dueño de las puas
+    std::vector<Proyectil*> fragmentar();   // el llamador es dueño de las puass
 
     // Bomba del nivel 2
     void configurarBomba(double ySuelo, double radioDanio, double radioEmpuje, double F, double k);
