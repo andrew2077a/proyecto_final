@@ -204,7 +204,13 @@ void Nivel1::procesarDisparoRei(){
 void Nivel1::procesarImpactosAlMonstruo(){
     for(Proyectil* p:proyectiles){
         if(p->getPropietario()==Propietario::REI){
-            if(p->colisionaCon(*monstruo)){
+            const double margen = (monstruo->getAncho() - 280.0) / 2.0;
+            const double izquierda = monstruo->getX() + margen;
+            const double derecha = monstruo->getX() + monstruo->getAncho() - margen;
+
+            if (p->colisionaCon(*monstruo) &&
+                p->getX() + p->getAncho() > izquierda &&
+                p->getX() < derecha) {
                 p->alImpactar(*monstruo);
                 p->desactivar();
             }

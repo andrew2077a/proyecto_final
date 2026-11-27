@@ -81,6 +81,19 @@ void Nivel::agregarItem(Item* i){
 void Nivel::detectarColisiones(){
     for(auto i: entidades){
         if(i->estaViva() && i->colisionaCon(*rei)){
+            const auto* bala = dynamic_cast<const Proyectil*>(i);
+            if (bala && bala->getTipo() == TipoProyectil::RECTO &&
+                bala->getTipoSprite() == TipoSprite::PROYECTIL_MONSTRUO) {
+                const double anchoImpacto = 21.0;
+                const double izquierda =
+                    bala->getX() + (bala->getAncho() - anchoImpacto) / 2.0;
+                const double derecha = izquierda + anchoImpacto;
+
+                if (rei->getX() + rei->getAncho() <= izquierda ||
+                    rei->getX() >= derecha) {
+                    continue;
+                }
+            }
             int vidaAntes=rei->getVidas();
             i->alTocarRei(*rei,comunes.danioBase);
             if(rei->getVidas()<vidaAntes){
